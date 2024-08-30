@@ -39,12 +39,17 @@ defmodule ArtNet.Packet.Schema do
         end
       end)
 
+    types = Enum.map(schema, fn {key, {type, _}} -> {key, type} end)
+
     quote do
       # @derive {Inspect, except: [:id, :op_code, :version]}
       defstruct unquote(struct)
 
+      @type t :: %__MODULE__{unquote_splicing(types)}
+
       def schema, do: unquote(schema)
 
+      @spec parse(binary) :: {:ok, t()} | :error
       def parse(packet) do
         ArtNet.Packet.Schema.parse(__MODULE__, packet)
       end
