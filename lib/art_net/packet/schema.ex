@@ -24,9 +24,9 @@ defmodule ArtNet.Packet.Schema do
 
   defmacro defpacket(packet_schema) do
     header_schema = [
-      id: {:binary, default: @art_net_identifier},
-      op_code: :integer,
-      version: {:integer, default: @packet_version}
+      id: {:binary, default: @art_net_identifier, size: byte_size(@art_net_identifier)},
+      op_code: {:integer, size: 16, little_endian: true},
+      version: {:integer, default: @packet_version, size: 16}
     ]
 
     schema = header_schema ++ packet_schema
@@ -40,13 +40,41 @@ defmodule ArtNet.Packet.Schema do
       end)
 
     quote do
-      @derive {Inspect, except: [:id, :op_code, :version]}
+      # @derive {Inspect, except: [:id, :op_code, :version]}
       defstruct unquote(struct)
+
+      def schema, do: unquote(schema)
+
+      def parse(packet) do
+        ArtNet.Packet.Schema.parse(__MODULE__, packet)
+      end
     end
   end
 
   @doc ~S"""
   Returns the Art-Net identifier.
   """
+  @spec art_net_identifier :: binary
   def art_net_identifier, do: @art_net_identifier
+
+  @spec parse(module, binary) :: {:ok, struct} | :error
+  def parse(module, packet) do
+    module.schema()
+    |> Enum.reduce_while({[], packet}, fn {key, key_opts}, {values, rest} ->
+      {type, opts} = key_opts
+      size = Keyword.get(opts, :size)
+
+      case ArtNet.Decoder.parse(rest, type, size) do
+        {:ok, {value, new_rest}} ->
+          {:cont, {[{key, value} | values], new_rest}}
+
+        :error ->
+          {:halt, :error}
+      end
+    end)
+    |> case do
+      {data, ""} -> {:ok, struct!(module, data)}
+      _ -> :error
+    end
+  end
 end
