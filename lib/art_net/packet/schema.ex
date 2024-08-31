@@ -1,47 +1,99 @@
 defmodule ArtNet.Packet.Schema do
-  @moduledoc """
-  This module provides the schema for Art-Net packets.
+  @struct_accumulate_attrs [
+    :artnet_fields,
+    :artnet_enforce_keys,
+    :artnet_types
+  ]
 
-  The schema is used to define the structure of Art-Net packets.
-  """
-
-  @identifier ArtNet.Packet.identifier()
-  @version ArtNet.Packet.version()
-
-  defmacro __using__(_opts \\ []) do
+  @doc false
+  defmacro __using__(_) do
     quote do
-      import ArtNet.Packet.Schema, only: [defpacket: 1]
+      import ArtNet.Packet.Schema, only: [defpacket: 2]
     end
   end
 
-  defmacro defpacket(packet_schema) do
-    header_schema = [
-      id: {:binary, default: @identifier, size: byte_size(@identifier)},
-      op_code: {:integer, size: 16, little_endian: true},
-      version: {:integer, default: @version, size: 16}
-    ]
+  @doc """
+  Defines a typed struct.
 
-    schema = header_schema ++ packet_schema
+  Inside a `defpacket` block, each field is defined through the `field/2`
+  macro.
+  """
+  defmacro defpacket(opts, do: block) do
+    ast = ArtNet.Packet.Schema.__defpacket__(block, opts)
 
-    struct =
-      Enum.map(schema, fn {key, {_type, field_opts}} ->
-        {key, Keyword.get(field_opts, :default)}
+    quote do
+      (fn -> unquote(ast) end).()
+    end
+  end
+
+  @doc false
+  def __defpacket__(block, opts) do
+    quote do
+      Enum.each(unquote(@struct_accumulate_attrs), fn attr ->
+        Module.register_attribute(__MODULE__, attr, accumulate: true)
       end)
 
-    types = Enum.map(schema, fn {key, {type, _}} -> {key, type} end)
+      import ArtNet.Packet.Schema
 
-    quote do
-      # @derive {Inspect, except: [:id, :op_code, :version]}
-      defstruct unquote(struct)
+      ArtNet.Packet.Schema.__def_header__(unquote(opts))
 
-      @type t :: %__MODULE__{unquote_splicing(types)}
+      unquote(block)
 
-      def schema, do: unquote(schema)
+      @enforce_keys @artnet_enforce_keys
+      defstruct @artnet_fields
 
-      @spec parse(binary) :: {:ok, t()} | :error
-      def parse(packet) do
-        ArtNet.Packet.parse(__MODULE__, packet)
-      end
+      ArtNet.Packet.Schema.__struct_type__(@artnet_types)
     end
   end
+
+  defmacro __def_header__(opts) do
+    quote bind_quoted: [opts: opts] do
+      field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
+      field(:op_code, :integer, default: Keyword.fetch!(opts, :op_code), size: 16)
+      field(:version, :integer, default: ArtNet.Packet.version(), size: 16)
+    end
+  end
+
+  defmacro __struct_type__(types) do
+    quote bind_quoted: [types: types] do
+      @type t() :: %__MODULE__{unquote_splicing(types)}
+    end
+  end
+
+  @doc """
+  Defines a field in a typed struct.
+
+  options:
+    * `default` - the default value for the field
+    * `nullable` - if true, the field can be nil
+  """
+  defmacro field(name, type, opts \\ []) do
+    quote bind_quoted: [name: name, type: Macro.escape(type), opts: opts] do
+      ArtNet.Packet.Schema.__field__(name, type, opts, __ENV__)
+    end
+  end
+
+  @doc false
+  def __field__(name, type, opts, env) do
+    %Macro.Env{module: module} = env
+
+    unless is_atom(name) do
+      raise ArgumentError, "a field name must be an atom, got: #{inspect(name)}"
+    end
+
+    if module |> Module.get_attribute(:artnet_fields) |> Keyword.has_key?(name) do
+      raise ArgumentError, "the field #{inspect(name)} is already set"
+    end
+
+    has_default? = Keyword.has_key?(opts, :default)
+    nullable? = Keyword.get(opts, :nullable, false)
+    enforce? = not (has_default? or nullable?)
+
+    Module.put_attribute(module, :artnet_fields, {name, opts[:default]})
+    Module.put_attribute(module, :artnet_types, {name, type_for(type, nullable?)})
+    if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
+  end
+
+  defp type_for(type, false), do: type
+  defp type_for(type, true), do: quote(do: unquote(type) | nil)
 end
