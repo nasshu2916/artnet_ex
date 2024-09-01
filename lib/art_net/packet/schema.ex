@@ -54,10 +54,10 @@ defmodule ArtNet.Packet.Schema do
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
       field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
-      field(:op_code, :integer, default: Keyword.fetch!(opts, :op_code), size: 16)
+      field(:op_code, :uint16, default: Keyword.fetch!(opts, :op_code))
 
       unless Keyword.get(opts, :except_version_header, false) do
-        field(:version, :integer, default: ArtNet.Packet.version(), size: 16)
+        field(:version, :uint16, default: ArtNet.Packet.version())
       end
     end
   end
@@ -75,14 +75,14 @@ defmodule ArtNet.Packet.Schema do
     * `default` - the default value for the field
     * `nullable` - if true, the field can be nil
   """
-  defmacro field(name, type, opts \\ []) do
-    quote bind_quoted: [name: name, type: Macro.escape(type), opts: opts] do
-      ArtNet.Packet.Schema.__field__(name, type, opts, __ENV__)
+  defmacro field(name, format, opts \\ []) do
+    quote bind_quoted: [name: name, format: Macro.escape(format), opts: opts] do
+      ArtNet.Packet.Schema.__field__(name, format, opts, __ENV__)
     end
   end
 
   @doc false
-  def __field__(name, type, opts, env) do
+  def __field__(name, format, opts, env) do
     %Macro.Env{module: module} = env
 
     unless is_atom(name) do
@@ -101,7 +101,7 @@ defmodule ArtNet.Packet.Schema do
     size = Keyword.get(opts, :size)
 
     Module.put_attribute(module, :artnet_fields, {name, default})
-    Module.put_attribute(module, :artnet_types, {name, type_for(type, nullable?)})
+    Module.put_attribute(module, :artnet_types, {name, type_for(format, nullable?)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     meta = %{
@@ -110,9 +110,12 @@ defmodule ArtNet.Packet.Schema do
       size: size
     }
 
-    Module.put_attribute(module, :artnet_reversed_schema, {name, {type, meta}})
+    Module.put_attribute(module, :artnet_reversed_schema, {name, {format, meta}})
   end
 
-  defp type_for(type, false), do: type
-  defp type_for(type, true), do: quote(do: unquote(type) | nil)
+  defp type_for(format, false), do: (format_type(format))
+  defp type_for(format, true), do: quote(do: unquote(format_type(format)) | nil)
+
+  defp format_type(format) when format in [:uint8, :uint16], do: :integer
+  defp format_type(:binary), do: :binary
 end
