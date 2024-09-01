@@ -28,6 +28,7 @@ defmodule ArtNet.Packet do
     struct.__struct__.schema()
     |> Enum.reduce_while([], fn {key, {type, opts}}, acc ->
       value = Map.fetch!(struct, key)
+
       case ArtNet.Encoder.encode(value, type, opts) do
         {:ok, data} -> {:cont, [data | acc]}
         :error -> {:halt, :error}
