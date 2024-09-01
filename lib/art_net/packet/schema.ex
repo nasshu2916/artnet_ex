@@ -20,11 +20,7 @@ defmodule ArtNet.Packet.Schema do
   macro.
   """
   defmacro defpacket(opts, do: block) do
-    ast = ArtNet.Packet.Schema.__defpacket__(block, opts)
-
-    quote do
-      (fn -> unquote(ast) end).()
-    end
+    ArtNet.Packet.Schema.__defpacket__(block, opts)
   end
 
   @doc false
@@ -43,14 +39,15 @@ defmodule ArtNet.Packet.Schema do
       @enforce_keys @artnet_enforce_keys
       defstruct Enum.reverse(@artnet_fields)
 
+      ArtNet.Packet.Schema.__struct_type__(@artnet_types)
+
       @artnet_schema Enum.reverse(@artnet_reversed_schema)
       def schema, do: @artnet_schema
 
+      @spec decode(binary) :: {:ok, t()} | :error
       def decode(packet) do
         ArtNet.Packet.parse(__MODULE__, packet)
       end
-
-      ArtNet.Packet.Schema.__struct_type__(@artnet_types)
     end
   end
 
