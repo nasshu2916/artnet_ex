@@ -54,7 +54,7 @@ defmodule ArtNet.Packet.Schema do
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
       field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
-      field(:op_code, :uint16, default: Keyword.fetch!(opts, :op_code))
+      field(:op_code, :uint16, default: Keyword.fetch!(opts, :op_code), byte_order: :little)
 
       unless Keyword.get(opts, :except_version_header, false) do
         field(:version, :uint16, default: ArtNet.Packet.version())
@@ -72,8 +72,10 @@ defmodule ArtNet.Packet.Schema do
   Defines a field in a typed struct.
 
   options:
-    * `default` - the default value for the field
-    * `nullable` - if true, the field can be nil
+    * `default` - the default value for the field, default is nil
+    * `nullable` - if true, the field can be nil, default is false
+    * `size` - the size of the field in bits, default is nil
+    * `byte_order` - the byte order of the field, default is :big
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: Macro.escape(format), opts: opts] do
@@ -98,22 +100,21 @@ defmodule ArtNet.Packet.Schema do
     nullable? = Keyword.get(opts, :nullable, false)
     enforce? = not (has_default? or nullable?)
 
-    size = Keyword.get(opts, :size)
-
     Module.put_attribute(module, :artnet_fields, {name, default})
     Module.put_attribute(module, :artnet_types, {name, type_for(format, nullable?)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
-    meta = %{
+    opts = [
       default: default,
       nullable?: nullable?,
-      size: size
-    }
+      size: Keyword.get(opts, :size),
+      byte_order: Keyword.get(opts, :byte_order, :big)
+    ]
 
-    Module.put_attribute(module, :artnet_reversed_schema, {name, {format, meta}})
+    Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
   end
 
-  defp type_for(format, false), do: (format_type(format))
+  defp type_for(format, false), do: format_type(format)
   defp type_for(format, true), do: quote(do: unquote(format_type(format)) | nil)
 
   defp format_type(format) when format in [:uint8, :uint16], do: :integer

@@ -1,31 +1,37 @@
 defmodule ArtNet.Decoder do
-  @spec parse(binary, format :: atom, size :: integer | nil) :: {:ok, {any, binary}} | :error
-  def parse(data, :uint8, nil) do
-    do_parse_integer(data, 8)
+  @spec parse(binary, format :: atom, Keyword.t()) :: {:ok, {any, binary}} | :error
+  def parse(data, :uint8, opt) do
+    do_parse_integer(data, 8, opt)
   end
 
-  def parse(data, :uint16, nil) do
-    do_parse_integer(data, 16)
+  def parse(data, :uint16, opt) do
+    do_parse_integer(data, 16, opt)
   end
 
-  def parse(data, :binary, nil) do
-    {:ok, {data, <<>>}}
+  def parse(data, :binary, opt) do
+    size = Keyword.fetch!(opt, :size)
+    do_parse_binary(data, size)
   end
 
-  def parse(data, :binary, size) do
-    case data do
-      <<value::binary-size(size), rest::binary>> ->
-        {:ok, {value, rest}}
+  @spec do_parse_integer(binary, pos_integer, Keyword.t()) ::
+          {:ok, {non_neg_integer, binary}} | :error
+  defp do_parse_integer(data, size, opts) do
+    byte_order = Keyword.fetch!(opts, :byte_order)
 
-      _ ->
-        :error
+    case {data, byte_order} do
+      {<<value::size(size), rest::binary>>, :big} -> {:ok, {value, rest}}
+      {<<value::little-size(size), rest::binary>>, :little} -> {:ok, {value, rest}}
+      _ -> :error
     end
   end
 
-  @spec do_parse_integer(binary, pos_integer) :: {:ok, {non_neg_integer, binary}} | :error
-  defp do_parse_integer(data, size) do
+  defp do_parse_binary(data, nil) do
+    {:ok, {data, <<>>}}
+  end
+
+  defp do_parse_binary(data, size) do
     case data do
-      <<value::size(size), rest::binary>> -> {:ok, {value, rest}}
+      <<value::binary-size(size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
     end
   end
