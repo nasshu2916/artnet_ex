@@ -46,7 +46,7 @@ defmodule ArtNet.Packet.Schema do
 
       @spec decode(binary) :: {:ok, t()} | :error
       def decode(packet) do
-        ArtNet.Packet.parse(__MODULE__, packet)
+        ArtNet.Packet.decode(__MODULE__, packet)
       end
     end
   end

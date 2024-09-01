@@ -5,11 +5,11 @@ defmodule ArtNet.Packet do
   def identifier, do: @identifier
   def version, do: @version
 
-  @spec parse(module, binary) :: {:ok, struct} | :error
-  def parse(module, packet) do
+  @spec decode(module, binary) :: {:ok, struct} | :error
+  def decode(module, packet) do
     module.schema()
     |> Enum.reduce_while({[], packet}, fn {key, {type, opts}}, {values, rest} ->
-      case ArtNet.Decoder.parse(rest, type, opts) do
+      case ArtNet.Decoder.decode(rest, type, opts) do
         {:ok, {value, new_rest}} ->
           {:cont, {[{key, value} | values], new_rest}}
 
@@ -18,8 +18,8 @@ defmodule ArtNet.Packet do
       end
     end)
     |> case do
-      {data, _} -> {:ok, struct!(module, data)}
-      _ -> :error
+      :error -> :error
+      {data, _rest} -> {:ok, struct!(module, data)}
     end
   end
 end
