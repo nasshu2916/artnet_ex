@@ -46,6 +46,10 @@ defmodule ArtNet.Packet.Schema do
       @artnet_schema Enum.reverse(@artnet_reversed_schema)
       def schema, do: @artnet_schema
 
+      def decode(packet) do
+        ArtNet.Packet.parse(__MODULE__, packet)
+      end
+
       ArtNet.Packet.Schema.__struct_type__(@artnet_types)
     end
   end
