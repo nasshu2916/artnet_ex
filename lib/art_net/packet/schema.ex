@@ -55,7 +55,10 @@ defmodule ArtNet.Packet.Schema do
     quote bind_quoted: [opts: opts] do
       field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
       field(:op_code, :integer, default: Keyword.fetch!(opts, :op_code), size: 16)
-      field(:version, :integer, default: ArtNet.Packet.version(), size: 16)
+
+      unless Keyword.get(opts, :except_version_header, false) do
+        field(:version, :integer, default: ArtNet.Packet.version(), size: 16)
+      end
     end
   end
 
