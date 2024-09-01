@@ -1,11 +1,17 @@
 # ArtNet
 
-**TODO: Add description**
+An Elixir library for decoding and encoding ArtNet packets.
+
+Art-Net is a protocol for transmitting DMX data over IP networks. It is used in the entertainment industry to control lighting equipment such as dimmers, moving lights, and LED fixtures.
+
+Art-Net 4 specification from Artistic Licence: [art-net.pdf](https://artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf)
+
+
+> [!NOTE]
+> This library provides encode/decode functionality. It does not provide network transfer functionality.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `art_net` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,7 +21,4 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/art_net>.
 

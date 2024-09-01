@@ -6,7 +6,7 @@ defmodule ArtNet do
 
   Art-Net is a protocol for transmitting DMX data over IP networks. It is used in the entertainment industry to control lighting equipment such as dimmers, moving lights, and LED fixtures.
 
-  Note: This library provides endode/decode functionality. It does not provide network transfer functionality.
+  Note: This library provides encode/decode functionality. It does not provide network transfer functionality.
   """
 
   @art_net_identifier ArtNet.Packet.identifier()
