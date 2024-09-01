@@ -8,9 +8,8 @@ defmodule ArtNet.Packet do
   @spec parse(module, binary) :: {:ok, struct} | :error
   def parse(module, packet) do
     module.schema()
-    |> Enum.reduce_while({[], packet}, fn {key, key_opts}, {values, rest} ->
-      {type, opts} = key_opts
-      size = Keyword.get(opts, :size)
+    |> Enum.reduce_while({[], packet}, fn {key, {type, meta}}, {values, rest} ->
+      %{size: size} = meta
 
       case ArtNet.Decoder.parse(rest, type, size) do
         {:ok, {value, new_rest}} ->

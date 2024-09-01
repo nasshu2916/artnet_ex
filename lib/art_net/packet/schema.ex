@@ -2,7 +2,8 @@ defmodule ArtNet.Packet.Schema do
   @struct_accumulate_attrs [
     :artnet_fields,
     :artnet_enforce_keys,
-    :artnet_types
+    :artnet_types,
+    :artnet_reversed_schema
   ]
 
   @doc false
@@ -40,7 +41,10 @@ defmodule ArtNet.Packet.Schema do
       unquote(block)
 
       @enforce_keys @artnet_enforce_keys
-      defstruct @artnet_fields
+      defstruct Enum.reverse(@artnet_fields)
+
+      @artnet_schema Enum.reverse(@artnet_reversed_schema)
+      def schema, do: @artnet_schema
 
       ArtNet.Packet.Schema.__struct_type__(@artnet_types)
     end
@@ -85,13 +89,24 @@ defmodule ArtNet.Packet.Schema do
       raise ArgumentError, "the field #{inspect(name)} is already set"
     end
 
+    default = Keyword.get(opts, :default)
     has_default? = Keyword.has_key?(opts, :default)
     nullable? = Keyword.get(opts, :nullable, false)
     enforce? = not (has_default? or nullable?)
 
-    Module.put_attribute(module, :artnet_fields, {name, opts[:default]})
+    size = Keyword.get(opts, :size)
+
+    Module.put_attribute(module, :artnet_fields, {name, default})
     Module.put_attribute(module, :artnet_types, {name, type_for(type, nullable?)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
+
+    meta = %{
+      default: default,
+      nullable?: nullable?,
+      size: size
+    }
+
+    Module.put_attribute(module, :artnet_reversed_schema, {name, {type, meta}})
   end
 
   defp type_for(type, false), do: type
