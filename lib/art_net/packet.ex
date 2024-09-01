@@ -18,7 +18,7 @@ defmodule ArtNet.Packet do
       end
     end)
     |> case do
-      {data, ""} -> {:ok, struct!(module, data)}
+      {data, _} -> {:ok, struct!(module, data)}
       _ -> :error
     end
   end
