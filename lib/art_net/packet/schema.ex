@@ -50,8 +50,12 @@ defmodule ArtNet.Packet.Schema do
       end
 
       @spec encode(t()) :: {:ok, binary} | :error
-      def encode(packet) do
+      def encode(%__MODULE__{} = packet) do
         ArtNet.Packet.encode(packet)
+      end
+
+      def encode(_) do
+        :error
       end
     end
   end
