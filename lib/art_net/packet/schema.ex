@@ -61,7 +61,7 @@ defmodule ArtNet.Packet.Schema do
       field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
       field(:op_code, :uint16, default: Keyword.fetch!(opts, :op_code), byte_order: :little)
 
-      unless Keyword.get(opts, :except_version_header, false) do
+      unless Keyword.get(opts, :except_version_header?, false) do
         field(:version, :uint16, default: ArtNet.Packet.version())
       end
     end
