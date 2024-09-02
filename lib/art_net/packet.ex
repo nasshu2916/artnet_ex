@@ -6,12 +6,12 @@ defmodule ArtNet.Packet do
   def version, do: @version
 
   @spec decode(module, binary) :: {:ok, struct} | :error
-  def decode(module, packet) do
+  def decode(module, binary) do
     module.schema()
-    |> Enum.reduce_while({[], packet}, fn {key, {type, opts}}, {values, rest} ->
+    |> Enum.reduce_while({[], binary}, fn {key, {type, opts}}, {values, rest} ->
       case ArtNet.Decoder.decode(rest, type, opts) do
-        {:ok, {value, new_rest}} ->
-          {:cont, {[{key, value} | values], new_rest}}
+        {:ok, {value, rest}} ->
+          {:cont, {[{key, value} | values], rest}}
 
         :error ->
           {:halt, :error}
@@ -19,15 +19,15 @@ defmodule ArtNet.Packet do
     end)
     |> case do
       :error -> :error
-      {data, _rest} -> {:ok, struct!(module, data)}
+      {params, _rest} -> {:ok, struct!(module, params)}
     end
   end
 
   @spec encode(struct) :: {:ok, binary} | :error
-  def encode(struct) do
-    struct.__struct__.schema()
+  def encode(packet) do
+    packet.__struct__.schema()
     |> Enum.reduce_while([], fn {key, {type, opts}}, acc ->
-      value = Map.fetch!(struct, key)
+      value = Map.fetch!(packet, key)
 
       case ArtNet.Encoder.encode(value, type, opts) do
         {:ok, data} -> {:cont, [data | acc]}

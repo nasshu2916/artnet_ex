@@ -81,16 +81,16 @@ defmodule ArtNet.Encoder do
       :error
   """
   @spec binary(binary, pos_integer) :: {:ok, binary} | :error
-  def binary(data, nil) do
-    {:ok, data}
+  def binary(value, nil) do
+    {:ok, value}
   end
 
-  def binary(data, size) do
-    data_size = byte_size(data)
+  def binary(value, size) do
+    value_size = byte_size(value)
 
     cond do
-      data_size == size -> {:ok, data}
-      data_size < size -> {:ok, data <> <<0::size((size - data_size) * 8)>>}
+      value_size == size -> {:ok, value}
+      value_size < size -> {:ok, value <> <<0::size((size - value_size) * 8)>>}
       true -> :error
     end
   end

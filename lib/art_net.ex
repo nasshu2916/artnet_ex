@@ -32,11 +32,11 @@ defmodule ArtNet do
   ```
   """
 
-  def decode(<<@art_net_identifier, op_code::little-size(16), _rest::binary>> = packet) do
+  def decode(<<@art_net_identifier, op_code::little-size(16), _rest::binary>> = data) do
     case op_code do
-      0x2000 -> ArtNet.Packet.ArtPoll.decode(packet)
-      0x2100 -> ArtNet.Packet.ArtPollReply.decode(packet)
-      0x5000 -> ArtNet.Packet.ArtDmx.decode(packet)
+      0x2000 -> ArtNet.Packet.ArtPoll.decode(data)
+      0x2100 -> ArtNet.Packet.ArtPollReply.decode(data)
+      0x5000 -> ArtNet.Packet.ArtDmx.decode(data)
       _ -> :error
     end
   end

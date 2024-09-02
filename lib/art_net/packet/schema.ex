@@ -45,13 +45,13 @@ defmodule ArtNet.Packet.Schema do
       def schema, do: @artnet_schema
 
       @spec decode(binary) :: {:ok, t()} | :error
-      def decode(packet) do
-        ArtNet.Packet.decode(__MODULE__, packet)
+      def decode(data) do
+        ArtNet.Packet.decode(__MODULE__, data)
       end
 
       @spec encode(t()) :: {:ok, binary} | :error
-      def encode(struct) do
-        ArtNet.Packet.encode(struct)
+      def encode(packet) do
+        ArtNet.Packet.encode(packet)
       end
     end
   end
