@@ -21,7 +21,7 @@ defmodule ArtNet do
     %ArtNet.Packet.ArtDmx{
       id: <<65, 114, 116, 45, 78, 101, 116, 0>>,
       op_code: 0x5000,
-      version: 0x14,
+      version: 14,
       sequence: 01,
       physical: 0,
       sub_universe: 0,
