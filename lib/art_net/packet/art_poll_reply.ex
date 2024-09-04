@@ -1,7 +1,7 @@
 defmodule ArtNet.Packet.ArtPollReply do
   use ArtNet.Packet.Schema
 
-  defpacket op_code: 0x2100, except_version_header?: true do
+  defpacket op_code: 0x2100, require_version_header?: false do
     field(:ip_address, :binary, size: 4)
     field(:port, :uint16)
     field(:version_info, :uint16)

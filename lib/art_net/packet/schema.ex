@@ -90,12 +90,12 @@ defmodule ArtNet.Packet.Schema do
       field(:op_code, :uint16, default: op_code, byte_order: :little)
       Module.put_attribute(__MODULE__, :op_code, op_code)
 
-      if Keyword.get(opts, :except_version_header?, false) do
-        Module.put_attribute(__MODULE__, :version, nil)
-      else
+      if Keyword.get(opts, :require_version_header?, true) do
         version = ArtNet.Packet.version()
         field(:version, :uint16, default: version)
         Module.put_attribute(__MODULE__, :version, version)
+      else
+        Module.put_attribute(__MODULE__, :version, nil)
       end
     end
   end
