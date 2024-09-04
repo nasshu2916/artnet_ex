@@ -32,7 +32,9 @@ defmodule ArtNet.Encoder do
   """
   @spec encode_list([any], atom, Keyword.t()) :: {:ok, binary} | :error
   def encode_list(values, format, opts) do
-    case do_encode_list(values, [], format, opts) do
+    fun = fn value -> encode(value, format, opts) end
+
+    case do_encode_list(values, [], fun, opts) do
       :error -> :error
       {:ok, encoded_list} -> {:ok, IO.iodata_to_binary(encoded_list)}
     end
@@ -40,9 +42,9 @@ defmodule ArtNet.Encoder do
 
   defp do_encode_list([], acc, _, _), do: {:ok, Enum.reverse(acc)}
 
-  defp do_encode_list([value | rest], acc, format, opts) do
-    case encode(value, format, opts) do
-      {:ok, encoded} -> do_encode_list(rest, [encoded | acc], format, opts)
+  defp do_encode_list([value | rest], acc, fun, opts) do
+    case fun.(value) do
+      {:ok, encoded} -> do_encode_list(rest, [encoded | acc], fun, opts)
       :error -> :error
     end
   end

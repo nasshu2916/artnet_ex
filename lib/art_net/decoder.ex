@@ -33,7 +33,9 @@ defmodule ArtNet.Decoder do
   """
   @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error
   def decode_list(data, format, opts) do
-    case do_decode_list(data, [], format, opts) do
+    fun = fn rest -> decode(rest, format, opts) end
+
+    case do_decode_list(data, [], fun, opts) do
       :error -> :error
       {:ok, decoded_list} -> {:ok, {decoded_list, <<>>}}
     end
@@ -41,9 +43,9 @@ defmodule ArtNet.Decoder do
 
   def do_decode_list(<<>>, acc, _, _), do: {:ok, Enum.reverse(acc)}
 
-  def do_decode_list(data, acc, format, opts) do
-    case decode(data, format, opts) do
-      {:ok, {decoded, rest}} -> do_decode_list(rest, [decoded | acc], format, opts)
+  def do_decode_list(data, acc, fun, opts) do
+    case fun.(data) do
+      {:ok, {value, rest}} -> do_decode_list(rest, [value | acc], fun, opts)
       :error -> :error
     end
   end
