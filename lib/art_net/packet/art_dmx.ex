@@ -11,7 +11,7 @@ defmodule ArtNet.Packet.ArtDmx do
   end
 
   @impl ArtNet.Packet.Schema
-  def validate_body(packet) do
+  def validate(packet) do
     %{length: data_length, data: data} = packet
 
     if data_length == byte_size(data) do

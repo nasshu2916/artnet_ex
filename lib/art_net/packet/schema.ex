@@ -6,7 +6,7 @@ defmodule ArtNet.Packet.Schema do
     :artnet_reversed_schema
   ]
 
-  @callback validate_body(packet :: struct) :: :ok | {:error, String.t()}
+  @callback validate(packet :: struct) :: :ok | {:error, String.t()}
 
   @doc false
   defmacro __using__(_) do
@@ -16,11 +16,11 @@ defmodule ArtNet.Packet.Schema do
       import ArtNet.Packet.Schema, only: [defpacket: 2]
 
       @impl ArtNet.Packet.Schema
-      def validate_body(_) do
+      def validate(_) do
         :ok
       end
 
-      defoverridable validate_body: 1
+      defoverridable validate: 1
     end
   end
 
@@ -58,8 +58,8 @@ defmodule ArtNet.Packet.Schema do
       @spec __op_code__ :: pos_integer
       def __op_code__, do: @op_code
 
-      @spec __version__ :: pos_integer | nil
-      def __version__, do: @version
+      @spec require_version_header? :: boolean
+      def require_version_header?, do: @require_version_header?
 
       @spec decode(binary) :: {:ok, t()} | :error
       def decode(data) do
@@ -74,29 +74,16 @@ defmodule ArtNet.Packet.Schema do
       def encode(_) do
         :error
       end
-
-      @spec validate(t()) :: :ok | {:error, String.t()}
-      def validate(packet) do
-        ArtNet.Packet.validate(packet)
-      end
     end
   end
 
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
-      field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
-
       op_code = Keyword.fetch!(opts, :op_code)
-      field(:op_code, :uint16, default: op_code, byte_order: :little)
       Module.put_attribute(__MODULE__, :op_code, op_code)
 
-      if Keyword.get(opts, :require_version_header?, true) do
-        version = ArtNet.Packet.version()
-        field(:version, :uint16, default: version)
-        Module.put_attribute(__MODULE__, :version, version)
-      else
-        Module.put_attribute(__MODULE__, :version, nil)
-      end
+      require_version_header? = Keyword.get(opts, :require_version_header?, true)
+      Module.put_attribute(__MODULE__, :require_version_header?, require_version_header?)
     end
   end
 
