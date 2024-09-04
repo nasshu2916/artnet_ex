@@ -15,6 +15,7 @@ defmodule ArtNet.Decoder do
   - `data` is the binary to decode the values from.
   - `format` is the format of the values.
   - `opts` is a keyword of format options.
+    + `length` is the number of values to decode. If `nil`, all values are decoded.
 
   The function returns `{:ok, {list, binary}}` if the values were successfully decoded.
   The `list` is the decoded list of values and `binary` is the remaining binary.
@@ -30,22 +31,27 @@ defmodule ArtNet.Decoder do
 
       iex> ArtNet.Decoder.decode_list(<<0, 1, 1, 1>>, :uint16, [])
       {:ok, {[1, 0x0101], <<>>}}
+
+      iex> ArtNet.Decoder.decode_list(<<0, 1, 1>>, :uint8, [length: 2])
+      {:ok, {[0, 1], <<1>>}}
   """
   @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error
   def decode_list(data, format, opts) do
     fun = fn rest -> decode(rest, format, opts) end
+    length = Keyword.get(opts, :length)
 
-    case do_decode_list(data, [], fun, opts) do
+    case do_decode_list(data, [], fun, 0, length, opts) do
       :error -> :error
-      {:ok, decoded_list} -> {:ok, {decoded_list, <<>>}}
+      {:ok, result} -> {:ok, result}
     end
   end
 
-  def do_decode_list(<<>>, acc, _, _), do: {:ok, Enum.reverse(acc)}
+  def do_decode_list(rest, acc, _, count, count, _), do: {:ok, {Enum.reverse(acc), rest}}
+  def do_decode_list(<<>>, acc, _, _, nil, _), do: {:ok, {Enum.reverse(acc), <<>>}}
 
-  def do_decode_list(data, acc, fun, opts) do
+  def do_decode_list(data, acc, fun, count, length, opts) do
     case fun.(data) do
-      {:ok, {value, rest}} -> do_decode_list(rest, [value | acc], fun, opts)
+      {:ok, {value, rest}} -> do_decode_list(rest, [value | acc], fun, count + 1, length, opts)
       :error -> :error
     end
   end
