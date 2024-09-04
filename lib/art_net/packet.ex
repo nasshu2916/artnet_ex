@@ -1,6 +1,6 @@
 defmodule ArtNet.Packet do
   @identifier "Art-Net" <> <<0>>
-  @version 0x14
+  @version 14
 
   def identifier, do: @identifier
   def version, do: @version
