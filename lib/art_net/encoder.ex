@@ -1,11 +1,51 @@
 defmodule ArtNet.Encoder do
   import Bitwise
 
-  @spec encode(any, atom, Keyword.t()) :: {:ok, binary} | :error
+  @spec encode(any, atom | [atom], Keyword.t()) :: {:ok, binary} | :error
+  def encode(values, [format], opts), do: encode_list(values, format, opts)
   def encode(value, :uint8, _opts), do: integer(value, 8)
   def encode(value, :uint16, _opts), do: integer(value, 16)
 
   def encode(value, :binary, opts), do: binary(value, Keyword.get(opts, :size))
+
+  @doc """
+  Encodes a list of values into a binary.
+
+  This function is used to encode a list of values into a binary.
+
+  - `values` is the list of values to encode.
+  - `format` is the format of the values.
+  - `opts` is a keyword of format options.
+
+  The function returns `{:ok, binary}` if the values were successfully encoded.
+  If the values could not be encoded, the function returns `:error`.
+
+  ## Examples
+      iex> ArtNet.Encoder.encode_list([1, 2, 3], :uint8, [])
+      {:ok, <<1, 2, 3>>}
+
+      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], :uint16, [])
+      {:ok, <<0, 1, 0, 2, 0x11, 0x11>>}
+
+      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], :uint8, [])
+      :error
+  """
+  @spec encode_list([any], atom, Keyword.t()) :: {:ok, binary} | :error
+  def encode_list(values, format, opts) do
+    case do_encode_list(values, [], format, opts) do
+      :error -> :error
+      {:ok, encoded_list} -> {:ok, IO.iodata_to_binary(encoded_list)}
+    end
+  end
+
+  defp do_encode_list([], acc, _, _), do: {:ok, Enum.reverse(acc)}
+
+  defp do_encode_list([value | rest], acc, format, opts) do
+    case encode(value, format, opts) do
+      {:ok, encoded} -> do_encode_list(rest, [encoded | acc], format, opts)
+      :error -> :error
+    end
+  end
 
   @doc """
   Encodes an integer value into a binary.

@@ -1,9 +1,52 @@
 defmodule ArtNet.Decoder do
-  @spec decode(binary, format :: atom, Keyword.t()) :: {:ok, {any, binary}} | :error
+  @spec decode(binary, format :: atom | [atom], Keyword.t()) :: {:ok, {any, binary}} | :error
+  def decode(data, [format], opts), do: decode_list(data, format, opts)
+
   def decode(data, :uint8, _opts), do: integer(data, 8)
   def decode(data, :uint16, _opts), do: integer(data, 16)
 
   def decode(data, :binary, opt), do: binary(data, Keyword.get(opt, :size))
+
+  @doc """
+  Decodes a list of values from a binary.
+
+  This function is used to decode a list of values from a binary.
+
+  - `data` is the binary to decode the values from.
+  - `format` is the format of the values.
+  - `opts` is a keyword of format options.
+
+  The function returns `{:ok, {list, binary}}` if the values were successfully decoded.
+  The `list` is the decoded list of values and `binary` is the remaining binary.
+
+  If the values could not be decoded, the function returns `:error`.
+
+  ## Examples
+      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, :uint8, [])
+      {:ok, {[1, 2, 3], <<>>}}
+
+      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, :uint16, [])
+      :error
+
+      iex> ArtNet.Decoder.decode_list(<<0, 1, 1, 1>>, :uint16, [])
+      {:ok, {[1, 0x0101], <<>>}}
+  """
+  @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error
+  def decode_list(data, format, opts) do
+    case do_decode_list(data, [], format, opts) do
+      :error -> :error
+      {:ok, decoded_list} -> {:ok, {decoded_list, <<>>}}
+    end
+  end
+
+  def do_decode_list(<<>>, acc, _, _), do: {:ok, Enum.reverse(acc)}
+
+  def do_decode_list(data, acc, format, opts) do
+    case decode(data, format, opts) do
+      {:ok, {decoded, rest}} -> do_decode_list(rest, [decoded | acc], format, opts)
+      :error -> :error
+    end
+  end
 
   @doc """
   Extracts an integer value from a binary.
