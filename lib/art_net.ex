@@ -33,11 +33,9 @@ defmodule ArtNet do
   """
 
   def decode(<<@art_net_identifier, op_code::little-size(16), _rest::binary>> = data) do
-    case op_code do
-      0x2000 -> ArtNet.Packet.ArtPoll.decode(data)
-      0x2100 -> ArtNet.Packet.ArtPollReply.decode(data)
-      0x5000 -> ArtNet.Packet.ArtDmx.decode(data)
-      _ -> :error
+    case ArtNet.OpCode.packet_module_from_value(op_code) do
+      nil -> :error
+      module -> module.decode(data)
     end
   end
 
