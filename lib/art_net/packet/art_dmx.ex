@@ -9,4 +9,15 @@ defmodule ArtNet.Packet.ArtDmx do
     field(:length, :uint16)
     field(:data, :binary, size: nil)
   end
+
+  @impl ArtNet.Packet.Schema
+  def validate_body(packet) do
+    %{length: data_length, data: data} = packet
+
+    if data_length == byte_size(data) do
+      :ok
+    else
+      {:error, "Data length does not match the length field"}
+    end
+  end
 end

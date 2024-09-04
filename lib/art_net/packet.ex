@@ -39,4 +39,44 @@ defmodule ArtNet.Packet do
       data -> {:ok, data |> Enum.reverse() |> IO.iodata_to_binary()}
     end
   end
+
+  @spec validate(struct) :: :ok | {:error, String.t()}
+  def validate(packet) do
+    module = packet.__struct__
+
+    with :ok <- validate_header(module, packet),
+         :ok <- module.validate_body(packet) do
+      :ok
+    end
+  end
+
+  @spec validate_header(module, struct) :: :ok | {:error, String.t()}
+  defp validate_header(module, packet) do
+    with :ok <- validate_identifier(packet),
+         :ok <- validate_op_code(module, packet),
+         :ok <- validate_version(module, packet) do
+      :ok
+    end
+  end
+
+  defp validate_identifier(%{id: @identifier}), do: :ok
+  defp validate_identifier(_), do: {:error, "Invalid identifier"}
+
+  defp validate_op_code(module, packet) do
+    if module.__op_code__() == packet.op_code do
+      :ok
+    else
+      {:error, "Invalid op code"}
+    end
+  end
+
+  defp validate_version(module, packet) do
+    module_version = module.__version__()
+
+    cond do
+      is_nil(module_version) -> :ok
+      module_version == packet.version -> :ok
+      true -> {:error, "Invalid version"}
+    end
+  end
 end

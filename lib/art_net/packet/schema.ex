@@ -6,10 +6,21 @@ defmodule ArtNet.Packet.Schema do
     :artnet_reversed_schema
   ]
 
+  @callback validate_body(packet :: struct) :: :ok | {:error, String.t()}
+
   @doc false
   defmacro __using__(_) do
     quote do
+      @behaviour ArtNet.Packet.Schema
+
       import ArtNet.Packet.Schema, only: [defpacket: 2]
+
+      @impl ArtNet.Packet.Schema
+      def validate_body(_) do
+        :ok
+      end
+
+      defoverridable validate_body: 1
     end
   end
 
@@ -44,6 +55,12 @@ defmodule ArtNet.Packet.Schema do
       @artnet_schema Enum.reverse(@artnet_reversed_schema)
       def schema, do: @artnet_schema
 
+      @spec __op_code__ :: pos_integer
+      def __op_code__, do: @op_code
+
+      @spec __version__ :: pos_integer | nil
+      def __version__, do: @version
+
       @spec decode(binary) :: {:ok, t()} | :error
       def decode(data) do
         ArtNet.Packet.decode(__MODULE__, data)
@@ -57,16 +74,28 @@ defmodule ArtNet.Packet.Schema do
       def encode(_) do
         :error
       end
+
+      @spec validate(t()) :: :ok | {:error, String.t()}
+      def validate(packet) do
+        ArtNet.Packet.validate(packet)
+      end
     end
   end
 
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
       field(:id, :binary, default: ArtNet.Packet.identifier(), size: 8)
-      field(:op_code, :uint16, default: Keyword.fetch!(opts, :op_code), byte_order: :little)
 
-      unless Keyword.get(opts, :except_version_header?, false) do
-        field(:version, :uint16, default: ArtNet.Packet.version())
+      op_code = Keyword.fetch!(opts, :op_code)
+      field(:op_code, :uint16, default: op_code, byte_order: :little)
+      Module.put_attribute(__MODULE__, :op_code, op_code)
+
+      if Keyword.get(opts, :except_version_header?, false) do
+        Module.put_attribute(__MODULE__, :version, nil)
+      else
+        version = ArtNet.Packet.version()
+        field(:version, :uint16, default: version)
+        Module.put_attribute(__MODULE__, :version, version)
       end
     end
   end
