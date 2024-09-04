@@ -1,4 +1,4 @@
 defmodule ArtNet.DecoderTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest ArtNet.Decoder
 end

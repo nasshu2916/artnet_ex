@@ -1,4 +1,4 @@
 defmodule ArtNetTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest ArtNet
 end
