@@ -7,7 +7,7 @@ defmodule ArtNet.Packet.ArtDmx do
     field(:sub_universe, :uint8, default: 0)
     field(:net, :uint8, default: 0)
     field(:length, :uint16)
-    field(:data, :binary, size: nil)
+    field(:data, [:uint8])
   end
 
   @impl ArtNet.Packet.Schema
