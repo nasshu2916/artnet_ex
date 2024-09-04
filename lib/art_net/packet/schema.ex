@@ -142,13 +142,6 @@ defmodule ArtNet.Packet.Schema do
     Module.put_attribute(module, :artnet_types, {name, type_for(format, nullable?)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
-    opts = [
-      default: default,
-      nullable?: nullable?,
-      size: Keyword.get(opts, :size),
-      byte_order: Keyword.get(opts, :byte_order, :big)
-    ]
-
     Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
   end
 
