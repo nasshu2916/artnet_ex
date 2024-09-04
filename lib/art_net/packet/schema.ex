@@ -100,7 +100,6 @@ defmodule ArtNet.Packet.Schema do
     * `default` - the default value for the field, default is nil
     * `nullable` - if true, the field can be nil, default is false
     * `size` - the size of the field in bits, default is nil
-    * `byte_order` - the byte order of the field, default is :big
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: Macro.escape(format), opts: opts] do
