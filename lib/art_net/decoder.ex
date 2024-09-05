@@ -7,6 +7,8 @@ defmodule ArtNet.Decoder do
 
   def decode(data, :binary, opt), do: binary(data, Keyword.get(opt, :size))
 
+  def decode(data, :string, opt), do: string(data, Keyword.get(opt, :size))
+
   @doc """
   Decodes a list of values from a binary.
 
@@ -120,6 +122,49 @@ defmodule ArtNet.Decoder do
     case data do
       <<value::binary-size(size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
+    end
+  end
+
+  @doc """
+  Extracts a string value from a binary.
+
+  This function is used to extract string values from a binary.
+
+  - `data` is the binary to extract the string from.
+  - `size` is the size of the string in bytes. If `nil`, the entire binary is extracted.
+
+  The function returns `{:ok, {value, rest}}` if the string was successfully extracted.
+  The `value` is the extracted string and `rest` is the remaining binary.
+
+  The function trims trailing null bytes from the string.
+
+  ## Examples
+      iex> ArtNet.Decoder.string(<<65, 66, 67, 0, 0>>, nil)
+      {:ok, {"ABC", <<>>}}
+
+      iex> ArtNet.Decoder.string(<<65, 66, 67, 0, 0>>, 2)
+      {:ok, {"AB", <<67, 0, 0>>}}
+
+      iex> ArtNet.Decoder.string(<<65, 66, 67, 0, 0>>, 4)
+      {:ok, {"ABC", <<0>>}}
+
+      iex> ArtNet.Decoder.string(<<65, 66, 0, 67, 0, 0>>, 5)
+      {:ok, {"AB\0C", <<0>>}}
+
+      iex> ArtNet.Decoder.string(<<65, 66, 67, 255, 0>>, 4)
+      {:ok, {<<65, 66, 67, 255>>, <<0>>}}
+
+      iex ArtNet.Decoder.string(<<65, 66, 67, 0, 0>>, 6)
+      :error
+  """
+  @spec string(binary, pos_integer | nil) :: {:ok, {String.t(), binary}} | :error
+  def string(data, size) do
+    case binary(data, size) do
+      {:ok, {string, rest}} ->
+        {:ok, {String.trim_trailing(string, <<0>>), rest}}
+
+      :error ->
+        :error
     end
   end
 end

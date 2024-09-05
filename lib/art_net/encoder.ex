@@ -7,6 +7,7 @@ defmodule ArtNet.Encoder do
   def encode(value, :uint16, _opts), do: integer(value, 16)
 
   def encode(value, :binary, opts), do: binary(value, Keyword.get(opts, :size))
+  def encode(value, :string, opts), do: binary(value, Keyword.get(opts, :size))
 
   @doc """
   Encodes a list of values into a binary.

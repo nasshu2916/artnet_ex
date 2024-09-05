@@ -137,4 +137,5 @@ defmodule ArtNet.Packet.Schema do
   defp format_type([format]), do: [format_type(format)]
   defp format_type(format) when format in [:uint8, :uint16], do: :integer
   defp format_type(:binary), do: :binary
+  defp format_type(:string), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
 end
