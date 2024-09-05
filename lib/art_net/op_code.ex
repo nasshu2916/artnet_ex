@@ -11,6 +11,8 @@ defmodule ArtNet.OpCode do
   # Define the op codes as atoms
   @op_codes Map.keys(@op_code_config)
 
+  @type keys :: unquote(ArtNet.Misc.type_ast(@op_codes))
+
   @doc """
   Returns the op codes as atoms.
   """
