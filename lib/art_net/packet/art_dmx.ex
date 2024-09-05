@@ -14,7 +14,7 @@ defmodule ArtNet.Packet.ArtDmx do
   def validate(packet) do
     %{length: data_length, data: data} = packet
 
-    if data_length == byte_size(data) do
+    if data_length == length(data) do
       :ok
     else
       {:error, "Data length does not match the length field"}
