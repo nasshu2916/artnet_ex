@@ -30,6 +30,9 @@ defmodule ArtNet do
 
   iex> ArtNet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, 0x5100}}}
+
+  iex> ArtNet.decode(<<0x01, 0x02>>)
+  {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
   ```
   """
   @spec decode(binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
@@ -41,7 +44,7 @@ defmodule ArtNet do
   end
 
   def decode(_) do
-    {:error, %ArtNet.DecodeError{reason: :invalid_data}}
+    {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
   end
 
   @doc """
