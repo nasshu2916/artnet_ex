@@ -1,3 +1,20 @@
+defmodule ArtNet.EncodeError do
+  @type t :: %__MODULE__{
+          reason:
+            {:encode_error, %{key: atom, type: atom, value: any()}}
+            | {:invalid_data, String.t()}
+        }
+
+  defexception [:reason]
+
+  def message(%__MODULE__{} = exception) do
+    case exception.reason do
+      {:encode_error, reason} -> "encoding error: #{inspect(reason)}"
+      {:validate_error, reason} -> "invalid data: #{reason}"
+    end
+  end
+end
+
 defmodule ArtNet.Encoder do
   import Bitwise
 

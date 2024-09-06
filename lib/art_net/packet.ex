@@ -74,12 +74,19 @@ defmodule ArtNet.Packet do
 
   @spec encode(struct) :: {:ok, binary} | :error
   def encode(packet) do
-    case encode_body(packet) do
-      {:ok, body} -> {:ok, encode_header(packet.__struct__) <> body}
-      :error -> :error
+    module = packet.__struct__
+
+    with :ok <- module.validate(packet),
+         header = encode_header(module),
+         {:ok, body} <- encode_body(packet) do
+      {:ok, header <> body}
+    else
+      {:error, %ArtNet.EncodeError{} = reason} -> {:error, reason}
+      {:error, reason} -> {:error, %ArtNet.EncodeError{reason: {:invalid_data, reason}}}
     end
   end
 
+  @spec encode_header(module) :: binary
   defp encode_header(module) do
     op_code = module.__op_code__()
 
@@ -90,19 +97,27 @@ defmodule ArtNet.Packet do
     end
   end
 
+  @spec encode_body(struct) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   defp encode_body(packet) do
     packet.__struct__.schema()
-    |> Enum.reduce_while([], fn {key, {type, opts}}, acc ->
+    |> Enum.reduce_while({:ok, []}, fn {key, {type, opts}}, {:ok, acc} ->
       value = Map.fetch!(packet, key)
 
       case ArtNet.Encoder.encode(value, type, opts) do
-        {:ok, data} -> {:cont, [data | acc]}
-        :error -> {:halt, :error}
+        {:ok, data} ->
+          {:cont, {:ok, [data | acc]}}
+
+        :error ->
+          error = %ArtNet.EncodeError{
+            reason: {:encode_error, %{key: key, type: type, value: value}}
+          }
+
+          {:halt, {:error, error}}
       end
     end)
     |> case do
-      :error -> :error
-      data -> {:ok, data |> Enum.reverse() |> IO.iodata_to_binary()}
+      {:ok, data} -> {:ok, data |> Enum.reverse() |> IO.iodata_to_binary()}
+      {:error, reason} -> {:error, reason}
     end
   end
 end
