@@ -9,8 +9,6 @@ defmodule ArtNet do
   Note: This library provides encode/decode functionality. It does not provide network transfer functionality.
   """
 
-  @art_net_identifier ArtNet.Packet.identifier()
-
   @doc """
   Decodes a binary Art-Net packet.
 
@@ -28,19 +26,22 @@ defmodule ArtNet do
     }}
 
   iex> ArtNet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x01, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
-  :error
+  {:error, %ArtNet.DecodeError{reason: {:validate_error, "Invalid identifier"}}}
+
+  iex> ArtNet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, 0x5100}}}
   ```
   """
 
-  def decode(<<@art_net_identifier, op_code::little-size(16), _rest::binary>> = data) do
+  def decode(<<_::binary-size(8), op_code::little-size(16), _rest::binary>> = data) do
     case ArtNet.OpCode.packet_module_from_value(op_code) do
-      nil -> :error
+      nil -> {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, op_code}}}
       module -> module.decode(data)
     end
   end
 
   def decode(_) do
-    :error
+    {:error, %ArtNet.DecodeError{reason: :invalid_data}}
   end
 
   @spec encode(struct) :: {:ok, binary} | :error

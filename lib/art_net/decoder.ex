@@ -1,3 +1,26 @@
+defmodule ArtNet.DecodeError do
+  @type t :: %__MODULE__{
+          reason:
+            {:decode_error, atom}
+            | {:validate_error, String.t()}
+            | {:excess_bytes, binary}
+            | {:invalid_op_code, pos_integer}
+            | :invalid_data
+        }
+
+  defexception [:reason]
+
+  def message(%__MODULE__{} = exception) do
+    case exception.reason do
+      {:decode_error, reason} -> "decoding error: #{inspect(reason)}"
+      {:excess_bytes, bytes} -> "found excess bytes: #{inspect(bytes)}"
+      {:validate_error, reason} -> "validation error: #{reason}"
+      {:invalid_op_code, op_code} -> "not supported op code: #{op_code}"
+      :invalid_data -> "invalid data"
+    end
+  end
+end
+
 defmodule ArtNet.Decoder do
   @spec decode(binary, format :: atom | [atom], Keyword.t()) :: {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)

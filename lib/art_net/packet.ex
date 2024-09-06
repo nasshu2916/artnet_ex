@@ -5,36 +5,41 @@ defmodule ArtNet.Packet do
   def identifier, do: @identifier
   def version, do: @version
 
-  @spec decode(module, binary) :: {:ok, struct} | :error
+  @spec decode(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   def decode(module, rest) do
     case validate_header(module, rest) do
       {:ok, rest} -> decode_body(module, rest)
-      {:error, _reason} -> :error
+      {:error, reason} -> {:error, reason}
     end
   end
 
+  @spec decode_body(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   defp decode_body(module, rest) do
     module.schema()
-    |> Enum.reduce_while({[], rest}, fn {key, {type, opts}}, {values, rest} ->
+    |> Enum.reduce_while({:ok, [], rest}, fn {key, {type, opts}}, {:ok, values, rest} ->
       case ArtNet.Decoder.decode(rest, type, opts) do
         {:ok, {value, rest}} ->
-          {:cont, {[{key, value} | values], rest}}
+          {:cont, {:ok, [{key, value} | values], rest}}
 
         :error ->
-          {:halt, :error}
+          {:halt, {:error, %ArtNet.DecodeError{reason: {:decode_error, key}}}}
       end
     end)
     |> case do
-      :error -> :error
-      {params, _rest} -> {:ok, struct!(module, params)}
+      {:error, %ArtNet.DecodeError{} = reason} -> {:error, reason}
+      {:ok, params, <<>>} -> {:ok, struct!(module, params)}
+      {:ok, _, bytes} -> {:error, %ArtNet.DecodeError{reason: {:excess_bytes, bytes}}}
     end
   end
 
+  @spec validate_header(module, binary) :: {:ok, binary} | {:error, ArtNet.DecodeError.t()}
   def validate_header(module, rest) do
     with {:ok, rest} <- validate_identifier(rest),
          {:ok, rest} <- validate_op_code(module, rest),
          {:ok, rest} <- validate_version(module, rest) do
       {:ok, rest}
+    else
+      {:error, reason} -> {:error, %ArtNet.DecodeError{reason: {:validate_error, reason}}}
     end
   end
 
