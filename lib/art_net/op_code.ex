@@ -14,11 +14,6 @@ defmodule ArtNet.OpCode do
   @type keys :: unquote(ArtNet.Misc.type_ast(@op_codes))
 
   @doc """
-  Returns the op codes as atoms.
-  """
-  def op_codes, do: @op_codes
-
-  @doc """
   Returns the Packet module for the given op code.
   If the op code is not supported, nil is returned.
   """
