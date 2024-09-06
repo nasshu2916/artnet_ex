@@ -7,9 +7,16 @@ defmodule ArtNet.Packet do
 
   @spec decode(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   def decode(module, rest) do
-    case validate_header(module, rest) do
-      {:ok, rest} -> decode_body(module, rest)
-      {:error, reason} -> {:error, reason}
+    with {:ok, rest} <- validate_header(module, rest),
+         {:ok, packet} <- decode_body(module, rest),
+         :ok <- module.validate(packet) do
+      {:ok, packet}
+    else
+      {:error, %ArtNet.DecodeError{} = error} ->
+        {:error, error}
+
+      {:error, reason} when is_binary(reason) ->
+        {:error, %ArtNet.DecodeError{reason: {:invalid_data, reason}}}
     end
   end
 
@@ -39,7 +46,7 @@ defmodule ArtNet.Packet do
          {:ok, rest} <- validate_version(module, rest) do
       {:ok, rest}
     else
-      {:error, reason} -> {:error, %ArtNet.DecodeError{reason: {:validate_error, reason}}}
+      {:error, reason} -> {:error, %ArtNet.DecodeError{reason: {:invalid_data, reason}}}
     end
   end
 
@@ -81,8 +88,11 @@ defmodule ArtNet.Packet do
          {:ok, body} <- encode_body(packet) do
       {:ok, header <> body}
     else
-      {:error, %ArtNet.EncodeError{} = reason} -> {:error, reason}
-      {:error, reason} -> {:error, %ArtNet.EncodeError{reason: {:invalid_data, reason}}}
+      {:error, %ArtNet.EncodeError{} = reason} ->
+        {:error, reason}
+
+      {:error, reason} when is_binary(reason) ->
+        {:error, %ArtNet.EncodeError{reason: {:invalid_data, reason}}}
     end
   end
 
