@@ -79,7 +79,7 @@ defmodule ArtNet.Packet do
     end
   end
 
-  @spec encode(struct) :: {:ok, binary} | :error
+  @spec encode(struct) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   def encode(packet) do
     module = packet.__struct__
 
