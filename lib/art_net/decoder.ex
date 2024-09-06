@@ -30,6 +30,8 @@ defmodule ArtNet.Decoder do
 
   def decode(data, :string, opt), do: string(data, Keyword.get(opt, :size))
 
+  def decode(data, {:enum_table, module}, _opts), do: enum_table(data, module)
+
   @doc """
   Decodes a list of values from a binary.
 
@@ -185,6 +187,45 @@ defmodule ArtNet.Decoder do
         {:ok, {String.trim_trailing(string, <<0>>), rest}}
 
       :error ->
+        :error
+    end
+  end
+
+  @doc """
+  Enumerates a table of values from a binary.
+
+  This function is used to enumerate a table of values from a binary.
+
+  - `data` is the binary to enumerate the table from.
+  - `module` is the module that defines the enum.
+
+  The function returns `{:ok, {atom, rest}}` if the table was successfully enumerated.
+  The `atom` is the enumerated atom and `rest` is the remaining binary.
+
+  If the table could not be enumerated, the function returns `:error`.
+
+  ## Examples
+      iex> ArtNet.Decoder.enum_table(<<0x00, 0x00>>, ArtNet.Packet.EnumTable.Priority)
+      {:ok, {:dp_all, <<0x00>>}}
+
+      iex> ArtNet.Decoder.enum_table(<<0xC0, 0x10>>, ArtNet.Packet.EnumTable.Priority)
+      {:ok, {:dp_high, <<0x10>>}}
+
+      iex> ArtNet.Decoder.enum_table(<<0x01, 0x00>>, ArtNet.Packet.EnumTable.Priority)
+      :error
+  """
+  # @spec enum_table(binary, Keyword.t()) :: {:ok, {atom, binary}} | :error
+  def enum_table(data, module) do
+    byte_size = module.byte_size()
+
+    case data do
+      <<value::size(byte_size), rest::binary>> ->
+        case module.to_atom(value) do
+          {:ok, atom} -> {:ok, {atom, rest}}
+          :error -> :error
+        end
+
+      _ ->
         :error
     end
   end

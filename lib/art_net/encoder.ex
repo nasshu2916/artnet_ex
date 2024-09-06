@@ -26,6 +26,8 @@ defmodule ArtNet.Encoder do
   def encode(value, :binary, opts), do: binary(value, Keyword.get(opts, :size))
   def encode(value, :string, opts), do: binary(value, Keyword.get(opts, :size))
 
+  def encode(value, {:enum_table, module}, _opts), do: enum_table(value, module)
+
   @doc """
   Encodes a list of values into a binary.
 
@@ -131,6 +133,39 @@ defmodule ArtNet.Encoder do
       value_size == size -> {:ok, value}
       value_size < size -> {:ok, value <> <<0::size((size - value_size) * 8)>>}
       true -> :error
+    end
+  end
+
+  @doc """
+  Encodes an enum value into a binary.
+
+  This function is used to encode enum values into a binary.
+
+  - `value` is the enum value to encode.
+  - `module` is the module that defines the enum.
+
+  The function returns `{:ok, binary}` if the enum value was successfully encoded.
+  If the enum value could not be encoded, the function returns `:error`.
+
+  ## Examples
+      iex> ArtNet.Encoder.enum_table(:dp_all, ArtNet.Packet.EnumTable.Priority)
+      {:ok, <<0x00>>}
+
+      iex> ArtNet.Encoder.enum_table(:dp_high, ArtNet.Packet.EnumTable.Priority)
+      {:ok, <<0xC0>>}
+
+      iex> ArtNet.Encoder.enum_table(:none, ArtNet.Packet.EnumTable.Priority)
+      :error
+  """
+  @spec enum_table(atom, module) :: {:ok, binary}
+  def enum_table(value, module) do
+    case module.to_code(value) do
+      {:ok, code} ->
+        byte_size = module.byte_size()
+        {:ok, <<code::size(byte_size)>>}
+
+      :error ->
+        :error
     end
   end
 end

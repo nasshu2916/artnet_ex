@@ -102,7 +102,7 @@ defmodule ArtNet.Packet.Schema do
     * `size` - the size of the field in bits, default is nil
   """
   defmacro field(name, format, opts \\ []) do
-    quote bind_quoted: [name: name, format: Macro.escape(format), opts: opts] do
+    quote bind_quoted: [name: name, format: format, opts: opts] do
       ArtNet.Packet.Schema.__field__(name, format, opts, __ENV__)
     end
   end
@@ -138,4 +138,7 @@ defmodule ArtNet.Packet.Schema do
   defp format_type(format) when format in [:uint8, :uint16], do: :integer
   defp format_type(:binary), do: :binary
   defp format_type(:string), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
+
+  defp format_type({:enum_table, enum_module}),
+    do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
 end
