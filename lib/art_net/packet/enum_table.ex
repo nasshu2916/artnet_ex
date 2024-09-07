@@ -5,9 +5,10 @@ defmodule ArtNet.Packet.EnumTable do
     end
   end
 
-  defmacro defenumtable(bit_size, table) do
-    quote bind_quoted: [bit_size: bit_size, table: table] do
+  defmacro defenumtable(opts, table) do
+    quote bind_quoted: [opts: opts, table: table] do
       keys = Enum.map(table, fn {key, _value} -> key end)
+      bit_size = Keyword.fetch!(opts, :bit_size)
 
       @type keys :: unquote(ArtNet.Misc.type_ast(keys))
 
