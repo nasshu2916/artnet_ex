@@ -31,6 +31,7 @@ defmodule ArtNet.Decoder do
   def decode(data, :string, opt), do: string(data, Keyword.get(opt, :size))
 
   def decode(data, {:enum_table, module}, _opts), do: enum_table(data, module)
+  def decode(data, {:bit_field, module}, _opts), do: bit_field(data, module)
 
   @doc """
   Decodes a list of values from a binary.
@@ -228,5 +229,58 @@ defmodule ArtNet.Decoder do
       _ ->
         :error
     end
+  end
+
+  @doc """
+  Extracts a bit field from a binary.
+
+  This function is used to extract a bit field from a binary.
+
+  - `data` is the binary to extract the bit field from.
+  - `module` is the module that defines the bit field.
+
+  The function returns `{:ok, {struct, rest}}` if the bit field was successfully extracted.
+  The `struct` is the extracted struct and `rest` is the remaining binary.
+
+  If the bit field could not be extracted, the function returns `:error`.
+
+  ## Examples
+      iex> ArtNet.Decoder.bit_field(<<0b00110, 0b0001>>, ArtNet.Packet.BitField.TalkToMe)
+      {:ok,
+        {%ArtNet.Packet.BitField.TalkToMe{
+            reply_on_change: true,
+            diagnostics: true,
+            diag_unicast: false,
+            vlc: false
+          }, <<0x01>>}}
+  """
+
+  @spec bit_field(binary, module) :: {:ok, {struct(), binary}} | :error
+  def bit_field(data, module) do
+    bit_size = module.bit_size()
+
+    case data do
+      <<value::size(bit_size), rest::binary>> ->
+        {:ok, {do_bit_field(value, module), rest}}
+
+      _ ->
+        :error
+    end
+  end
+
+  defp do_bit_field(value, module) do
+    module.bit_field_schema()
+    |> Enum.reduce([], fn {key, {type, {offset, length}}}, acc ->
+      extracted_value = ArtNet.Packet.BitField.extract_bits(value, offset, length)
+
+      extracted_value =
+        case {type, extracted_value} do
+          {:boolean, 0} -> false
+          {:boolean, 1} -> true
+        end
+
+      [{key, extracted_value} | acc]
+    end)
+    |> then(&struct(module, &1))
   end
 end

@@ -27,7 +27,7 @@ defmodule ArtNet.Packet.Schema do
   @doc """
   Defines a typed struct.
 
-  Inside a `defpacket` block, each field is defined through the `field/2`
+  Inside a `defpacket` block, each field is defined through the `field/3`
   macro.
   """
   defmacro defpacket(opts, do: block) do
@@ -141,4 +141,7 @@ defmodule ArtNet.Packet.Schema do
 
   defp format_type({:enum_table, enum_module}),
     do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
+
+  defp format_type({:bit_field, bit_field_module}),
+    do: {{:., [], [{:__aliases__, [], [bit_field_module]}, :t]}, [], []}
 end

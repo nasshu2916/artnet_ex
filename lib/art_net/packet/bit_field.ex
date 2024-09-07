@@ -1,4 +1,6 @@
 defmodule ArtNet.Packet.BitField do
+  import Bitwise
+
   @struct_accumulate_attrs [
     :artnet_fields,
     :artnet_enforce_keys,
@@ -29,6 +31,9 @@ defmodule ArtNet.Packet.BitField do
         Module.register_attribute(__MODULE__, attr, accumulate: true)
       end)
 
+      offset = Keyword.get(unquote(opts), :offset, 0)
+      @artnet_bit_field_offset offset
+
       import ArtNet.Packet.BitField
 
       unquote(block)
@@ -39,12 +44,12 @@ defmodule ArtNet.Packet.BitField do
       ArtNet.Packet.BitField.__struct_type__(@artnet_types)
 
       @schema Enum.reverse(@artnet_schema)
-      def schema, do: @schema
+      def bit_field_schema, do: @schema
 
       @bit_size Keyword.fetch!(unquote(opts), :size)
       def bit_size, do: @bit_size
 
-      @offset Keyword.get(unquote(opts), :offset, 0)
+      @offset offset
       def offset, do: @offset
     end
   end
@@ -77,12 +82,41 @@ defmodule ArtNet.Packet.BitField do
     has_default? = Keyword.has_key?(opts, :default)
     enforce? = not has_default?
 
+    offset = Module.get_attribute(module, :artnet_bit_field_offset)
+
+    size =
+      case format do
+        :boolean -> 1
+      end
+
+    Module.put_attribute(module, :artnet_bit_field_offset, offset + size)
+
     Module.put_attribute(module, :artnet_fields, {name, default})
     Module.put_attribute(module, :artnet_types, {name, type_for(format)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
-    Module.put_attribute(module, :artnet_schema, {name, {format, opts}})
+    Module.put_attribute(module, :artnet_schema, {name, {format, {offset, size}}})
   end
 
   defp type_for(:boolean), do: :boolean
+
+  @doc """
+  Extracts bits from a value.
+
+  ### Examples
+
+    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 0, 2)
+    0b10
+
+    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 2)
+    0b01
+
+    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 4)
+    0b0001
+  """
+  @spec extract_bits(integer, non_neg_integer, pos_integer) :: non_neg_integer
+  def extract_bits(value, offset, length) do
+    mask = (1 <<< length) - 1
+    value >>> offset &&& mask
+  end
 end

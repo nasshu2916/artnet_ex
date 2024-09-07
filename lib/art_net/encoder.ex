@@ -27,6 +27,7 @@ defmodule ArtNet.Encoder do
   def encode(value, :string, opts), do: binary(value, Keyword.get(opts, :size))
 
   def encode(value, {:enum_table, module}, _opts), do: enum_table(value, module)
+  def encode(value, {:bit_field, _module}, _opts), do: bit_field(value)
 
   @doc """
   Encodes a list of values into a binary.
@@ -167,5 +168,36 @@ defmodule ArtNet.Encoder do
       :error ->
         :error
     end
+  end
+
+  @doc """
+  Encodes a bit field value into a binary.
+
+  This function is used to encode bit field values into a binary.
+
+  - `value` is the bit field value to encode.
+
+  The function returns `{:ok, binary}` if the bit field value was successfully encoded.
+
+  ## Examples
+      iex> ArtNet.Encoder.bit_field(%ArtNet.Packet.BitField.TalkToMe{reply_on_change: true,diagnostics: true,diag_unicast: false,vlc: false})
+      {:ok, <<0b00110>>}
+  """
+  @spec bit_field(struct) :: {:ok, binary}
+  def bit_field(value) do
+    module = value.__struct__
+    size = module.bit_size()
+
+    module.bit_field_schema()
+    |> Enum.reduce(0, fn {key, {type, {offset, _}}}, acc ->
+      encode_value =
+        case {type, Map.fetch!(value, key)} do
+          {:boolean, true} -> 1
+          {:boolean, false} -> 0
+        end
+
+      acc + (encode_value <<< offset)
+    end)
+    |> then(&{:ok, <<&1::size(size)>>})
   end
 end
