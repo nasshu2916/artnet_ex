@@ -5,16 +5,16 @@ defmodule ArtNet.Packet.EnumTable do
     end
   end
 
-  defmacro defenumtable(byte_size, table) do
-    quote bind_quoted: [byte_size: byte_size, table: table] do
+  defmacro defenumtable(bit_size, table) do
+    quote bind_quoted: [bit_size: bit_size, table: table] do
       keys = Enum.map(table, fn {key, _value} -> key end)
 
       @type keys :: unquote(ArtNet.Misc.type_ast(keys))
 
       Module.put_attribute(__MODULE__, :keys, keys)
-      Module.put_attribute(__MODULE__, :byte_size, byte_size)
+      Module.put_attribute(__MODULE__, :bit_size, bit_size)
 
-      def byte_size, do: @byte_size
+      def bit_size, do: @bit_size
 
       for {key, value} <- table do
         def unquote(key)(), do: unquote(value)

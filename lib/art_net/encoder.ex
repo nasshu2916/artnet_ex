@@ -161,8 +161,8 @@ defmodule ArtNet.Encoder do
   def enum_table(value, module) do
     case module.to_code(value) do
       {:ok, code} ->
-        byte_size = module.byte_size()
-        {:ok, <<code::size(byte_size)>>}
+        bit_size = module.bit_size()
+        {:ok, <<code::size(bit_size)>>}
 
       :error ->
         :error

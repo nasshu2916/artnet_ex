@@ -216,10 +216,10 @@ defmodule ArtNet.Decoder do
   """
   # @spec enum_table(binary, Keyword.t()) :: {:ok, {atom, binary}} | :error
   def enum_table(data, module) do
-    byte_size = module.byte_size()
+    bit_size = module.bit_size()
 
     case data do
-      <<value::size(byte_size), rest::binary>> ->
+      <<value::size(bit_size), rest::binary>> ->
         case module.to_atom(value) do
           {:ok, atom} -> {:ok, {atom, rest}}
           :error -> :error
