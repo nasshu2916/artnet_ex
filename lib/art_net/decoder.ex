@@ -297,17 +297,22 @@ defmodule ArtNet.Decoder do
 
   defp do_bit_field(value, module) do
     module.bit_field_schema()
-    |> Enum.reduce([], fn {key, {type, {offset, length}}}, acc ->
+    |> Enum.reduce_while([], fn {key, {type, {offset, length}}}, acc ->
       extracted_value = ArtNet.Packet.BitField.extract_bits(value, offset, length)
 
-      extracted_value =
-        case {type, extracted_value} do
-          {:boolean, 0} -> false
-          {:boolean, 1} -> true
-        end
-
-      [{key, extracted_value} | acc]
+      case {type, extracted_value} do
+        {:boolean, 0} -> {:ok, false}
+        {:boolean, 1} -> {:ok, true}
+        {{:enum_table, enum_module}, extracted_value} -> enum_module.to_atom(extracted_value)
+      end
+      |> case do
+        {:ok, result} -> {:cont, [{key, result} | acc]}
+        :error -> {:halt, :error}
+      end
     end)
-    |> then(&struct(module, &1))
+    |> case do
+      :error -> :error
+      acc -> struct!(module, acc)
+    end
   end
 end

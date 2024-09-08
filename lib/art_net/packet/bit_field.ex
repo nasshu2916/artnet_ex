@@ -87,6 +87,7 @@ defmodule ArtNet.Packet.BitField do
     size =
       case format do
         :boolean -> 1
+        {:enum_table, module} -> module.bit_size()
       end
 
     Module.put_attribute(module, :artnet_bit_field_offset, offset + size)
@@ -99,6 +100,9 @@ defmodule ArtNet.Packet.BitField do
   end
 
   defp type_for(:boolean), do: :boolean
+
+  defp type_for({:enum_table, enum_module}),
+    do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
 
   @doc """
   Extracts bits from a value.
