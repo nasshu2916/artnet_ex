@@ -83,6 +83,7 @@ defmodule ArtNet.Packet.BitField do
     enforce? = not has_default?
 
     offset = Module.get_attribute(module, :artnet_bit_field_offset)
+    offset = offset + Keyword.get(opts, :offset, 0)
 
     size =
       case format do
