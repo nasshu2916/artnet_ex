@@ -121,27 +121,23 @@ defmodule ArtNet.Packet.Schema do
 
     default = Keyword.get(opts, :default)
     has_default? = Keyword.has_key?(opts, :default)
-    nullable? = Keyword.get(opts, :nullable, false)
-    enforce? = not (has_default? or nullable?)
+    enforce? = has_default?
 
     Module.put_attribute(module, :artnet_fields, {name, default})
-    Module.put_attribute(module, :artnet_types, {name, type_for(format, nullable?)})
+    Module.put_attribute(module, :artnet_types, {name, type_for(format)})
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
   end
 
-  defp type_for(format, false), do: format_type(format)
-  defp type_for(format, true), do: quote(do: unquote(format_type(format)) | nil)
+  defp type_for([format]), do: [type_for(format)]
+  defp type_for(format) when format in [:uint8, :uint16], do: :integer
+  defp type_for(:binary), do: :binary
+  defp type_for(:string), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
 
-  defp format_type([format]), do: [format_type(format)]
-  defp format_type(format) when format in [:uint8, :uint16], do: :integer
-  defp format_type(:binary), do: :binary
-  defp format_type(:string), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
-
-  defp format_type({:enum_table, enum_module}),
+  defp type_for({:enum_table, enum_module}),
     do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
 
-  defp format_type({:bit_field, bit_field_module}),
+  defp type_for({:bit_field, bit_field_module}),
     do: {{:., [], [{:__aliases__, [], [bit_field_module]}, :t]}, [], []}
 end
