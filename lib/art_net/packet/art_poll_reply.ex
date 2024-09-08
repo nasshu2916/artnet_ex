@@ -18,8 +18,8 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:node_report, {:binary, 64})
     field(:num_ports, {:integer, 16})
     field(:port_types, [{:bit_field, BitField.PortType}], length: 4)
-    field(:good_input, [{:integer, 8}], length: 4)
-    field(:good_output, [{:integer, 8}], length: 4)
+    field(:good_input, [{:bit_field, BitField.GoodInput}], length: 4)
+    field(:good_output, [{:bit_field, BitField.GoodOutput}], length: 4)
     field(:sw_in, [{:integer, 8}], length: 4)
     field(:sw_out, [{:integer, 8}], length: 4)
     field(:sw_video, {:integer, 8})
@@ -30,7 +30,7 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:mac_address, {:binary, 6})
     field(:bind_ip, {:binary, 4})
     field(:bind_index, {:integer, 8})
-    field(:status2, {:integer, 8})
+    field(:status2, {:bit_field, BitField.Status2})
     field(:filler, {:binary, 26})
   end
 end

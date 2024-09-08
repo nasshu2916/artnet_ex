@@ -30,8 +30,82 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
             %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false},
             %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false}
           ],
-          good_input: [0, 0, 0, 0],
-          good_output: [0, 0, 0, 0],
+          good_input: [
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            }
+          ],
+          good_output: [
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            }
+          ],
           sw_in: [0, 0, 0, 0],
           sw_out: [0, 0, 0, 0],
           sw_video: 0,
@@ -42,7 +116,16 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           mac_address: <<0, 0, 0, 0, 0, 0>>,
           bind_ip: <<0, 0, 0, 0>>,
           bind_index: 0,
-          status2: 0,
+          status2: %ArtNet.Packet.BitField.Status2{
+            support_browser: false,
+            dhcp: false,
+            dhcp_capable: false,
+            port_15bit: false,
+            can_switch: false,
+            squawking: false,
+            switch_output_style: false,
+            control_rdm: false
+          },
           filler: <<0::size(26 * 8)>>
         },
         <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00,
@@ -91,8 +174,82 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
             %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: true, output: true},
             %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: false, output: false}
           ],
-          good_input: [0, 0, 0, 0],
-          good_output: [0, 0, 0, 0],
+          good_input: [
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            },
+            %ArtNet.Packet.BitField.GoodInput{
+              recive_errors: false,
+              input_disabled: false,
+              dmx_text: false,
+              dmx_sip: false,
+              dmx_test_packet: false,
+              data_received: false
+            }
+          ],
+          good_output: [
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            },
+            %ArtNet.Packet.BitField.GoodOutput{
+              convert_sacn: false,
+              marge_ltp_mode: false,
+              output_short: false,
+              marging: false,
+              dmx_test_packet: false,
+              dmx_sip: false,
+              dmx_text: false,
+              output_data: false
+            }
+          ],
           sw_in: [0, 0, 0, 0],
           sw_out: [0, 0, 0, 0],
           sw_video: 0,
@@ -103,7 +260,16 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           mac_address: <<0, 0, 0, 0, 0, 0>>,
           bind_ip: <<0, 0, 0, 0>>,
           bind_index: 0,
-          status2: 0,
+          status2: %ArtNet.Packet.BitField.Status2{
+            support_browser: false,
+            dhcp: false,
+            dhcp_capable: false,
+            port_15bit: false,
+            can_switch: false,
+            squawking: false,
+            switch_output_style: false,
+            control_rdm: false
+          },
           filler: <<0::size(26 * 8)>>
         },
         <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00,
