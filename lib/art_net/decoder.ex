@@ -26,6 +26,8 @@ defmodule ArtNet.Decoder do
   def decode(data, :uint8, _opts), do: integer(data, 8)
   def decode(data, :uint16, _opts), do: integer(data, 16)
 
+  def decode(data, {:integer, size, :little_endian}, _opts), do: little_integer(data, size)
+
   def decode(data, :binary, opt), do: binary(data, Keyword.get(opt, :size))
 
   def decode(data, :string, opt), do: string(data, Keyword.get(opt, :size))
@@ -112,6 +114,32 @@ defmodule ArtNet.Decoder do
   def integer(data, size) do
     case data do
       <<value::size(size), rest::binary>> -> {:ok, {value, rest}}
+      _ -> :error
+    end
+  end
+
+  @doc """
+  Extracts a little-endian integer value from a binary.
+
+  This function is used to extract little-endian integer values from a binary.
+
+  ## Examples
+      iex> ArtNet.Decoder.little_integer(<<1, 2, 3, 4>>, 16)
+      {:ok, {0x0201, <<3, 4>>}}
+
+      iex> ArtNet.Decoder.little_integer(<<1, 2, 3, 4>>, 32)
+      {:ok, {0x04030201, <<>>}}
+
+      iex> ArtNet.Decoder.little_integer(<<1, 2, 3, 4>>, 5)
+      :error
+
+      iex> ArtNet.Decoder.little_integer(<<1, 2, 3>>, 32)
+      :error
+  """
+  @spec little_integer(binary, pos_integer) :: {:ok, {non_neg_integer, binary}} | :error
+  def little_integer(data, size) do
+    case data do
+      <<value::little-size(size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
     end
   end

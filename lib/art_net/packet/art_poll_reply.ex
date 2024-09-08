@@ -3,7 +3,7 @@ defmodule ArtNet.Packet.ArtPollReply do
 
   defpacket op_code: 0x2100, require_version_header?: false do
     field(:ip_address, :binary, size: 4)
-    field(:port, :uint16)
+    field(:port, {:integer, 16, :little_endian})
     field(:version_info, :uint16)
     field(:net_switch, :uint8)
     field(:sub_switch, :uint8)

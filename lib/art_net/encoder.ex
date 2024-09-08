@@ -23,6 +23,8 @@ defmodule ArtNet.Encoder do
   def encode(value, :uint8, _opts), do: integer(value, 8)
   def encode(value, :uint16, _opts), do: integer(value, 16)
 
+  def encode(value, {:integer, size, :little_endian}, _opts), do: little_integer(value, size)
+
   def encode(value, :binary, opts), do: binary(value, Keyword.get(opts, :size))
   def encode(value, :string, opts), do: binary(value, Keyword.get(opts, :size))
 
@@ -97,6 +99,30 @@ defmodule ArtNet.Encoder do
   end
 
   def integer(_, _) do
+    :error
+  end
+
+  @doc """
+  Encodes a little-endian integer value into a binary.
+
+  This function is used to encode little-endian integer values into a binary.
+
+  ## Examples
+      iex> ArtNet.Encoder.little_integer(0x0102, 16)
+      {:ok, <<2, 1>>}
+
+      iex> ArtNet.Encoder.little_integer(0x01020304, 32)
+      {:ok, <<4, 3, 2, 1>>}
+
+      iex> ArtNet.Encoder.little_integer(0x0102, 8)
+      :error
+  """
+  @spec little_integer(non_neg_integer, pos_integer) :: {:ok, binary} | :error
+  def little_integer(value, size) when 0 <= value and value < 1 <<< size do
+    {:ok, <<value::little-size(size)>>}
+  end
+
+  def little_integer(_, _) do
     :error
   end
 
