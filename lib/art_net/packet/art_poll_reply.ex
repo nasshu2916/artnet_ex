@@ -11,7 +11,7 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:sub_switch, {:integer, 8})
     field(:oem, {:integer, 16})
     field(:ubea_version, {:integer, 8})
-    field(:status1, {:integer, 8})
+    field(:status1, {:bit_field, BitField.Status1})
     field(:est_amanu_facturer, {:binary, 2})
     field(:short_name, {:string, 18})
     field(:long_name, {:string, 64})
