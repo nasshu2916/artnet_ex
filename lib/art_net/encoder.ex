@@ -20,9 +20,8 @@ defmodule ArtNet.Encoder do
 
   @spec encode(any, ArtNet.Packet.Schema.format(), Keyword.t()) :: {:ok, binary} | :error
   def encode(values, [format], opts), do: encode_list(values, format, opts)
-  def encode(value, :uint8, _opts), do: integer(value, 8)
-  def encode(value, :uint16, _opts), do: integer(value, 16)
 
+  def encode(value, {:integer, size}, _opts), do: integer(value, size)
   def encode(value, {:integer, size, :little_endian}, _opts), do: little_integer(value, size)
 
   def encode(value, {:binary, size}, _opts), do: binary(value, size)
@@ -44,13 +43,13 @@ defmodule ArtNet.Encoder do
   If the values could not be encoded, the function returns `:error`.
 
   ## Examples
-      iex> ArtNet.Encoder.encode_list([1, 2, 3], :uint8, [])
+      iex> ArtNet.Encoder.encode_list([1, 2, 3], {:integer, 8}, [])
       {:ok, <<1, 2, 3>>}
 
-      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], :uint16, [])
+      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], {:integer, 16}, [])
       {:ok, <<0, 1, 0, 2, 0x11, 0x11>>}
 
-      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], :uint8, [])
+      iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], {:integer, 8}, [])
       :error
   """
   @spec encode_list([any], atom, Keyword.t()) :: {:ok, binary} | :error

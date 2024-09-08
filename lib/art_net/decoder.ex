@@ -24,9 +24,7 @@ defmodule ArtNet.Decoder do
           {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)
 
-  def decode(data, :uint8, _opts), do: integer(data, 8)
-  def decode(data, :uint16, _opts), do: integer(data, 16)
-
+  def decode(data, {:integer, size}, _opts), do: integer(data, size)
   def decode(data, {:integer, size, :little_endian}, _opts), do: little_integer(data, size)
 
   def decode(data, {:binary, size}, _opts), do: binary(data, size)
@@ -52,16 +50,16 @@ defmodule ArtNet.Decoder do
   If the values could not be decoded, the function returns `:error`.
 
   ## Examples
-      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, :uint8, [])
+      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, {:integer, 8}, [])
       {:ok, {[1, 2, 3], <<>>}}
 
-      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, :uint16, [])
+      iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, {:integer, 16}, [])
       :error
 
-      iex> ArtNet.Decoder.decode_list(<<0, 1, 1, 1>>, :uint16, [])
+      iex> ArtNet.Decoder.decode_list(<<0, 1, 1, 1>>, {:integer, 16}, [])
       {:ok, {[1, 0x0101], <<>>}}
 
-      iex> ArtNet.Decoder.decode_list(<<0, 1, 1>>, :uint8, [length: 2])
+      iex> ArtNet.Decoder.decode_list(<<0, 1, 1>>, {:integer, 8}, [length: 2])
       {:ok, {[0, 1], <<1>>}}
   """
   @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error

@@ -2,12 +2,12 @@ defmodule ArtNet.Packet.ArtDmx do
   use ArtNet.Packet.Schema
 
   defpacket op_code: 0x5000 do
-    field(:sequence, :uint8, default: 0)
-    field(:physical, :uint8, default: 0)
-    field(:sub_universe, :uint8, default: 0)
-    field(:net, :uint8, default: 0)
-    field(:length, :uint16)
-    field(:data, [:uint8])
+    field(:sequence, {:integer, 8}, default: 0)
+    field(:physical, {:integer, 8}, default: 0)
+    field(:sub_universe, {:integer, 8}, default: 0)
+    field(:net, {:integer, 8}, default: 0)
+    field(:length, {:integer, 16})
+    field(:data, [{:integer, 8}])
   end
 
   @impl ArtNet.Packet.Schema
