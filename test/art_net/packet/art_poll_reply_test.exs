@@ -18,7 +18,12 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           long_name: "",
           node_report: <<0::size(64 * 8)>>,
           num_ports: 0,
-          port_types: [0, 0, 0, 0],
+          port_types: [
+            %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false},
+            %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false},
+            %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false},
+            %ArtNet.Packet.BitField.PortType{port_type: :dmx512, input: false, output: false}
+          ],
           good_input: [0, 0, 0, 0],
           good_output: [0, 0, 0, 0],
           sw_in: [0, 0, 0, 0],
@@ -68,7 +73,12 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           long_name: "test Log Name",
           node_report: <<0::size(64 * 8)>>,
           num_ports: 0,
-          port_types: [0, 0, 0, 0],
+          port_types: [
+            %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: true, output: false},
+            %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: false, output: true},
+            %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: true, output: true},
+            %ArtNet.Packet.BitField.PortType{port_type: :art_net, input: false, output: false}
+          ],
           good_input: [0, 0, 0, 0],
           good_output: [0, 0, 0, 0],
           sw_in: [0, 0, 0, 0],
@@ -96,7 +106,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x45, 0x85, 0xC5, 0x05, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

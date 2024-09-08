@@ -1,6 +1,8 @@
 defmodule ArtNet.Packet.ArtPollReply do
   use ArtNet.Packet.Schema
 
+  alias ArtNet.Packet.BitField
+
   defpacket op_code: 0x2100, require_version_header?: false do
     field(:ip_address, {:binary, 4})
     field(:port, {:integer, 16, :little_endian})
@@ -15,7 +17,7 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:long_name, {:string, 64})
     field(:node_report, {:binary, 64})
     field(:num_ports, {:integer, 16})
-    field(:port_types, [{:integer, 8}], length: 4)
+    field(:port_types, [{:bit_field, BitField.PortType}], length: 4)
     field(:good_input, [{:integer, 8}], length: 4)
     field(:good_output, [{:integer, 8}], length: 4)
     field(:sw_in, [{:integer, 8}], length: 4)
