@@ -31,8 +31,7 @@ defmodule ArtNet.Packet.BitField do
         Module.register_attribute(__MODULE__, attr, accumulate: true)
       end)
 
-      offset = Keyword.get(unquote(opts), :offset, 0)
-      @artnet_bit_field_offset offset
+      @artnet_bit_field_offset 0
 
       import ArtNet.Packet.BitField
 
@@ -48,9 +47,6 @@ defmodule ArtNet.Packet.BitField do
 
       @bit_size Keyword.fetch!(unquote(opts), :size)
       def bit_size, do: @bit_size
-
-      @offset offset
-      def offset, do: @offset
     end
   end
 
@@ -82,8 +78,8 @@ defmodule ArtNet.Packet.BitField do
     has_default? = Keyword.has_key?(opts, :default)
     enforce? = not has_default?
 
-    offset = Module.get_attribute(module, :artnet_bit_field_offset)
-    offset = offset + Keyword.get(opts, :offset, 0)
+    offset =
+      Module.get_attribute(module, :artnet_bit_field_offset) + Keyword.get(opts, :offset, 0)
 
     size =
       case format do
