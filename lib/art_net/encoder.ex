@@ -18,15 +18,15 @@ end
 defmodule ArtNet.Encoder do
   import Bitwise
 
-  @spec encode(any, atom | [atom], Keyword.t()) :: {:ok, binary} | :error
+  @spec encode(any, ArtNet.Packet.Schema.format(), Keyword.t()) :: {:ok, binary} | :error
   def encode(values, [format], opts), do: encode_list(values, format, opts)
   def encode(value, :uint8, _opts), do: integer(value, 8)
   def encode(value, :uint16, _opts), do: integer(value, 16)
 
   def encode(value, {:integer, size, :little_endian}, _opts), do: little_integer(value, size)
 
-  def encode(value, :binary, opts), do: binary(value, Keyword.get(opts, :size))
-  def encode(value, :string, opts), do: binary(value, Keyword.get(opts, :size))
+  def encode(value, {:binary, size}, _opts), do: binary(value, size)
+  def encode(value, {:string, size}, _opts), do: binary(value, size)
 
   def encode(value, {:enum_table, module}, _opts), do: enum_table(value, module)
   def encode(value, {:bit_field, _module}, _opts), do: bit_field(value)

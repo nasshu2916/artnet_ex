@@ -20,7 +20,8 @@ defmodule ArtNet.DecodeError do
 end
 
 defmodule ArtNet.Decoder do
-  @spec decode(binary, format :: atom | [atom], Keyword.t()) :: {:ok, {any, binary}} | :error
+  @spec decode(binary, ArtNet.Packet.Schema.format(), Keyword.t()) ::
+          {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)
 
   def decode(data, :uint8, _opts), do: integer(data, 8)
@@ -28,9 +29,9 @@ defmodule ArtNet.Decoder do
 
   def decode(data, {:integer, size, :little_endian}, _opts), do: little_integer(data, size)
 
-  def decode(data, :binary, opt), do: binary(data, Keyword.get(opt, :size))
+  def decode(data, {:binary, size}, _opts), do: binary(data, size)
 
-  def decode(data, :string, opt), do: string(data, Keyword.get(opt, :size))
+  def decode(data, {:string, size}, _opts), do: string(data, size)
 
   def decode(data, {:enum_table, module}, _opts), do: enum_table(data, module)
   def decode(data, {:bit_field, module}, _opts), do: bit_field(data, module)

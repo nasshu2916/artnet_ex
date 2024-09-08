@@ -8,6 +8,16 @@ defmodule ArtNet.Packet.Schema do
 
   @callback validate(packet :: struct) :: :ok | {:error, String.t()}
 
+  @type format ::
+          :uint8
+          | :uint16
+          | {:integer, pos_integer, :little_endian}
+          | {:binary, pos_integer}
+          | {:string, pos_integer}
+          | {:enum_table, module()}
+          | {:bit_field, module()}
+          | [format()]
+
   @doc false
   defmacro __using__(_) do
     quote do
@@ -132,9 +142,9 @@ defmodule ArtNet.Packet.Schema do
 
   defp type_for([format]), do: [type_for(format)]
   defp type_for(format) when format in [:uint8, :uint16], do: :integer
-  defp type_for({:integer, _, :little_endian}), do: :integer
-  defp type_for(:binary), do: :binary
-  defp type_for(:string), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
+  defp type_for({:integer, _size, :little_endian}), do: :integer
+  defp type_for({:binary, _size}), do: :binary
+  defp type_for({:string, _size}), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
 
   defp type_for({:enum_table, enum_module}),
     do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
