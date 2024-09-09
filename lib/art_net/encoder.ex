@@ -213,21 +213,9 @@ defmodule ArtNet.Encoder do
     module = value.__struct__
     size = module.bit_size()
 
-    module.bit_field_schema()
-    |> Enum.reduce_while(0, fn {key, {type, {offset, _}}}, acc ->
-      case {type, Map.fetch!(value, key)} do
-        {:boolean, true} -> {:ok, 1}
-        {:boolean, false} -> {:ok, 0}
-        {{:enum_table, enum_module}, value} -> enum_module.to_code(value)
-      end
-      |> case do
-        {:ok, encode_value} -> {:cont, acc + (encode_value <<< offset)}
-        :error -> {:halt, :error}
-      end
-    end)
-    |> case do
+    case module.encode(value) do
       :error -> :error
-      acc -> {:ok, <<acc::size(size)>>}
+      {:ok, result} -> {:ok, <<result::size(size)>>}
     end
   end
 end

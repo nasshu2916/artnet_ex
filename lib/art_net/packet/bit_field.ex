@@ -8,6 +8,8 @@ defmodule ArtNet.Packet.BitField do
     :artnet_schema
   ]
 
+  @type schema_type :: :boolean | {:enum_table, module}
+
   defmacro __using__(_) do
     quote do
       import ArtNet.Packet.BitField, only: [defbitfield: 2]
@@ -43,10 +45,21 @@ defmodule ArtNet.Packet.BitField do
       ArtNet.Packet.BitField.__struct_type__(@artnet_types)
 
       @schema Enum.reverse(@artnet_schema)
+      @spec bit_field_schema :: [
+              {key :: atom,
+               {ArtNet.Packet.BitField.schema_type(),
+                {start_bit :: non_neg_integer, length :: pos_integer}}}
+            ]
       def bit_field_schema, do: @schema
 
       @bit_size Keyword.fetch!(unquote(opts), :size)
       def bit_size, do: @bit_size
+
+      @spec decode(non_neg_integer) :: {:ok, t()} | :error
+      def decode(value), do: ArtNet.Packet.BitField.decode(value, __MODULE__)
+
+      @spec encode(t()) :: {:ok, non_neg_integer} | :error
+      def encode(struct), do: ArtNet.Packet.BitField.encode(struct, __MODULE__)
     end
   end
 
@@ -100,6 +113,44 @@ defmodule ArtNet.Packet.BitField do
 
   defp type_for({:enum_table, enum_module}),
     do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
+
+  @spec decode(non_neg_integer, module) :: {:ok, struct} | :error
+  def decode(value, module) do
+    module.bit_field_schema()
+    |> Enum.reduce_while({:ok, []}, fn {key, {type, {offset, length}}}, {:ok, acc} ->
+      extracted_value = extract_bits(value, offset, length)
+
+      case cast_value(type, extracted_value) do
+        {:ok, result} -> {:cont, {:ok, [{key, result} | acc]}}
+        :error -> {:halt, :error}
+      end
+    end)
+    |> case do
+      {:ok, params} -> {:ok, struct!(module, params)}
+      :error -> :error
+    end
+  end
+
+  @spec encode(struct, module) :: {:ok, non_neg_integer} | :error
+  def encode(struct, module) do
+    Enum.reduce_while(module.bit_field_schema(), {:ok, 0}, fn {key, {type, {offset, _}}},
+                                                              {:ok, acc} ->
+      case dump_value(type, Map.fetch!(struct, key)) do
+        {:ok, encode_value} -> {:cont, {:ok, acc + (encode_value <<< offset)}}
+        :error -> {:halt, :error}
+      end
+    end)
+  end
+
+  @spec cast_value(schema_type(), non_neg_integer) :: {:ok, any} | :error
+  defp cast_value(:boolean, 0), do: {:ok, false}
+  defp cast_value(:boolean, 1), do: {:ok, true}
+  defp cast_value({:enum_table, enum_module}, value), do: enum_module.to_atom(value)
+
+  @spec dump_value(schema_type(), any) :: {:ok, non_neg_integer} | :error
+  defp dump_value(:boolean, false), do: {:ok, 0}
+  defp dump_value(:boolean, true), do: {:ok, 1}
+  defp dump_value({:enum_table, enum_module}, value), do: enum_module.to_code(value)
 
   @doc """
   Extracts bits from a value.
