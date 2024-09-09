@@ -1,0 +1,117 @@
+<!-- livebook:{"file_entries":[{"name":"screenshot01.PNG","type":"attachment"}]} -->
+
+# Art-Net Sample
+
+```elixir
+Mix.install([
+  {:art_net, "~> 0.1.0", github: "nasshu2916/artnet_ex", branch: "master"}
+])
+```
+
+## Setup
+
+Create aliases for ArtDmx
+
+```elixir
+alias ArtNet.Packet.ArtDmx
+```
+
+## Create an Art-Net Dmx Packet
+
+Art-Net Dmx packet is created using the `ArtDmx` struct.
+
+```elixir
+dmx_packet = %ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
+```
+
+## Encode the message
+
+The `ArtNet.encode!/1` function is used to encode the `ArtDmx` struct into a binary message.
+If the encoding is successful, the function returns the encoded message. Otherwise, it raises an error.
+
+`ArtNet.encode/1` is also available, which returns `{:ok, encoded_message}` or `{:error, reason}`.
+
+```elixir
+dmx_message = ArtNet.encode!(dmx_packet)
+```
+
+The encoded message is a binary that can be sent over the network via UDP.
+
+## Send an encoded message
+
+To send the encoded message, you need to open a UDP port and send the message to the target IP address and port number.
+
+To open a UDP port, use the `:gen_udp.open/2` function.
+`:gen_udp` is a built-in erlang library that provides UDP socket functionality.
+
+Send a UDP packet to the specified IP address and port number.
+Art-Net uses port 6454 for communication.
+
+```elixir
+ip_address = ~c"127.0.0.1"
+port_number = 6454
+
+# Open a port
+{:ok, port} = :gen_udp.open(0, [:binary, {:active, true}])
+```
+
+Use `:gen_udp.send/4` to send the encoded message.
+
+```elixir
+:gen_udp.send(port, ip_address, port_number, dmx_message)
+```
+
+If the message is successfully sent, the function returns `:ok`.
+
+WireShark can be used to verify that the message is sent correctly.
+If the message is sent successfully, it will be displayed in WireShark as shown below.
+
+![](files/screenshot01.PNG)
+
+## Send an ArtPoll message
+
+ArtPoll is used to discover Art-Net nodes(devices) on the network.
+When an ArtPoll message is sent, Art-Net nodes respond with an ArtPollReply message.
+The ArtPollReply message contains information about the node, such as its IP address, port number, and other details.
+
+### Create an ArtPoll message
+
+Create an ArtPoll message using the `ArtPoll` struct.
+The `ArtPoll` struct contains `talk_to_me` field, which is a `TalkToMe` struct.
+
+```elixir
+alias ArtNet.Packet.ArtPoll
+alias ArtNet.Packet.BitField.TalkToMe
+
+talk_to_me = %TalkToMe{reply_on_change: false, diagnostics: false, diag_unicast: false, vlc: false}
+poll_packet = %ArtPoll{talk_to_me: talk_to_me, priority: :dp_all}
+```
+
+### Encode the message
+
+Encode the ArtPoll message using the `ArtNet.encode!/1` function.
+`ArtNet.encode!1` encodes the packet appropriately based on the packet type.
+
+```elixir
+poll_message = ArtNet.encode!(poll_packet)
+```
+
+### Send the message
+
+Send the ArtPoll message using the `:gen_udp.send/4` function.
+
+```elixir
+:gen_udp.send(port, ip_address, port_number, poll_message)
+```
+
+If the message is successfully sent, the function returns `:ok`.
+And, WireShark will display the sent message as shown below.
+
+![](files/screenshot02.PNG)
+
+If an Art-Net node receives the ArtPoll message, it will respond with an ArtPollReply message.
+The ArtPollReply message contains information about the node, such as its IP address, port number, and other details.
+
+Below is a screenshot from WireShark showing QLC+ enabled for Art-Net input, receiving an ArtPoll message and sending an ArtPollReply.
+
+![](files/screenshot03.PNG)

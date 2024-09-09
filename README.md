@@ -10,15 +10,18 @@ Art-Net 4 specification from Artistic Licence: [art-net.pdf](https://artisticlic
 > [!NOTE]
 > This library provides encode/decode functionality. It does not provide network transfer functionality.
 
+## Examples
+
+For a simple example of using this library, see the LiveBook [example notebook](livebook/artnet_sample.livemd).
+
+
 ## Installation
 
 
 ```elixir
 def deps do
   [
-    {:art_net, "~> 0.1.0"}
+    {:art_net, "~> 0.1.0", github: "nasshu2916/artnet_ex", branch: "master"}
   ]
 end
 ```
-
-
