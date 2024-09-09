@@ -5,7 +5,7 @@ defmodule ArtNet.Packet.BitField.GoodOutput do
     field(:convert_sacn, :boolean)
     field(:marge_ltp_mode, :boolean)
     field(:output_short, :boolean)
-    field(:marging, :boolean)
+    field(:merging, :boolean)
     field(:dmx_test_packet, :boolean)
     field(:dmx_sip, :boolean)
     field(:dmx_text, :boolean)

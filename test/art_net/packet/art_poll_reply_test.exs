@@ -32,7 +32,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           ],
           good_input: [
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -40,7 +40,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -48,7 +48,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -56,7 +56,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -69,7 +69,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -79,7 +79,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -89,7 +89,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -99,7 +99,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -176,7 +176,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
           ],
           good_input: [
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -184,7 +184,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -192,7 +192,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -200,7 +200,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               data_received: false
             },
             %ArtNet.Packet.BitField.GoodInput{
-              recive_errors: false,
+              receive_errors: false,
               input_disabled: false,
               dmx_text: false,
               dmx_sip: false,
@@ -213,7 +213,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -223,7 +223,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -233,7 +233,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
@@ -243,7 +243,7 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
               convert_sacn: false,
               marge_ltp_mode: false,
               output_short: false,
-              marging: false,
+              merging: false,
               dmx_test_packet: false,
               dmx_sip: false,
               dmx_text: false,
