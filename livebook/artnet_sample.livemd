@@ -16,12 +16,24 @@ Create aliases for ArtDmx
 alias ArtNet.Packet.ArtDmx
 ```
 
+<!-- livebook:{"output":true} -->
+
+```
+ArtNet.Packet.ArtDmx
+```
+
 ## Create an Art-Net Dmx Packet
 
 Art-Net Dmx packet is created using the `ArtDmx` struct.
 
 ```elixir
 dmx_packet = %ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
 ```
 
 ## Encode the message
@@ -33,6 +45,12 @@ If the encoding is successful, the function returns the encoded message. Otherwi
 
 ```elixir
 dmx_message = ArtNet.encode!(dmx_packet)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+<<65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 1, 0, 0, 0, 0, 1, 255>>
 ```
 
 The encoded message is a binary that can be sent over the network via UDP.
@@ -55,10 +73,22 @@ port_number = 6454
 {:ok, port} = :gen_udp.open(0, [:binary, {:active, true}])
 ```
 
+<!-- livebook:{"output":true} -->
+
+```
+{:ok, #Port<0.8>}
+```
+
 Use `:gen_udp.send/4` to send the encoded message.
 
 ```elixir
 :gen_udp.send(port, ip_address, port_number, dmx_message)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
 ```
 
 If the message is successfully sent, the function returns `:ok`.
@@ -87,6 +117,20 @@ talk_to_me = %TalkToMe{reply_on_change: false, diagnostics: false, diag_unicast:
 poll_packet = %ArtPoll{talk_to_me: talk_to_me, priority: :dp_all}
 ```
 
+<!-- livebook:{"output":true} -->
+
+```
+%ArtNet.Packet.ArtPoll{
+  talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+    reply_on_change: false,
+    diagnostics: false,
+    diag_unicast: false,
+    vlc: false
+  },
+  priority: :dp_all
+}
+```
+
 ### Encode the message
 
 Encode the ArtPoll message using the `ArtNet.encode!/1` function.
@@ -96,12 +140,24 @@ Encode the ArtPoll message using the `ArtNet.encode!/1` function.
 poll_message = ArtNet.encode!(poll_packet)
 ```
 
+<!-- livebook:{"output":true} -->
+
+```
+<<65, 114, 116, 45, 78, 101, 116, 0, 0, 32, 0, 14, 0, 0>>
+```
+
 ### Send the message
 
 Send the ArtPoll message using the `:gen_udp.send/4` function.
 
 ```elixir
 :gen_udp.send(port, ip_address, port_number, poll_message)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
 ```
 
 If the message is successfully sent, the function returns `:ok`.
