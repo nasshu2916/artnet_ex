@@ -9,6 +9,8 @@ defmodule ArtNet do
   Note: This library provides encode/decode functionality. It does not provide network transfer functionality.
   """
 
+  @artnet_identifier ArtNet.Packet.identifier()
+
   @doc """
   Decodes a binary Art-Net packet.
 
@@ -36,7 +38,7 @@ defmodule ArtNet do
   ```
   """
   @spec decode(binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
-  def decode(<<_::binary-size(8), op_code::little-size(16), _rest::binary>> = data) do
+  def decode(<<@artnet_identifier, op_code::little-size(16), _rest::binary>> = data) do
     case ArtNet.OpCode.packet_module_from_value(op_code) do
       nil -> {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, op_code}}}
       module -> module.decode(data)
@@ -87,5 +89,31 @@ defmodule ArtNet do
       {:ok, binary} -> binary
       {:error, error} -> raise error
     end
+  end
+
+  @doc """
+  Fetches the Art-Net packet opcode from a binary packet.
+
+  ## Examples
+  ```
+  iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  :op_dmx
+
+  iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x01, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  :error
+
+  iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  :error
+  """
+  @spec fetch_op_code(binary) :: ArtNet.OpCode.keys() | :error
+  def fetch_op_code(<<@artnet_identifier, op_code::little-size(16), _rest::binary>>) do
+    case ArtNet.OpCode.op_code_type(op_code) do
+      nil -> :error
+      op_code -> op_code
+    end
+  end
+
+  def fetch_op_code(_) do
+    :error
   end
 end

@@ -22,4 +22,10 @@ defmodule ArtNet.OpCode do
   end
 
   def packet_module_from_value(_), do: nil
+
+  for {name, {code, _}} <- @op_code_config do
+    def op_code_type(unquote(code)), do: unquote(name)
+  end
+
+  def op_code_type(_), do: nil
 end
