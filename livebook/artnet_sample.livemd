@@ -84,7 +84,7 @@ If the message is sent successfully, it will be displayed in WireShark as shown 
 
 ![](files/screenshot01.PNG)
 
-## Send an ArtPoll message
+### Send an ArtPoll message
 
 ArtPoll is used to discover Art-Net nodes(devices) on the network.
 When an ArtPoll message is sent, Art-Net nodes respond with an ArtPollReply message.
@@ -117,7 +117,7 @@ poll_packet = %ArtPoll{talk_to_me: talk_to_me, priority: :dp_all}
 }
 ```
 
-### Encode the message
+### Encode and send the ArtPoll message
 
 Encode the ArtPoll message using the `ArtNet.encode!/1` function.
 `ArtNet.encode!1` encodes the packet appropriately based on the packet type.
@@ -131,8 +131,6 @@ poll_message = ArtNet.encode!(poll_packet)
 ```
 <<65, 114, 116, 45, 78, 101, 116, 0, 0, 32, 0, 14, 0, 0>>
 ```
-
-### Send the message
 
 Send the ArtPoll message using the `:gen_udp.send/4` function.
 
@@ -157,3 +155,114 @@ The ArtPollReply message contains information about the node, such as its IP add
 Below is a screenshot from WireShark showing QLC+ enabled for Art-Net input, receiving an ArtPoll message and sending an ArtPollReply.
 
 ![](files/screenshot03.PNG)
+
+## Receive Art-Net messages
+
+To receive Art-Net messages, you need to open a UDP port and listen for incoming messages.
+
+Create a GenServer module to receive Art-Net messages.
+The `handle_info/2` callback is used to handle incoming messages.
+
+```elixir
+defmodule ReceiveSample do
+  use GenServer
+
+  @impl true
+  def init(port) do
+    {:ok, socket} = :gen_udp.open(port, [:binary])
+    {:ok, port} = :inet.port(socket)
+    IO.puts("Listening on port: #{port}")
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_info(msg, state) do
+    case msg do
+      {:udp, _process_port, _ip_addr, _port_num, res} ->
+        IO.inspect(res, label: "Binary message received")
+        artnet_packet = ArtNet.decode!(res)
+        IO.inspect(artnet_packet, label: "ArtNet packet received")
+
+        state
+
+      _ ->
+        state
+    end
+
+    {:noreply, state}
+  end
+
+  def start_link(port) do
+    GenServer.start_link(ReceiveSample, port)
+  end
+end
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, ReceiveSample, <<70, 79, 82, 49, 0, 0, 21, ...>>, {:start_link, 1}}
+```
+
+Start the GenServer and prepare to receive messages.
+
+```elixir
+{:ok, receiver_pid} = ReceiveSample.start_link(port_number)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Listening on port: 6454
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok, #PID<0.206.0>}
+```
+
+GenServer is now listening messages.
+
+Send an ArtDmx message to the GenServer listening on the port.
+
+```elixir
+:gen_udp.send(port, ip_address, port_number, dmx_message)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Binary message received: <<65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 1, 0, 0, 0, 0, 1, 255>>
+ArtNet packet received: %ArtNet.Packet.ArtDmx{
+  sequence: 1,
+  physical: 0,
+  sub_universe: 0,
+  net: 0,
+  length: 1,
+  data: [255]
+}
+```
+
+The GenServer receives the ArtDmx message and decodes it into an `ArtDmx` struct.
+
+### Stop the GenServer
+
+if you want to stop the GenServer, you can use the `GenServer.stop/1` function.
+
+```elixir
+GenServer.stop(receiver_pid)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
