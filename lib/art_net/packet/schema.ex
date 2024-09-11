@@ -147,7 +147,7 @@ defmodule ArtNet.Packet.Schema do
   defp type_for({:string, _size}), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
 
   defp type_for({:enum_table, enum_module}),
-    do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
+    do: {{:., [], [{:__aliases__, [], [enum_module]}, :type]}, [], []}
 
   defp type_for({:bit_field, bit_field_module}),
     do: {{:., [], [{:__aliases__, [], [bit_field_module]}, :t]}, [], []}

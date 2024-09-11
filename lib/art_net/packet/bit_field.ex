@@ -112,7 +112,7 @@ defmodule ArtNet.Packet.BitField do
   defp type_for(:boolean), do: :boolean
 
   defp type_for({:enum_table, enum_module}),
-    do: {{:., [], [{:__aliases__, [], [enum_module]}, :keys]}, [], []}
+    do: {{:., [], [{:__aliases__, [], [enum_module]}, :type]}, [], []}
 
   @spec decode(non_neg_integer, module) :: {:ok, struct} | :error
   def decode(value, module) do

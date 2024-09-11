@@ -105,7 +105,7 @@ defmodule ArtNet do
   iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   :error
   """
-  @spec fetch_op_code(binary) :: ArtNet.OpCode.keys() | :error
+  @spec fetch_op_code(binary) :: {:ok, ArtNet.OpCode.type()} | :error
   def fetch_op_code(<<@artnet_identifier, op_code::little-size(16), _rest::binary>>) do
     case ArtNet.OpCode.op_code_type(op_code) do
       nil -> :error
