@@ -9,6 +9,8 @@ defmodule ArtNet do
   Note: This library provides encode/decode functionality. It does not provide network transfer functionality.
   """
 
+  alias ArtNet.{Packet, OpCode}
+
   @artnet_identifier ArtNet.Packet.identifier()
 
   @doc """
@@ -39,7 +41,7 @@ defmodule ArtNet do
   """
   @spec decode(binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   def decode(<<@artnet_identifier, op_code::little-size(16), _rest::binary>> = data) do
-    case ArtNet.OpCode.packet_module_from_value(op_code) do
+    case OpCode.packet_module_from_value(op_code) do
       nil -> {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, op_code}}}
       module -> module.decode(data)
     end
@@ -69,7 +71,7 @@ defmodule ArtNet do
 
   @spec encode(struct) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   def encode(packet) do
-    ArtNet.Packet.encode(packet)
+    Packet.encode(packet)
   end
 
   @doc """
@@ -105,9 +107,9 @@ defmodule ArtNet do
   iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   :error
   """
-  @spec fetch_op_code(binary) :: {:ok, ArtNet.OpCode.type()} | :error
+  @spec fetch_op_code(binary) :: {:ok, OpCode.type()} | :error
   def fetch_op_code(<<@artnet_identifier, op_code::little-size(16), _rest::binary>>) do
-    case ArtNet.OpCode.op_code_type(op_code) do
+    case OpCode.op_code_type(op_code) do
       nil -> :error
       op_code -> op_code
     end
