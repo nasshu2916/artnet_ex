@@ -8,26 +8,12 @@ Mix.install([
 ])
 ```
 
-## Setup
-
-Create aliases for ArtDmx
-
-```elixir
-alias ArtNet.Packet.ArtDmx
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-ArtNet.Packet.ArtDmx
-```
-
 ## Create an Art-Net Dmx Packet
 
 Art-Net Dmx packet is created using the `ArtDmx` struct.
 
 ```elixir
-dmx_packet = %ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
+dmx_packet = %ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
 ```
 
 <!-- livebook:{"output":true} -->
