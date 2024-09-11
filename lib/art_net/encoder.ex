@@ -11,6 +11,7 @@ defmodule ArtNet.EncodeError do
     case exception.reason do
       {:encode_error, reason} -> "encoding error: #{inspect(reason)}"
       {:validate_error, reason} -> "invalid data: #{reason}"
+      {:invalid_data, reason} -> "invalid data: #{reason}"
     end
   end
 end
