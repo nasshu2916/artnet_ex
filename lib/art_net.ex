@@ -17,7 +17,6 @@ defmodule ArtNet do
   Decodes a binary Art-Net packet.
 
   ## Examples
-  ```
   iex> ArtNet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   {:ok,
     %ArtNet.Packet.ArtDmx{
@@ -37,7 +36,6 @@ defmodule ArtNet do
 
   iex> ArtNet.decode(<<0x01, 0x02>>)
   {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
-  ```
   """
   @spec decode(binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   def decode(<<@artnet_identifier, op_code::little-size(16), _rest::binary>> = data) do
@@ -57,7 +55,6 @@ defmodule ArtNet do
   If the packet could not be decoded, the function raises an error.
 
   ## Examples
-  ```
   iex> ArtNet.decode!(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   %ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
   """
@@ -80,10 +77,8 @@ defmodule ArtNet do
   If the packet could not be encoded, the function raises an error.
 
   ## Examples
-  ```
   iex> ArtNet.encode!(%ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]})
   <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
-  ```
   """
   @spec encode!(struct) :: binary
   def encode!(packet) do
@@ -97,7 +92,6 @@ defmodule ArtNet do
   Fetches the Art-Net packet opcode from a binary packet.
 
   ## Examples
-  ```
   iex> ArtNet.fetch_op_code(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
   :op_dmx
 
