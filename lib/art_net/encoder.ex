@@ -52,6 +52,9 @@ defmodule ArtNet.Encoder do
 
       iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], {:integer, 8}, [])
       :error
+
+      iex> ArtNet.Encoder.encode_list(1, {:integer, 8}, [])
+      :error
   """
   @spec encode_list([any], atom, Keyword.t()) :: {:ok, binary} | :error
   def encode_list(values, format, opts) do
@@ -71,6 +74,8 @@ defmodule ArtNet.Encoder do
       :error -> :error
     end
   end
+
+  defp do_encode_list(_, _, _, _), do: :error
 
   @doc """
   Encodes an integer value into a binary.
