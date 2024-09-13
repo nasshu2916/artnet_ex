@@ -123,6 +123,14 @@ The `field` macro defines a field in the bit field. The field macro takes the fi
 
 The field type is a tuple with the type and the size of the field. The supported field types are `:integer`, `:boolean`, and `EnumTable`. The `EnumTable` field type is used to define a field that maps integer values to enum values. Offset Option is used to define the bit offset of the field.
 
+### Packet Validation
+
+The `ArtNet.Packet.Schema` module provides functions for validating packets. The `validate/1` function validates the packet schema.
+
+If you need to define your own validation, add the `validate/1` function. It is evaluated at decode/encode time in addition to the schema validation.
+
+The `validate/1` function returns `:ok` if the packet is valid and `{:error, reason}` if the packet is invalid.
+
 ## Examples
 
 For a simple example of using this library, see the LiveBook [example notebook](livebook/artnet_sample.livemd).
