@@ -3,7 +3,7 @@ defmodule ArtNet.Packet.BitField.Status1 do
 
   alias ArtNet.Packet.EnumTable
 
-  defbitfield size: 8 do
+  defbitfield bit_size: 8 do
     field(:ubea, :boolean)
     field(:rdm, :boolean)
     field(:boot_rom, :boolean)

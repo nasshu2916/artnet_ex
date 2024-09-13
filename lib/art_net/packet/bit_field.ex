@@ -52,7 +52,7 @@ defmodule ArtNet.Packet.BitField do
             ]
       def bit_field_schema, do: @schema
 
-      @bit_size Keyword.fetch!(unquote(opts), :size)
+      @bit_size Keyword.fetch!(unquote(opts), :bit_size)
       def bit_size, do: @bit_size
 
       @spec decode(non_neg_integer) :: {:ok, t()} | :error
