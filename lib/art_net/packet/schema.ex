@@ -9,8 +9,7 @@ defmodule ArtNet.Packet.Schema do
   @callback validate(packet :: struct) :: :ok | {:error, String.t()}
 
   @type format ::
-          :uint8
-          | :uint16
+          {:integer, pos_integer}
           | {:integer, pos_integer, :little_endian}
           | {:binary, pos_integer}
           | {:string, pos_integer}
@@ -108,8 +107,7 @@ defmodule ArtNet.Packet.Schema do
 
   options:
     * `default` - the default value for the field, default is nil
-    * `nullable` - if true, the field can be nil, default is false
-    * `size` - the size of the field in bits, default is nil
+    * `length` - the length of the field
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: format, opts: opts] do
