@@ -58,7 +58,7 @@ The `ArtNet.Packet.Schema` module provides packet definitions macro. The packet 
 defmodule ArtNet.Packet.ArtDmx do
   use ArtNet.Packet.Schema
 
-  defpacket op_code: 0x5000 do
+  defpacket do
     field(:sequence, {:integer, 8}, default: 0)
     field(:physical, {:integer, 8}, default: 0)
     field(:sub_universe, {:integer, 8}, default: 0)

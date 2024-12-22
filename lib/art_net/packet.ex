@@ -58,7 +58,7 @@ defmodule ArtNet.Packet do
   end
 
   defp validate_op_code(module, data) do
-    op_code = module.__op_code__()
+    op_code = module.op_code()
 
     case data do
       <<^op_code::little-integer-size(16), rest::binary>> -> {:ok, rest}
@@ -98,7 +98,7 @@ defmodule ArtNet.Packet do
 
   @spec encode_header(module) :: binary
   defp encode_header(module) do
-    op_code = module.__op_code__()
+    op_code = module.op_code()
 
     if module.require_version_header?() do
       <<@identifier, op_code::little-integer-size(16), @version::integer-size(16)>>

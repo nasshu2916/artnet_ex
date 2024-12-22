@@ -22,7 +22,7 @@ defmodule ArtNet.Packet.Schema do
     quote do
       @behaviour ArtNet.Packet.Schema
 
-      import ArtNet.Packet.Schema, only: [defpacket: 2]
+      import ArtNet.Packet.Schema, only: [defpacket: 1, defpacket: 2]
 
       @impl ArtNet.Packet.Schema
       def validate(_) do
@@ -39,7 +39,7 @@ defmodule ArtNet.Packet.Schema do
   Inside a `defpacket` block, each field is defined through the `field/3`
   macro.
   """
-  defmacro defpacket(opts, do: block) do
+  defmacro defpacket(opts \\ [], do: block) do
     ArtNet.Packet.Schema.__defpacket__(block, opts)
   end
 
@@ -64,8 +64,9 @@ defmodule ArtNet.Packet.Schema do
       @artnet_schema Enum.reverse(@artnet_reversed_schema)
       def schema, do: @artnet_schema
 
-      @spec __op_code__ :: pos_integer
-      def __op_code__, do: @op_code
+      def op_code do
+        ArtNet.OpCode.op_code(__MODULE__)
+      end
 
       @spec require_version_header? :: boolean
       def require_version_header?, do: @require_version_header?
@@ -88,9 +89,6 @@ defmodule ArtNet.Packet.Schema do
 
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
-      op_code = Keyword.fetch!(opts, :op_code)
-      Module.put_attribute(__MODULE__, :op_code, op_code)
-
       require_version_header? = Keyword.get(opts, :require_version_header?, true)
       Module.put_attribute(__MODULE__, :require_version_header?, require_version_header?)
     end
