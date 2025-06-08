@@ -13,6 +13,8 @@ defmodule ArtNet do
 
   @artnet_identifier ArtNet.Packet.identifier()
 
+  @type packet :: struct
+
   @doc """
   Decodes a binary Art-Net packet.
 
@@ -66,7 +68,7 @@ defmodule ArtNet do
     end
   end
 
-  @spec encode(struct) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
+  @spec encode(packet()) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   def encode(packet) do
     Packet.encode(packet)
   end
@@ -80,7 +82,7 @@ defmodule ArtNet do
   iex> ArtNet.encode!(%ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]})
   <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
   """
-  @spec encode!(struct) :: binary
+  @spec encode!(packet()) :: binary
   def encode!(packet) do
     case encode(packet) do
       {:ok, binary} -> binary
