@@ -1,9 +1,64 @@
 defmodule ArtNet.Packet do
+  alias ArtNet.OpCode
+
   @identifier "Art-Net" <> <<0>>
   @version 14
 
   def identifier, do: @identifier
   def version, do: @version
+
+  @doc """
+  Decodes a binary Art-Net packet.
+
+  ## Examples
+  iex> ArtNet.Packet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  {:ok,
+    %ArtNet.Packet.ArtDmx{
+      sequence: 01,
+      physical: 0,
+      sub_universe: 0,
+      net: 0,
+      length: 1,
+      data: [255]
+    }}
+
+  iex> ArtNet.Packet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x01, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
+
+  iex> ArtNet.Packet.decode(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x51, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, 0x5100}}}
+
+  iex> ArtNet.Packet.decode(<<0x01, 0x02>>)
+  {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
+  """
+  @spec decode(binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
+  def decode(<<@identifier, op_code::little-size(16), _rest::binary>> = data) do
+    case OpCode.packet_module_from_value(op_code) do
+      nil -> {:error, %ArtNet.DecodeError{reason: {:invalid_op_code, op_code}}}
+      module -> decode(module, data)
+    end
+  end
+
+  def decode(_) do
+    {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
+  end
+
+  @doc """
+  Decodes a binary Art-Net packet.
+
+  If the packet could not be decoded, the function raises an error.
+
+  ## Examples
+  iex> ArtNet.Packet.decode!(<<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>)
+  %ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]}
+  """
+  @spec decode!(binary) :: struct
+  def decode!(binary) do
+    case decode(binary) do
+      {:ok, packet} -> packet
+      {:error, error} -> raise error
+    end
+  end
 
   @spec decode(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   def decode(module, rest) do
@@ -92,6 +147,23 @@ defmodule ArtNet.Packet do
 
       {:error, reason} when is_binary(reason) ->
         {:error, %ArtNet.EncodeError{reason: {:invalid_data, reason}}}
+    end
+  end
+
+  @doc """
+  Encodes a binary Art-Net packet.
+
+  If the packet could not be encoded, the function raises an error.
+
+  ## Examples
+  iex> ArtNet.Packet.encode!(%ArtNet.Packet.ArtDmx{sequence: 1, physical: 0, sub_universe: 0, net: 0, length: 1, data: [255]})
+  <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
+  """
+  @spec encode(ArtNet.packet()) :: binary
+  def encode!(packet) do
+    case encode(packet) do
+      {:ok, binary} -> binary
+      {:error, %ArtNet.EncodeError{} = error} -> raise error
     end
   end
 
