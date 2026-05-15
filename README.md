@@ -174,11 +174,52 @@ binary = <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0
 
 The `ArtNet.decode!/1` function decodes an Art-Net packet and raises an error if the decoding fails.
 
-## Supported Art-Net OpCodes
+## Art-Net Protocol Support
 
-- `ArtPoll` (0x2000): Discover Art-Net nodes.
-- `ArtPollReply` (0x2100): Respond to an ArtPoll packet.
-- `ArtDmx` (0x5000): Transmit DMX data.
+The following table lists Art-Net OpCodes and the current support status in this library.
+The OpCode list is based on the Art-Net 4 Protocol Release V1.4 specification.
+
+Status: ✅ supported, ❌ not supported.
+
+| OpCode | Packet | Description | Status |
+| --- | --- | --- | --- |
+| `0x2000` | `ArtPoll` | Discover Art-Net nodes. | ✅ |
+| `0x2100` | `ArtPollReply` | Respond to an `ArtPoll` packet with device status information. | ✅ |
+| `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ❌ |
+| `0x2400` | `ArtCommand` | Send text-based parameter commands. | ❌ |
+| `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ❌ |
+| `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
+| `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
+| `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ❌ |
+| `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ❌ |
+| `0x6000` | `ArtAddress` | Send remote programming information for a node. | ❌ |
+| `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ❌ |
+| `0x8000` | `ArtTodRequest` | Request a Table of Devices for RDM discovery. | ❌ |
+| `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ❌ |
+| `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ❌ |
+| `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ❌ |
+| `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ❌ |
+| `0x9000` | `ArtMedia` | Send media-server data to a controller. | ❌ |
+| `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ❌ |
+| `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ❌ |
+| `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ❌ |
+| `0x9700` | `ArtTimeCode` | Transport time code over the network. | ❌ |
+| `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ❌ |
+| `0x9900` | `ArtTrigger` | Send trigger macros. | ❌ |
+| `0x9a00` | `ArtDirectory` | Request a node's file list. | ❌ |
+| `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ❌ |
+| `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ❌ |
+| `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ❌ |
+| `0xa040` | `ArtVideoData` | Send display data for extended video features. | ❌ |
+| `0xf000` | `ArtMacMaster` | Deprecated packet. | ❌ |
+| `0xf100` | `ArtMacSlave` | Deprecated packet. | ❌ |
+| `0xf200` | `ArtFirmwareMaster` | Upload firmware or firmware extensions to a node. | ❌ |
+| `0xf300` | `ArtFirmwareReply` | Acknowledge receipt of firmware or file-transfer packets. | ❌ |
+| `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ❌ |
+| `0xf500` | `ArtFileFnMaster` | Download a user file from a node. | ❌ |
+| `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ❌ |
+| `0xf800` | `ArtIpProg` | Reprogram a node IP address and subnet mask. | ❌ |
+| `0xf900` | `ArtIpProgReply` | Acknowledge receipt of an `ArtIpProg` packet. | ❌ |
 
 ## Installation
 
