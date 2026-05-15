@@ -19,6 +19,7 @@ defmodule ArtNet.OpCode do
     op_rdm_sub: {0x8400, Packet.ArtRdmSub},
     op_time_code: {0x9700, Packet.ArtTimeCode},
     op_time_sync: {0x9800, Packet.ArtTimeSync},
+    op_trigger: {0x9900, Packet.ArtTrigger},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
