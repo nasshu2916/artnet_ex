@@ -216,7 +216,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x9700` | `ArtTimeCode` | Transport time code over the network. | ✅ |
 | `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ✅ |
 | `0x9900` | `ArtTrigger` | Send trigger macros. | ✅ |
-| `0x9a00` | `ArtDirectory` | Request a node's file list. | ❌ |
+| `0x9a00` | `ArtDirectory` | Request a node's file list. | ✅ |
 | `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ❌ |
 | `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ❌ |
 | `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ❌ |

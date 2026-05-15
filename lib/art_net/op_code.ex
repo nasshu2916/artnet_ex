@@ -26,6 +26,7 @@ defmodule ArtNet.OpCode do
     op_time_code: {0x9700, Packet.ArtTimeCode},
     op_time_sync: {0x9800, Packet.ArtTimeSync},
     op_trigger: {0x9900, Packet.ArtTrigger},
+    op_directory: {0x9A00, Packet.ArtDirectory},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
