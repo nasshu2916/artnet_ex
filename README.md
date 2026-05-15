@@ -218,7 +218,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x9900` | `ArtTrigger` | Send trigger macros. | ✅ |
 | `0x9a00` | `ArtDirectory` | Request a node's file list. | ✅ |
 | `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ✅ |
-| `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ❌ |
+| `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ✅ |
 | `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ❌ |
 | `0xa040` | `ArtVideoData` | Send display data for extended video features. | ❌ |
 | `0xf000` | `ArtMacMaster` | Deprecated packet. | ❌ |
