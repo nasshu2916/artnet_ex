@@ -195,7 +195,7 @@ Status: ✅ supported, ❌ not supported.
 | --- | --- | --- | --- |
 | `0x2000` | `ArtPoll` | Discover Art-Net nodes. | ✅ |
 | `0x2100` | `ArtPollReply` | Respond to an `ArtPoll` packet with device status information. | ✅ |
-| `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ❌ |
+| `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ✅ |
 | `0x2400` | `ArtCommand` | Send text-based parameter commands. | ❌ |
 | `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ❌ |
 | `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
