@@ -20,6 +20,7 @@ defmodule ArtNet.OpCode do
     op_rdm: {0x8300, Packet.ArtRdm},
     op_rdm_sub: {0x8400, Packet.ArtRdmSub},
     op_media: {0x9000, Packet.ArtMedia},
+    op_media_patch: {0x9100, Packet.ArtMediaPatch},
     op_time_code: {0x9700, Packet.ArtTimeCode},
     op_time_sync: {0x9800, Packet.ArtTimeSync},
     op_trigger: {0x9900, Packet.ArtTrigger},
