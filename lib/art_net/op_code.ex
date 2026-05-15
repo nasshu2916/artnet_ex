@@ -30,6 +30,7 @@ defmodule ArtNet.OpCode do
     op_directory_reply: {0x9B00, Packet.ArtDirectoryReply},
     op_video_setup: {0xA010, Packet.ArtVideoSetup},
     op_video_palette: {0xA020, Packet.ArtVideoPalette},
+    op_video_data: {0xA040, Packet.ArtVideoData},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
