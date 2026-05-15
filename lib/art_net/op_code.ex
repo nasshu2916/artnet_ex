@@ -19,6 +19,7 @@ defmodule ArtNet.OpCode do
     op_tod_control: {0x8200, Packet.ArtTodControl},
     op_rdm: {0x8300, Packet.ArtRdm},
     op_rdm_sub: {0x8400, Packet.ArtRdmSub},
+    op_media: {0x9000, Packet.ArtMedia},
     op_time_code: {0x9700, Packet.ArtTimeCode},
     op_time_sync: {0x9800, Packet.ArtTimeSync},
     op_trigger: {0x9900, Packet.ArtTrigger},

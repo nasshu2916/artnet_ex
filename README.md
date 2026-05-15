@@ -209,7 +209,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ✅ |
 | `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ✅ |
 | `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ✅ |
-| `0x9000` | `ArtMedia` | Send media-server data to a controller. | ❌ |
+| `0x9000` | `ArtMedia` | Send media-server data to a controller. | ✅ |
 | `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ❌ |
 | `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ❌ |
 | `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ❌ |
