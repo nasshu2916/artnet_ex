@@ -198,7 +198,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ✅ |
 | `0x2400` | `ArtCommand` | Send text-based parameter commands. | ✅ |
 | `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ✅ |
-| `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
+| `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ✅ |
 | `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
 | `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ✅ |
 | `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ✅ |
