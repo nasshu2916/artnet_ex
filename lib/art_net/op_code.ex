@@ -6,6 +6,7 @@ defmodule ArtNet.OpCode do
     op_poll: {0x2000, Packet.ArtPoll},
     op_poll_reply: {0x2100, Packet.ArtPollReply},
     op_diag_data: {0x2300, Packet.ArtDiagData},
+    op_command: {0x2400, Packet.ArtCommand},
     op_dmx: {0x5000, Packet.ArtDmx},
     op_sync: {0x5200, Packet.ArtSync},
     op_address: {0x6000, Packet.ArtAddress},
