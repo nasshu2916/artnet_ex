@@ -227,7 +227,7 @@ Status: ✅ supported, ❌ not supported.
 | `0xf300` | `ArtFirmwareReply` | Acknowledge receipt of firmware or file-transfer packets. | ✅ |
 | `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ✅ |
 | `0xf500` | `ArtFileFnMaster` | Download a user file from a node. | ✅ |
-| `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ❌ |
+| `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ✅ |
 | `0xf800` | `ArtIpProg` | Reprogram a node IP address and subnet mask. | ✅ |
 | `0xf900` | `ArtIpProgReply` | Acknowledge receipt of an `ArtIpProg` packet. | ✅ |
 

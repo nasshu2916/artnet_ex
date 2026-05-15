@@ -37,6 +37,7 @@ defmodule ArtNet.OpCode do
     op_firmware_reply: {0xF300, Packet.ArtFirmwareReply},
     op_file_tn_master: {0xF400, Packet.ArtFileTnMaster},
     op_file_fn_master: {0xF500, Packet.ArtFileFnMaster},
+    op_file_fn_reply: {0xF600, Packet.ArtFileFnReply},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
