@@ -222,7 +222,7 @@ Status: ✅ supported, ❌ not supported.
 | `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ✅ |
 | `0xa040` | `ArtVideoData` | Send display data for extended video features. | ✅ |
 | `0xf000` | `ArtMacMaster` | Deprecated packet. | ✅ |
-| `0xf100` | `ArtMacSlave` | Deprecated packet. | ❌ |
+| `0xf100` | `ArtMacSlave` | Deprecated packet. | ✅ |
 | `0xf200` | `ArtFirmwareMaster` | Upload firmware or firmware extensions to a node. | ❌ |
 | `0xf300` | `ArtFirmwareReply` | Acknowledge receipt of firmware or file-transfer packets. | ❌ |
 | `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ❌ |

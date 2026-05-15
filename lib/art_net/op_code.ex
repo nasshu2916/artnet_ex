@@ -32,6 +32,7 @@ defmodule ArtNet.OpCode do
     op_video_palette: {0xA020, Packet.ArtVideoPalette},
     op_video_data: {0xA040, Packet.ArtVideoData},
     op_mac_master: {0xF000, Packet.ArtMacMaster},
+    op_mac_slave: {0xF100, Packet.ArtMacSlave},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
