@@ -22,6 +22,7 @@ defmodule ArtNet.OpCode do
     op_media: {0x9000, Packet.ArtMedia},
     op_media_patch: {0x9100, Packet.ArtMediaPatch},
     op_media_control: {0x9200, Packet.ArtMediaControl},
+    op_media_control_reply: {0x9300, Packet.ArtMediaControlReply},
     op_time_code: {0x9700, Packet.ArtTimeCode},
     op_time_sync: {0x9800, Packet.ArtTimeSync},
     op_trigger: {0x9900, Packet.ArtTrigger},
