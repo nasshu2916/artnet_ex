@@ -11,6 +11,7 @@ defmodule ArtNet.OpCode do
     op_nzs: {0x5100, Packet.ArtNzs},
     op_sync: {0x5200, Packet.ArtSync},
     op_address: {0x6000, Packet.ArtAddress},
+    op_input: {0x7000, Packet.ArtInput},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
