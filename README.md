@@ -213,7 +213,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ❌ |
 | `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ❌ |
 | `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ❌ |
-| `0x9700` | `ArtTimeCode` | Transport time code over the network. | ❌ |
+| `0x9700` | `ArtTimeCode` | Transport time code over the network. | ✅ |
 | `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ❌ |
 | `0x9900` | `ArtTrigger` | Send trigger macros. | ❌ |
 | `0x9a00` | `ArtDirectory` | Request a node's file list. | ❌ |
