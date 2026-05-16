@@ -226,7 +226,7 @@ Status: ✅ supported, ❌ not supported.
 ```elixir
 def deps do
   [
-    {:art_net, "~> 0.1.0", github: "nasshu2916/artnet_ex", branch: "master"}
+    {:art_net, "~> 0.1.0", github: "nasshu2916/artnet_ex", branch: "main"}
   ]
 end
 ```
