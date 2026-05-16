@@ -205,7 +205,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x6000` | `ArtAddress` | Send remote programming information for a node. | ✅ |
 | `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ✅ |
 | `0x8000` | `ArtTodRequest` | Request a Table of Devices for RDM discovery. | ✅ |
-| `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ❌ |
+| `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ✅ |
 | `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ❌ |
 | `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ❌ |
 | `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ❌ |
