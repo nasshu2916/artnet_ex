@@ -1,0 +1,12 @@
+[tools]
+elixir = "1.17.2-otp-27"
+erlang = "27.0.1"
+
+[tasks.ci]
+description = "Format, lint, type-check, and run tests"
+run = [
+  "mix format",
+  "mix credo",
+  "mix dialyzer",
+  "mix test",
+]
