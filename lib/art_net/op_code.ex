@@ -8,6 +8,7 @@ defmodule ArtNet.OpCode do
     op_diag_data: {0x2300, Packet.ArtDiagData},
     op_command: {0x2400, Packet.ArtCommand},
     op_dmx: {0x5000, Packet.ArtDmx},
+    op_nzs: {0x5100, Packet.ArtNzs},
     op_sync: {0x5200, Packet.ArtSync},
     op_address: {0x6000, Packet.ArtAddress},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
