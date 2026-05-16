@@ -16,6 +16,7 @@ defmodule ArtNet.OpCode do
     op_tod_data: {0x8100, Packet.ArtTodData},
     op_tod_control: {0x8200, Packet.ArtTodControl},
     op_rdm: {0x8300, Packet.ArtRdm},
+    op_rdm_sub: {0x8400, Packet.ArtRdmSub},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
