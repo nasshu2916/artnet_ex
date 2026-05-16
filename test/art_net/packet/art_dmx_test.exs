@@ -33,5 +33,8 @@ defmodule ArtNet.Packet.ArtDmxTest do
 
     assert ArtNet.Packet.ArtDmx.validate(%{packet | length: 2}) ==
              {:error, "Data length does not match the length field"}
+
+    assert ArtNet.Packet.ArtDmx.validate(%{packet | length: 0, data: []}) ==
+             {:error, "Data length must be at least 1"}
   end
 end

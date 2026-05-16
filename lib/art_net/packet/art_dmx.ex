@@ -14,10 +14,18 @@ defmodule ArtNet.Packet.ArtDmx do
   def validate(packet) do
     %{length: data_length, data: data} = packet
 
-    if data_length == length(data) do
-      :ok
-    else
-      {:error, "Data length does not match the length field"}
+    cond do
+      data_length != length(data) ->
+        {:error, "Data length does not match the length field"}
+
+      data_length > 512 ->
+        {:error, "Data length must be 512 or less"}
+
+      data_length < 1 ->
+        {:error, "Data length must be at least 1"}
+
+      true ->
+        :ok
     end
   end
 end
