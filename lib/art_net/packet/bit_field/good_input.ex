@@ -2,7 +2,8 @@ defmodule ArtNet.Packet.BitField.GoodInput do
   use ArtNet.Packet.BitField
 
   defbitfield bit_size: 8 do
-    field(:receive_errors, :boolean, offset: 2)
+    field(:convert_sacn, :boolean)
+    field(:receive_errors, :boolean, offset: 1)
     field(:input_disabled, :boolean)
     field(:dmx_text, :boolean)
     field(:dmx_sip, :boolean)

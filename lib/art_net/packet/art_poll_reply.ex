@@ -22,7 +22,7 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:good_output, [{:bit_field, BitField.GoodOutput}], length: 4)
     field(:sw_in, [{:integer, 8}], length: 4)
     field(:sw_out, [{:integer, 8}], length: 4)
-    field(:sw_video, {:integer, 8})
+    field(:acn_priority, {:integer, 8})
     field(:sw_macro, {:integer, 8})
     field(:sw_remote, {:integer, 8})
     field(:spare, {:binary, 3})
@@ -31,7 +31,23 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:bind_ip, {:binary, 4})
     field(:bind_index, {:integer, 8})
     field(:status2, {:bit_field, BitField.Status2})
-    field(:filler, {:binary, 26})
+
+    field(:good_output_b, [{:bit_field, BitField.GoodOutputB}],
+      length: 4,
+      default: [
+        %BitField.GoodOutputB{},
+        %BitField.GoodOutputB{},
+        %BitField.GoodOutputB{},
+        %BitField.GoodOutputB{}
+      ]
+    )
+
+    field(:status3, {:bit_field, BitField.Status3}, default: %BitField.Status3{})
+    field(:default_responder_uid, {:binary, 6}, default: <<0::size(6 * 8)>>)
+    field(:user, {:integer, 16}, default: 0)
+    field(:refresh_rate, {:integer, 16}, default: 0)
+    field(:background_queue_policy, {:integer, 8}, default: 0)
+    field(:filler, {:binary, 10})
   end
 
   @impl ArtNet.Packet.Schema
