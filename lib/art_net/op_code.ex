@@ -34,6 +34,7 @@ defmodule ArtNet.OpCode do
     op_mac_master: {0xF000, Packet.ArtMacMaster},
     op_mac_slave: {0xF100, Packet.ArtMacSlave},
     op_firmware_master: {0xF200, Packet.ArtFirmwareMaster},
+    op_firmware_reply: {0xF300, Packet.ArtFirmwareReply},
     op_ip_prog: {0xF800, Packet.ArtIpProg},
     op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
