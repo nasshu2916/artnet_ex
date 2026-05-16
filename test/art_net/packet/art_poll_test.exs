@@ -9,11 +9,17 @@ defmodule ArtNet.Packet.ArtPollTest do
             reply_on_change: false,
             diagnostics: false,
             diag_unicast: false,
-            vlc: false
+            vlc: false,
+            targeted_mode: false
           },
-          priority: :dp_all
+          priority: :dp_all,
+          target_port_address_top: 0,
+          target_port_address_bottom: 0,
+          esta_manufacturer: 0,
+          oem: 0
         },
-        <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x00, 0x00>>
+        <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00>>
       },
       {
         %ArtNet.Packet.ArtPoll{
@@ -21,17 +27,44 @@ defmodule ArtNet.Packet.ArtPollTest do
             reply_on_change: true,
             diagnostics: true,
             diag_unicast: true,
-            vlc: false
+            vlc: false,
+            targeted_mode: true
           },
-          priority: :dp_high
+          priority: :dp_high,
+          target_port_address_top: 0x7FFF,
+          target_port_address_bottom: 0x1234,
+          esta_manufacturer: 0x414C,
+          oem: 0x1234
         },
-        <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x0E, 0xC0>>
+        <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x2E, 0x80,
+          0x7F, 0xFF, 0x12, 0x34, 0x41, 0x4C, 0x12, 0x34>>
       }
     ]
     |> Enum.each(fn {packet, data} ->
       assert ArtNet.Packet.ArtPoll.decode(data) == {:ok, packet}
       assert ArtNet.Packet.ArtPoll.encode(packet) == {:ok, data}
     end)
+  end
+
+  test "decode pads legacy minimum packet fields with zero" do
+    data = <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x00, 0x00>>
+
+    assert ArtNet.Packet.ArtPoll.decode(data) ==
+             {:ok,
+              %ArtNet.Packet.ArtPoll{
+                talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+                  reply_on_change: false,
+                  diagnostics: false,
+                  diag_unicast: false,
+                  vlc: false,
+                  targeted_mode: false
+                },
+                priority: :dp_all,
+                target_port_address_top: 0,
+                target_port_address_bottom: 0,
+                esta_manufacturer: 0,
+                oem: 0
+              }}
   end
 
   test "decode error" do
@@ -65,7 +98,8 @@ defmodule ArtNet.Packet.ArtPollTest do
         reply_on_change: true,
         diagnostics: true,
         diag_unicast: true,
-        vlc: false
+        vlc: false,
+        targeted_mode: false
       },
       priority: :invalid
     }

@@ -9,20 +9,23 @@ defmodule ArtNet.Packet.BitField.TalkToMeTest do
          reply_on_change: false,
          diagnostics: false,
          diag_unicast: false,
-         vlc: false
+         vlc: false,
+         targeted_mode: false
        }, 0b00000000},
       {%TalkToMe{
          reply_on_change: true,
          diagnostics: false,
          diag_unicast: false,
-         vlc: true
+         vlc: true,
+         targeted_mode: false
        }, 0b00010010},
       {%TalkToMe{
          reply_on_change: false,
          diagnostics: true,
          diag_unicast: true,
-         vlc: true
-       }, 0b00011100}
+         vlc: true,
+         targeted_mode: true
+       }, 0b00111100}
     ]
     |> Enum.each(fn {bit_field, data} ->
       assert TalkToMe.encode(bit_field) == {:ok, data}
