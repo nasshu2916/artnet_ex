@@ -1,4 +1,6 @@
 defmodule ArtNet.Packet.Schema do
+  alias ArtNet.Packet.Schema.CodeGenerator
+
   @struct_accumulate_attrs [
     :artnet_fields,
     :artnet_enforce_keys,
@@ -39,12 +41,14 @@ defmodule ArtNet.Packet.Schema do
 
   @doc false
   defmacro __before_compile__(env) do
-    unless Module.defines?(env.module, {:pre_decode, 1}) do
-      quote do
-        @impl ArtNet.Packet.Schema
-        def pre_decode(body), do: body
-      end
-    end
+    schema =
+      env.module
+      |> Module.get_attribute(:artnet_reversed_schema)
+      |> Enum.reverse()
+
+    pre_decode_defined? = Module.defines?(env.module, {:pre_decode, 1})
+
+    CodeGenerator.generate(schema, pre_decode_defined?: pre_decode_defined?)
   end
 
   @doc """

@@ -60,7 +60,13 @@ defmodule ArtNet.Encoder do
   def encode_list(values, format, opts) do
     fun = fn value -> encode(value, format, opts) end
 
-    case do_encode_list(values, [], fun, opts) do
+    encode_list_with(values, fun)
+  end
+
+  @doc false
+  @spec encode_list_with([any], (any -> {:ok, binary} | :error)) :: {:ok, binary} | :error
+  def encode_list_with(values, fun) do
+    case do_encode_list(values, [], fun, []) do
       :error -> :error
       {:ok, encoded_list} -> {:ok, IO.iodata_to_binary(encoded_list)}
     end

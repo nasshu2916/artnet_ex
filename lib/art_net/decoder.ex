@@ -65,6 +65,14 @@ defmodule ArtNet.Decoder do
   @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error
   def decode_list(data, format, opts) do
     fun = fn rest -> decode(rest, format, opts) end
+
+    decode_list_with(data, fun, opts)
+  end
+
+  @doc false
+  @spec decode_list_with(binary, (binary -> {:ok, {any, binary}} | :error), Keyword.t()) ::
+          {:ok, {list, binary}} | :error
+  def decode_list_with(data, fun, opts) do
     length = Keyword.get(opts, :length)
 
     case do_decode_list(data, [], fun, 0, length, opts) do

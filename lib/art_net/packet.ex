@@ -76,25 +76,7 @@ defmodule ArtNet.Packet do
   end
 
   @spec decode_body(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
-  defp decode_body(module, rest) do
-    rest = module.pre_decode(rest)
-
-    module.schema()
-    |> Enum.reduce_while({:ok, [], rest}, fn {key, {type, opts}}, {:ok, values, rest} ->
-      case ArtNet.Decoder.decode(rest, type, opts) do
-        {:ok, {value, rest}} ->
-          {:cont, {:ok, [{key, value} | values], rest}}
-
-        :error ->
-          {:halt, {:error, %ArtNet.DecodeError{reason: {:decode_error, key}}}}
-      end
-    end)
-    |> case do
-      {:error, %ArtNet.DecodeError{} = reason} -> {:error, reason}
-      {:ok, params, <<>>} -> {:ok, struct!(module, params)}
-      {:ok, _, bytes} -> {:error, %ArtNet.DecodeError{reason: {:excess_bytes, bytes}}}
-    end
-  end
+  defp decode_body(module, rest), do: module.__decode_body__(rest)
 
   @spec validate_header(module, binary) :: {:ok, binary} | {:error, ArtNet.DecodeError.t()}
   def validate_header(module, rest) do
@@ -185,26 +167,5 @@ defmodule ArtNet.Packet do
   end
 
   @spec encode_body(struct) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
-  defp encode_body(packet) do
-    packet.__struct__.schema()
-    |> Enum.reduce_while({:ok, []}, fn {key, {type, opts}}, {:ok, acc} ->
-      value = Map.fetch!(packet, key)
-
-      case ArtNet.Encoder.encode(value, type, opts) do
-        {:ok, data} ->
-          {:cont, {:ok, [data | acc]}}
-
-        :error ->
-          error = %ArtNet.EncodeError{
-            reason: {:encode_error, %{key: key, type: type, value: value}}
-          }
-
-          {:halt, {:error, error}}
-      end
-    end)
-    |> case do
-      {:ok, data} -> {:ok, data |> Enum.reverse() |> IO.iodata_to_binary()}
-      {:error, reason} -> {:error, reason}
-    end
-  end
+  defp encode_body(packet), do: packet.__struct__.__encode_body__(packet)
 end
