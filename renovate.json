@@ -1,0 +1,34 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":configMigration",
+    ":maintainLockFilesWeekly",
+    ":timezone(Asia/Tokyo)"
+  ],
+  "internalChecksFilter": "strict",
+  "minimumReleaseAge": "7 days",
+  "packageRules": [
+    {
+      "extends": [
+        "packages:linters"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "linters"
+    },
+    {
+      "extends": [
+        "packages:test"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "test packages"
+    }
+  ]
+}
