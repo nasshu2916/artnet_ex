@@ -50,6 +50,19 @@ The `ArtPoll` packet is used to discover Art-Net nodes on the network.
 
 The `ArtPollReply` packet is used to respond to an `ArtPoll` packet.
 
+### ArtVlc
+
+`ArtVlc` is a VLC-specific payload carried by `ArtNzs` (`OpNzs`, start code `0x91`).
+Decode the packet as usual, then pass the resulting `ArtNzs` packet to
+`ArtNet.Packet.ArtVlc.decode/1` to parse the VLC fields.
+
+```elixir
+with {:ok, %ArtNet.Packet.ArtNzs{} = nzs} <- ArtNet.decode(binary),
+     {:ok, vlc} <- ArtNet.Packet.ArtVlc.decode(nzs) do
+  vlc.payload
+end
+```
+
 ## Packet Definitions
 
 The `ArtNet.Packet.Schema` module provides packet definitions macro. The packet definitions are used to encode and decode the packet. The packet definitions are defined using the `defpacket` macro.
@@ -200,7 +213,7 @@ Status: ✅ supported, ❌ not supported.
 | `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ✅ |
 | `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ✅ |
 | `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
-| `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ✅ |
+| `0x5100` | `ArtNzs` / `ArtVlc` helper | Transmit non-zero start code DMX512 data, except RDM, for a single universe. `ArtVlc` payloads can be parsed with `ArtNet.Packet.ArtVlc.decode/1`. | ✅ |
 | `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ✅ |
 | `0x6000` | `ArtAddress` | Send remote programming information for a node. | ✅ |
 | `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ✅ |
