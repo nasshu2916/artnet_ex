@@ -174,6 +174,16 @@ binary = <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0
 
 The `ArtNet.decode!/1` function decodes an Art-Net packet and raises an error if the decoding fails.
 
+## Benchmark
+
+Encode/decode benchmarks are provided in [`bench/encode_decode.exs`](bench/encode_decode.exs).
+
+```sh
+mix run bench/encode_decode.exs
+```
+
+The benchmark measures `ArtNet.encode/1` and `ArtNet.decode/1` with `ArtPoll` and various `ArtDmx` payload sizes.
+
 ## Art-Net Protocol Support
 
 The following table lists Art-Net OpCodes and the current support status in this library.
