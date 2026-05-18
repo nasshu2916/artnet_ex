@@ -33,4 +33,7 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:status2, {:bit_field, BitField.Status2})
     field(:filler, {:binary, 26})
   end
+
+  @impl ArtNet.Packet.Schema
+  def pre_decode(body), do: ArtNet.Packet.Schema.pad_binary(body, 229, 191)
 end

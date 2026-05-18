@@ -41,6 +41,24 @@ defmodule ArtNet.Packet.ArtPollTest do
              {:error, %ArtNet.DecodeError{reason: {:decode_error, :priority}}}
   end
 
+  test "decode zero-filled filler" do
+    data =
+      <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x00, 0x00,
+        0::size(8 * 8)>>
+
+    assert ArtNet.Packet.ArtPoll.decode(data) ==
+             {:ok,
+              %ArtNet.Packet.ArtPoll{
+                talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+                  reply_on_change: false,
+                  diagnostics: false,
+                  diag_unicast: false,
+                  vlc: false
+                },
+                priority: :dp_all
+              }}
+  end
+
   test "encode error" do
     packet = %ArtNet.Packet.ArtPoll{
       talk_to_me: %ArtNet.Packet.BitField.TalkToMe{

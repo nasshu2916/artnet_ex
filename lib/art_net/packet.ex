@@ -77,6 +77,8 @@ defmodule ArtNet.Packet do
 
   @spec decode_body(module, binary) :: {:ok, struct} | {:error, ArtNet.DecodeError.t()}
   defp decode_body(module, rest) do
+    rest = module.pre_decode(rest)
+
     module.schema()
     |> Enum.reduce_while({:ok, [], rest}, fn {key, {type, opts}}, {:ok, values, rest} ->
       case ArtNet.Decoder.decode(rest, type, opts) do
