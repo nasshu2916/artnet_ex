@@ -15,8 +15,12 @@ jobs:
         include:
           - elixir: '1.16.3'
             otp: '26'
-          - elixir: '1.17.2'
+          - elixir: '1.17.3'
             otp: '27'
+          - elixir: '1.18.4'
+            otp: '28'
+          - elixir: '1.19.5'
+            otp: '28'
 
     steps:
     - uses: actions/checkout@v4
