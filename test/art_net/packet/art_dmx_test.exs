@@ -11,12 +11,13 @@ defmodule ArtNet.Packet.ArtDmxTest do
       data: [255]
     }
 
-    data =
-      <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00,
-        0x00, 0x00, 0x01, 0xFF>>
+    body = <<0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
+    data = <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, body::binary>>
 
     assert ArtNet.Packet.ArtDmx.decode(data) == {:ok, packet}
-    assert ArtNet.Packet.ArtDmx.encode(packet) == {:ok, data}
+    assert {:ok, encoded} = ArtNet.Packet.ArtDmx.encode(packet)
+    assert <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, encoded_body::binary>> = encoded
+    assert encoded_body == body
   end
 
   test "validate" do

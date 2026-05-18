@@ -18,7 +18,13 @@ defmodule ArtNet.Packet.ArtAddressTest do
       }
 
       assert {:ok, binary} = ArtNet.encode(packet)
-      assert <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x60, _::binary>> = binary
+
+      assert <<"Art-Net", 0, 0x00, 0x60, 0x00, 0x0E, body::binary>> = binary
+
+      assert body ==
+               <<0x80, 0x01, "Port A", 0::size(12 * 8), "Main stage node", 0::size(49 * 8), 0x80,
+                 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x64, 0x00>>
+
       assert {:ok, ^packet} = ArtNet.decode(binary)
     end
   end

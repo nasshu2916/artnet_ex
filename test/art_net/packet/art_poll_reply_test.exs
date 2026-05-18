@@ -39,6 +39,15 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
       )
 
     assert {:ok, data} = ArtPollReply.encode(packet)
+
+    assert <<"Art-Net", 0, 0x00, 0x21, body::binary>> = data
+
+    assert body ==
+             <<0x00, 0x00, 0x00, 0x00, 0x36, 0x19, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+               0x00, 0x00, "test short name", 0::size(3 * 8), "test long name", 0::size(50 * 8),
+               0::size(64 * 8), 0::size(41 * 8), 0x50, 0xA0, 0x00, 0x80, 0xF7, 0x01, 0x02, 0x03,
+               0x04, 0x05, 0x06, 0x12, 0x34, 0x00, 0x78, 0x03, 0::size(10 * 8)>>
+
     assert byte_size(data) == 239
     assert ArtPollReply.decode(data) == {:ok, packet}
   end
