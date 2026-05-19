@@ -32,6 +32,12 @@ defmodule ArtNet.Packet.Schema.CodeGeneratorTest do
     @impl ArtNet.Packet.Schema
     def validate(_), do: :ok
 
+    @impl ArtNet.Packet.Schema
+    def validate_decode(packet), do: validate(packet)
+
+    @impl ArtNet.Packet.Schema
+    def validate_encode(packet), do: validate(packet)
+
     Generator.generate(
       [
         be: {{:integer, 8}, []},
@@ -55,6 +61,12 @@ defmodule ArtNet.Packet.Schema.CodeGeneratorTest do
 
     @impl ArtNet.Packet.Schema
     def validate(_), do: :ok
+
+    @impl ArtNet.Packet.Schema
+    def validate_decode(packet), do: validate(packet)
+
+    @impl ArtNet.Packet.Schema
+    def validate_encode(packet), do: validate(packet)
 
     @impl ArtNet.Packet.Schema
     def pre_decode(<<value>>), do: <<0, value>>

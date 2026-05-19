@@ -64,7 +64,7 @@ defmodule ArtNet.Packet do
   def decode(module, rest) do
     with {:ok, rest} <- validate_header(module, rest),
          {:ok, packet} <- decode_body(module, rest),
-         :ok <- module.validate(packet) do
+         :ok <- module.validate_decode(packet) do
       {:ok, packet}
     else
       {:error, %ArtNet.DecodeError{} = error} ->
@@ -121,7 +121,7 @@ defmodule ArtNet.Packet do
   @spec encode(ArtNet.packet()) :: {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   def encode(packet) do
     with {{:ok, module}, _} <- {fetch_module(packet), "packet is not a struct"},
-         :ok <- module.validate(packet),
+         :ok <- module.validate_encode(packet),
          header = encode_header(module),
          {:ok, body} <- encode_body(packet) do
       {:ok, header <> body}

@@ -9,6 +9,8 @@ defmodule ArtNet.Packet.Schema do
   ]
 
   @callback validate(packet :: struct) :: :ok | {:error, String.t()}
+  @callback validate_decode(packet :: struct) :: :ok | {:error, String.t()}
+  @callback validate_encode(packet :: struct) :: :ok | {:error, String.t()}
   @callback pre_decode(body :: binary) :: binary
 
   @optional_callbacks pre_decode: 1
@@ -35,7 +37,17 @@ defmodule ArtNet.Packet.Schema do
         :ok
       end
 
-      defoverridable validate: 1
+      @impl ArtNet.Packet.Schema
+      def validate_decode(packet) do
+        validate(packet)
+      end
+
+      @impl ArtNet.Packet.Schema
+      def validate_encode(packet) do
+        validate(packet)
+      end
+
+      defoverridable validate: 1, validate_decode: 1, validate_encode: 1
     end
   end
 
