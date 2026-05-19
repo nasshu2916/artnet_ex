@@ -17,9 +17,11 @@ defmodule ArtNet.EncodeError do
 end
 
 defmodule ArtNet.Encoder do
+  alias ArtNet.Packet.Schema
+
   import Bitwise
 
-  @spec encode(any, ArtNet.Packet.Schema.format(), Keyword.t()) :: {:ok, binary} | :error
+  @spec encode(any, Schema.Types.format(), Keyword.t()) :: {:ok, binary} | :error
   def encode(values, [format], opts), do: encode_list(values, format, opts)
 
   def encode(value, {:integer, size}, _opts), do: integer(value, size)
@@ -66,7 +68,7 @@ defmodule ArtNet.Encoder do
           | {:invalid_element, value :: any}
           | {:invalid_element, value :: any, reason :: any}
 
-  @spec encode_list([any], ArtNet.Packet.Schema.format(), Keyword.t()) ::
+  @spec encode_list([any], Schema.Types.format(), Keyword.t()) ::
           {:ok, binary} | {:error, list_encode_error}
   def encode_list(values, format, opts) do
     fun = fn value -> encode(value, format, opts) end

@@ -20,7 +20,9 @@ defmodule ArtNet.DecodeError do
 end
 
 defmodule ArtNet.Decoder do
-  @spec decode(binary, ArtNet.Packet.Schema.format(), Keyword.t()) ::
+  alias ArtNet.Packet.Schema
+
+  @spec decode(binary, Schema.Types.format(), Keyword.t()) ::
           {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)
 

@@ -51,7 +51,7 @@ defmodule ArtNet.Packet.ArtPollReply do
   end
 
   @impl ArtNet.Packet.Schema
-  def pre_decode(body), do: ArtNet.Packet.Schema.pad_binary(body, 229, 191)
+  def pre_decode(body), do: ArtNet.Misc.pad_binary(body, 229, 191)
 
   @impl ArtNet.Packet.Schema
   def validate_encode(%__MODULE__{} = packet) do

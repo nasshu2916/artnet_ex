@@ -1,32 +1,34 @@
 defmodule ArtNet.Misc do
   @doc """
-  Converts a list of atoms into a type AST.
+  Pads a binary with zero bytes to reach the specified length.
+
+  If `min_length` is given, padding is only applied when the binary size
+  is at least `min_length`. Otherwise, the binary is returned as-is.
+
+  ## Parameters
+    * `binary` - the binary to pad
+    * `length` - target size after padding
+    * `min_length` - minimum size required to trigger padding (default: `0`)
 
   ## Examples
-      iex> ArtNet.Misc.type_ast([:key1])
-      :key1
 
-      iex> ArtNet.Misc.type_ast([:key1, :key2])
-      {:|, [], [:key1, :key2]}
+      iex> ArtNet.Misc.pad_binary(<<1, 2>>, 5)
+      <<1, 2, 0, 0, 0>>
 
-      iex> ArtNet.Misc.type_ast([:key1, :key2, :key3, :key4])
-      {:|, [], [:key1, {:|, [], [:key2, {:|, [], [:key3, :key4]}]}]}
+      iex> ArtNet.Misc.pad_binary(<<1, 2, 3, 4, 5>>, 5)
+      <<1, 2, 3, 4, 5>>
+
+      iex> ArtNet.Misc.pad_binary(<<1>>, 5, 2)
+      <<1>>
   """
-  @spec type_ast([atom]) :: any
-  def type_ast([key]) do
-    key
-  end
+  @spec pad_binary(binary, pos_integer, non_neg_integer) :: binary
+  def pad_binary(binary, length, min_length \\ 0) do
+    byte_size = byte_size(binary)
 
-  def type_ast(keys) do
-    [key | rest] = Enum.reverse(keys)
-    parse_type_ast(rest, key)
-  end
-
-  defp parse_type_ast([key], acc) do
-    {:|, [], [key, acc]}
-  end
-
-  defp parse_type_ast([key | rest], acc) do
-    parse_type_ast(rest, {:|, [], [key, acc]})
+    if byte_size >= min_length and byte_size < length do
+      binary <> :binary.copy(<<0>>, length - byte_size)
+    else
+      binary
+    end
   end
 end

@@ -1,4 +1,6 @@
 defmodule ArtNet.Packet.BitField do
+  alias ArtNet.Packet.Schema
+
   import Bitwise
 
   @struct_accumulate_attrs [
@@ -8,7 +10,7 @@ defmodule ArtNet.Packet.BitField do
     :artnet_schema
   ]
 
-  @type schema_type :: :boolean | {:enum_table, module}
+  @type schema_type :: Schema.Types.bit_field_format()
 
   defmacro __using__(_) do
     quote do
@@ -103,16 +105,17 @@ defmodule ArtNet.Packet.BitField do
     Module.put_attribute(module, :artnet_bit_field_offset, offset + size)
 
     Module.put_attribute(module, :artnet_fields, {name, default})
-    Module.put_attribute(module, :artnet_types, {name, type_for(format)})
+
+    Module.put_attribute(
+      module,
+      :artnet_types,
+      {name, ArtNet.Packet.Schema.Types.bit_field_type_for(format)}
+    )
+
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     Module.put_attribute(module, :artnet_schema, {name, {format, {offset, size}}})
   end
-
-  defp type_for(:boolean), do: :boolean
-
-  defp type_for({:enum_table, enum_module}),
-    do: {{:., [], [{:__aliases__, [], [enum_module]}, :type]}, [], []}
 
   @spec decode(non_neg_integer, module) :: {:ok, struct} | :error
   def decode(value, module) do

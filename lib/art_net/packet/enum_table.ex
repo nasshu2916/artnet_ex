@@ -12,7 +12,7 @@ defmodule ArtNet.Packet.EnumTable do
       keys = Enum.map(table, fn {key, _value} -> key end)
       bit_size = Keyword.fetch!(opts, :bit_size)
 
-      @type type :: unquote(ArtNet.Misc.type_ast(keys))
+      @type type :: unquote(ArtNet.Packet.Schema.Types.type_ast(keys))
 
       Module.put_attribute(__MODULE__, :bit_size, bit_size)
       Module.put_attribute(__MODULE__, :enum_table, table)

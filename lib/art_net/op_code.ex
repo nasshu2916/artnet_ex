@@ -15,7 +15,7 @@ defmodule ArtNet.OpCode do
   # Define the op codes as atoms
   @op_codes Map.keys(@op_code_config)
 
-  @type type :: unquote(ArtNet.Misc.type_ast(@op_codes))
+  @type type :: unquote(ArtNet.Packet.Schema.Types.type_ast(@op_codes))
 
   @doc """
   Returns the Packet module for the given op code.

@@ -1,5 +1,5 @@
 defmodule ArtNet.Packet.Schema do
-  alias ArtNet.Packet.Schema.CodeGenerator
+  alias ArtNet.Packet.Schema.{CodeGenerator, Types}
 
   @struct_accumulate_attrs [
     :artnet_fields,
@@ -14,15 +14,6 @@ defmodule ArtNet.Packet.Schema do
   @callback pre_decode(body :: binary) :: binary
 
   @optional_callbacks pre_decode: 1
-
-  @type format ::
-          {:integer, pos_integer}
-          | {:integer, pos_integer, :little_endian}
-          | {:binary, pos_integer}
-          | {:string, pos_integer}
-          | {:enum_table, module()}
-          | {:bit_field, module()}
-          | [format()]
 
   @doc false
   defmacro __using__(_) do
@@ -124,39 +115,6 @@ defmodule ArtNet.Packet.Schema do
     end
   end
 
-  @doc """
-  Pads a binary with zero bytes to reach the specified length.
-
-  If `min_length` is given, padding is only applied when the binary size
-  is at least `min_length`. Otherwise, the binary is returned as-is.
-
-  ## Parameters
-    * `binary` - the binary to pad
-    * `length` - target size after padding
-    * `min_length` - minimum size required to trigger padding (default: `0`)
-
-  ## Examples
-
-      iex> ArtNet.Packet.Schema.pad_binary(<<1, 2>>, 5)
-      <<1, 2, 0, 0, 0>>
-
-      iex> ArtNet.Packet.Schema.pad_binary(<<1, 2, 3, 4, 5>>, 5)
-      <<1, 2, 3, 4, 5>>
-
-      iex> ArtNet.Packet.Schema.pad_binary(<<1>>, 5, 2)
-      <<1>>
-  """
-  @spec pad_binary(binary, pos_integer, non_neg_integer) :: binary
-  def pad_binary(binary, length, min_length \\ 0) do
-    byte_size = byte_size(binary)
-
-    if byte_size >= min_length and byte_size < length do
-      binary <> :binary.copy(<<0>>, length - byte_size)
-    else
-      binary
-    end
-  end
-
   defmacro __struct_type__(types) do
     quote bind_quoted: [types: types] do
       @type t() :: %__MODULE__{unquote_splicing(types)}
@@ -193,21 +151,10 @@ defmodule ArtNet.Packet.Schema do
     enforce? = not has_default?
 
     Module.put_attribute(module, :artnet_fields, {name, default})
-    Module.put_attribute(module, :artnet_types, {name, type_for(format)})
+    Module.put_attribute(module, :artnet_types, {name, Types.type_for(format)})
+
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
   end
-
-  defp type_for([format]), do: [type_for(format)]
-  defp type_for({:integer, _size}), do: :integer
-  defp type_for({:integer, _size, :little_endian}), do: :integer
-  defp type_for({:binary, _size}), do: :binary
-  defp type_for({:string, _size}), do: {{:., [], [{:__aliases__, [], [:String]}, :t]}, [], []}
-
-  defp type_for({:enum_table, enum_module}),
-    do: {{:., [], [{:__aliases__, [], [enum_module]}, :type]}, [], []}
-
-  defp type_for({:bit_field, bit_field_module}),
-    do: {{:., [], [{:__aliases__, [], [bit_field_module]}, :t]}, [], []}
 end

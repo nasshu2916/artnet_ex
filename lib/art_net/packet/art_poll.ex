@@ -13,7 +13,7 @@ defmodule ArtNet.Packet.ArtPoll do
   end
 
   @impl ArtNet.Packet.Schema
-  def pre_decode(body), do: ArtNet.Packet.Schema.pad_binary(body, 10, 2)
+  def pre_decode(body), do: ArtNet.Misc.pad_binary(body, 10, 2)
 
   @impl ArtNet.Packet.Schema
   def validate_encode(%__MODULE__{} = packet) do

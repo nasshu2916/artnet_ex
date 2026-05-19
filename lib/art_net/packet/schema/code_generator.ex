@@ -1,7 +1,9 @@
 defmodule ArtNet.Packet.Schema.CodeGenerator do
   @moduledoc false
 
-  @type schema :: [{atom, {term, Keyword.t()}}]
+  alias ArtNet.Packet.Schema
+
+  @type schema :: [{atom, {Schema.Types.format(), Keyword.t()}}]
 
   @spec generate(schema, Keyword.t()) :: Macro.t()
   def generate(schema, opts) do
