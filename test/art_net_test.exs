@@ -55,7 +55,7 @@ defmodule ArtNetTest do
                  end
 
     assert_raise ArtNet.EncodeError,
-                 "encoding error: %{type: [integer: 8], value: [65535], key: :data}",
+                 "encoding error: %{type: [integer: 8], value: [65535], element: 65535, key: :data}",
                  fn ->
                    ArtNet.encode!(%{art_dmx | data: [0xFFFF]})
                  end

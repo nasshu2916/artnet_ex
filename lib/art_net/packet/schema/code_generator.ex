@@ -15,14 +15,43 @@ defmodule ArtNet.Packet.Schema.CodeGenerator do
   end
 
   @doc false
-  @spec encode_result({:ok, binary} | :error, atom, term, term) ::
+  @spec encode_result({:ok, binary} | :error | {:error, term}, atom, term, term) ::
           {:ok, binary} | {:error, ArtNet.EncodeError.t()}
   def encode_result({:ok, encoded}, _key, _format, _value), do: {:ok, encoded}
+
+  def encode_result({:error, :not_list}, key, _format, _value) do
+    {:error,
+     %ArtNet.EncodeError{
+       reason: {:invalid_data, "#{key} must be a list"}
+     }}
+  end
+
+  def encode_result({:error, {:invalid_length, expected, actual}}, key, _format, _value) do
+    {:error,
+     %ArtNet.EncodeError{
+       reason: {:invalid_data, "#{key} must contain #{expected} values, got #{actual}"}
+     }}
+  end
+
+  def encode_result({:error, {:invalid_element, element}}, key, format, value) do
+    encode_element_error(key, format, value, element)
+  end
+
+  def encode_result({:error, {:invalid_element, element, _reason}}, key, format, value) do
+    encode_element_error(key, format, value, element)
+  end
 
   def encode_result(:error, key, format, value) do
     {:error,
      %ArtNet.EncodeError{
        reason: {:encode_error, %{key: key, type: format, value: value}}
+     }}
+  end
+
+  defp encode_element_error(key, format, value, element) do
+    {:error,
+     %ArtNet.EncodeError{
+       reason: {:encode_error, %{key: key, type: format, value: value, element: element}}
      }}
   end
 
@@ -158,7 +187,8 @@ defmodule ArtNet.Packet.Schema.CodeGenerator do
     quote do
       ArtNet.Encoder.encode_list_with(
         unquote(value),
-        fn unquote(element) -> unquote(encode_call(element, format, opts)) end
+        fn unquote(element) -> unquote(encode_call(element, format, opts)) end,
+        unquote(Macro.escape(opts))
       )
     end
   end

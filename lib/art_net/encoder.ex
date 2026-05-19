@@ -41,7 +41,8 @@ defmodule ArtNet.Encoder do
   - `opts` is a keyword of format options.
 
   The function returns `{:ok, binary}` if the values were successfully encoded.
-  If the values could not be encoded, the function returns `:error`.
+  If the values could not be encoded, the function returns an error tuple
+  describing the list failure.
 
   ## Examples
       iex> ArtNet.Encoder.encode_list([1, 2, 3], {:integer, 8}, [])
@@ -51,37 +52,70 @@ defmodule ArtNet.Encoder do
       {:ok, <<0, 1, 0, 2, 0x11, 0x11>>}
 
       iex> ArtNet.Encoder.encode_list([1, 2, 0x1111], {:integer, 8}, [])
-      :error
+      {:error, {:invalid_element, 0x1111}}
 
       iex> ArtNet.Encoder.encode_list(1, {:integer, 8}, [])
-      :error
+      {:error, :not_list}
+
+      iex> ArtNet.Encoder.encode_list([1], {:integer, 8}, length: 2)
+      {:error, {:invalid_length, 2, 1}}
   """
-  @spec encode_list([any], atom, Keyword.t()) :: {:ok, binary} | :error
+  @type list_encode_error ::
+          :not_list
+          | {:invalid_length, expected :: non_neg_integer, actual :: non_neg_integer}
+          | {:invalid_element, value :: any}
+          | {:invalid_element, value :: any, reason :: any}
+
+  @spec encode_list([any], ArtNet.Packet.Schema.format(), Keyword.t()) ::
+          {:ok, binary} | {:error, list_encode_error}
   def encode_list(values, format, opts) do
     fun = fn value -> encode(value, format, opts) end
 
-    encode_list_with(values, fun)
+    encode_list_with(values, fun, opts)
   end
 
   @doc false
-  @spec encode_list_with([any], (any -> {:ok, binary} | :error)) :: {:ok, binary} | :error
+  @spec encode_list_with([any], (any -> {:ok, binary} | :error | {:error, any})) ::
+          {:ok, binary} | {:error, list_encode_error}
   def encode_list_with(values, fun) do
-    case do_encode_list(values, [], fun, []) do
-      :error -> :error
-      {:ok, encoded_list} -> {:ok, IO.iodata_to_binary(encoded_list)}
+    encode_list_with(values, fun, [])
+  end
+
+  @doc false
+  @spec encode_list_with([any], (any -> {:ok, binary} | :error | {:error, any}), Keyword.t()) ::
+          {:ok, binary} | {:error, list_encode_error}
+  def encode_list_with(values, fun, opts) do
+    with :ok <- validate_list_length(values, Keyword.get(opts, :length)),
+         {:ok, encoded_list} <- do_encode_list(values, [], fun, []) do
+      {:ok, IO.iodata_to_binary(encoded_list)}
     end
   end
+
+  defp validate_list_length(values, nil) when is_list(values), do: :ok
+  defp validate_list_length(_values, nil), do: {:error, :not_list}
+
+  defp validate_list_length(values, length)
+       when is_list(values) and length(values) == length do
+    :ok
+  end
+
+  defp validate_list_length(values, length) when is_list(values) do
+    {:error, {:invalid_length, length, length(values)}}
+  end
+
+  defp validate_list_length(_values, _length), do: {:error, :not_list}
 
   defp do_encode_list([], acc, _, _), do: {:ok, Enum.reverse(acc)}
 
   defp do_encode_list([value | rest], acc, fun, opts) do
     case fun.(value) do
       {:ok, encoded} -> do_encode_list(rest, [encoded | acc], fun, opts)
-      :error -> :error
+      :error -> {:error, {:invalid_element, value}}
+      {:error, reason} -> {:error, {:invalid_element, value, reason}}
     end
   end
 
-  defp do_encode_list(_, _, _, _), do: :error
+  defp do_encode_list(_, _, _, _), do: {:error, :not_list}
 
   @doc """
   Encodes an integer value into a binary.
