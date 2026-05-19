@@ -190,7 +190,7 @@ defmodule ArtNet.Packet.Schema do
 
     default = Keyword.get(opts, :default)
     has_default? = Keyword.has_key?(opts, :default)
-    enforce? = has_default?
+    enforce? = not has_default?
 
     Module.put_attribute(module, :artnet_fields, {name, default})
     Module.put_attribute(module, :artnet_types, {name, type_for(format)})

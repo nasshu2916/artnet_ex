@@ -7,7 +7,9 @@ defmodule ArtNet.PacketTest do
 
   describe "decode/2" do
     test "can decode valid ArtDmx packet" do
-      data = <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
+      body = <<0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
+      data = <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, body::binary>>
+
       assert {:ok, packet} = Packet.decode(ArtDmx, data)
       assert packet.sequence == 1
       assert packet.physical == 0
@@ -18,13 +20,20 @@ defmodule ArtNet.PacketTest do
     end
 
     test "can decode valid ArtPoll packet" do
-      data = <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, 0x0E, 0xC0>>
+      body = <<0x2E, 0x80, 0x7F, 0xFF, 0x12, 0x34, 0x41, 0x4C, 0x12, 0x34>>
+      data = <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, body::binary>>
+
       assert {:ok, packet} = Packet.decode(ArtPoll, data)
       assert packet.talk_to_me.reply_on_change == true
       assert packet.talk_to_me.diagnostics == true
       assert packet.talk_to_me.diag_unicast == true
       assert packet.talk_to_me.vlc == false
+      assert packet.talk_to_me.targeted_mode == true
       assert packet.priority == :dp_high
+      assert packet.target_port_address_top == 0x7FFF
+      assert packet.target_port_address_bottom == 0x1234
+      assert packet.esta_manufacturer == 0x414C
+      assert packet.oem == 0x1234
     end
 
     test "returns error for invalid identifier" do
@@ -62,8 +71,8 @@ defmodule ArtNet.PacketTest do
 
       assert {:ok, encoded} = Packet.encode(packet)
 
-      assert encoded ==
-               <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
+      assert <<"Art-Net", 0, 0x00, 0x50, 0x00, 0x0E, body::binary>> = encoded
+      assert body == <<0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFF>>
     end
 
     test "can encode valid ArtPoll packet" do
@@ -72,13 +81,20 @@ defmodule ArtNet.PacketTest do
           reply_on_change: true,
           diagnostics: true,
           diag_unicast: true,
-          vlc: false
+          vlc: false,
+          targeted_mode: true
         },
-        priority: :dp_high
+        priority: :dp_high,
+        target_port_address_top: 0x7FFF,
+        target_port_address_bottom: 0x1234,
+        esta_manufacturer: 0x414C,
+        oem: 0x1234
       }
 
       assert {:ok, encoded} = Packet.encode(packet)
-      assert encoded == <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, 0x0E, 0xC0>>
+
+      assert <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, body::binary>> = encoded
+      assert body == <<0x2E, 0x80, 0x7F, 0xFF, 0x12, 0x34, 0x41, 0x4C, 0x12, 0x34>>
     end
 
     test "returns error for non-struct data" do

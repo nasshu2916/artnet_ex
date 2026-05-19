@@ -5,7 +5,11 @@ defmodule ArtNet.OpCode do
   @op_code_config %{
     op_poll: {0x2000, Packet.ArtPoll},
     op_poll_reply: {0x2100, Packet.ArtPollReply},
-    op_dmx: {0x5000, Packet.ArtDmx}
+    op_dmx: {0x5000, Packet.ArtDmx},
+    op_sync: {0x5200, Packet.ArtSync},
+    op_address: {0x6000, Packet.ArtAddress},
+    op_ip_prog: {0xF800, Packet.ArtIpProg},
+    op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
   }
 
   # Define the op codes as atoms

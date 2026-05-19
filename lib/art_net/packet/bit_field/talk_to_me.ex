@@ -6,5 +6,6 @@ defmodule ArtNet.Packet.BitField.TalkToMe do
     field(:diagnostics, :boolean)
     field(:diag_unicast, :boolean)
     field(:vlc, :boolean)
+    field(:targeted_mode, :boolean, default: false)
   end
 end

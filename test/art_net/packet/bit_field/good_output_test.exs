@@ -7,7 +7,7 @@ defmodule ArtNet.Packet.BitField.GoodOutputTest do
     [
       {%GoodOutput{
          convert_sacn: false,
-         marge_ltp_mode: false,
+         merge_ltp_mode: false,
          output_short: false,
          merging: false,
          dmx_test_packet: false,
@@ -17,7 +17,7 @@ defmodule ArtNet.Packet.BitField.GoodOutputTest do
        }, 0b00000000},
       {%GoodOutput{
          convert_sacn: true,
-         marge_ltp_mode: false,
+         merge_ltp_mode: false,
          output_short: false,
          merging: false,
          dmx_test_packet: false,
@@ -27,7 +27,7 @@ defmodule ArtNet.Packet.BitField.GoodOutputTest do
        }, 0b00000001},
       {%GoodOutput{
          convert_sacn: false,
-         marge_ltp_mode: true,
+         merge_ltp_mode: true,
          output_short: false,
          merging: false,
          dmx_test_packet: false,

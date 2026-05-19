@@ -244,7 +244,7 @@ defmodule ArtNet.Decoder do
       iex> ArtNet.Decoder.enum_table(<<0x00, 0x00>>, ArtNet.Packet.EnumTable.Priority)
       {:ok, {:dp_all, <<0x00>>}}
 
-      iex> ArtNet.Decoder.enum_table(<<0xC0, 0x10>>, ArtNet.Packet.EnumTable.Priority)
+      iex> ArtNet.Decoder.enum_table(<<0x80, 0x10>>, ArtNet.Packet.EnumTable.Priority)
       {:ok, {:dp_high, <<0x10>>}}
 
       iex> ArtNet.Decoder.enum_table(<<0x01, 0x00>>, ArtNet.Packet.EnumTable.Priority)

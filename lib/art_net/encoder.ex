@@ -224,7 +224,7 @@ defmodule ArtNet.Encoder do
       {:ok, <<0x00>>}
 
       iex> ArtNet.Encoder.enum_table(:dp_high, ArtNet.Packet.EnumTable.Priority)
-      {:ok, <<0xC0>>}
+      {:ok, <<0x80>>}
 
       iex> ArtNet.Encoder.enum_table(:none, ArtNet.Packet.EnumTable.Priority)
       :error

@@ -201,8 +201,8 @@ Status: ✅ supported, ❌ not supported.
 | `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
 | `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
 | `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ❌ |
-| `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ❌ |
-| `0x6000` | `ArtAddress` | Send remote programming information for a node. | ❌ |
+| `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ✅ |
+| `0x6000` | `ArtAddress` | Send remote programming information for a node. | ✅ |
 | `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ❌ |
 | `0x8000` | `ArtTodRequest` | Request a Table of Devices for RDM discovery. | ❌ |
 | `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ❌ |
@@ -228,8 +228,8 @@ Status: ✅ supported, ❌ not supported.
 | `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ❌ |
 | `0xf500` | `ArtFileFnMaster` | Download a user file from a node. | ❌ |
 | `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ❌ |
-| `0xf800` | `ArtIpProg` | Reprogram a node IP address and subnet mask. | ❌ |
-| `0xf900` | `ArtIpProgReply` | Acknowledge receipt of an `ArtIpProg` packet. | ❌ |
+| `0xf800` | `ArtIpProg` | Reprogram a node IP address and subnet mask. | ✅ |
+| `0xf900` | `ArtIpProgReply` | Acknowledge receipt of an `ArtIpProg` packet. | ✅ |
 
 ## Installation
 

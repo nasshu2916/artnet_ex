@@ -3,7 +3,7 @@ defmodule ArtNet.Packet.BitField.GoodOutput do
 
   defbitfield bit_size: 8 do
     field(:convert_sacn, :boolean)
-    field(:marge_ltp_mode, :boolean)
+    field(:merge_ltp_mode, :boolean)
     field(:output_short, :boolean)
     field(:merging, :boolean)
     field(:dmx_test_packet, :boolean)
