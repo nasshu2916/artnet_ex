@@ -11,7 +11,7 @@ defmodule ArtNet.Packet.ArtAddress do
     field(:sw_in, [{:integer, 8}], length: 4)
     field(:sw_out, [{:integer, 8}], length: 4)
     field(:sub_switch, {:integer, 8}, default: 0)
-    field(:acn_priority, {:integer, 8}, default: 255)
+    field(:acn_priority, {:integer, 8}, default: 0)
     field(:command, {:enum_table, EnumTable.AddressCommand}, default: :ac_none)
   end
 end

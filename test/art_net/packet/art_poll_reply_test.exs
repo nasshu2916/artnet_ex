@@ -61,64 +61,98 @@ defmodule ArtNet.Packet.ArtPollReplyTest do
     assert ArtPollReply.decode(minimum_data) == {:ok, packet}
   end
 
+  test "encode applies defaults for Art-Net 4 reserved fields" do
+    packet = struct!(ArtPollReply, Keyword.delete(poll_reply_params(), :filler))
+
+    assert {:ok, data} = ArtPollReply.encode(packet)
+    assert binary_part(data, 229, 10) == <<0::size(10 * 8)>>
+  end
+
+  test "validate rejects malformed Art-Net 4 list lengths" do
+    packet = poll_reply(good_output_b: [%BitField.GoodOutputB{}])
+
+    assert ArtPollReply.encode(packet) ==
+             {:error,
+              %ArtNet.EncodeError{
+                reason: {:invalid_data, "good_output_b must contain 4 values, got 1"}
+              }}
+  end
+
+  test "validate rejects invalid background queue policy values" do
+    packet = poll_reply(background_queue_policy: 16)
+
+    assert ArtPollReply.encode(packet) ==
+             {:error,
+              %ArtNet.EncodeError{
+                reason: {:invalid_data, "background_queue_policy must be in the range 0..15"}
+              }}
+  end
+
+  test "decode does not apply encode-only background queue policy validation" do
+    assert {:ok, data} = ArtPollReply.encode(poll_reply())
+    <<prefix::binary-size(228), _background_queue_policy, suffix::binary>> = data
+    invalid_data = <<prefix::binary, 16, suffix::binary>>
+
+    assert {:ok, packet} = ArtPollReply.decode(invalid_data)
+    assert packet.background_queue_policy == 16
+  end
+
   defp poll_reply(overrides \\ []) do
-    struct!(
-      ArtPollReply,
-      Keyword.merge(
-        [
-          ip_address: <<0, 0, 0, 0>>,
-          port: 6454,
-          version_info: 14,
-          net_switch: 0,
-          sub_switch: 0,
-          oem: 0,
-          ubea_version: 0,
-          status1: %BitField.Status1{
-            ubea: false,
-            rdm: false,
-            boot_rom: false,
-            port_address: :unknown,
-            indicator: :unknown
-          },
-          est_amanu_facturer: <<0, 0>>,
-          short_name: "test short name",
-          long_name: "test long name",
-          node_report: <<0::size(64 * 8)>>,
-          num_ports: 0,
-          port_types: zero_port_types(),
-          good_input: zero_good_input(),
-          good_output: zero_good_output(),
-          sw_in: [0, 0, 0, 0],
-          sw_out: [0, 0, 0, 0],
-          acn_priority: 0,
-          sw_macro: 0,
-          sw_remote: 0,
-          spare: <<0, 0, 0>>,
-          style: 0,
-          mac_address: <<0, 0, 0, 0, 0, 0>>,
-          bind_ip: <<0, 0, 0, 0>>,
-          bind_index: 0,
-          status2: %BitField.Status2{
-            support_browser: false,
-            dhcp: false,
-            dhcp_capable: false,
-            port_15bit: false,
-            can_switch: false,
-            squawking: false,
-            switch_output_style: false,
-            control_rdm: false
-          },
-          good_output_b: zero_good_output_b(),
-          status3: %BitField.Status3{},
-          default_responder_uid: <<0::size(6 * 8)>>,
-          user: 0,
-          refresh_rate: 0,
-          background_queue_policy: 0,
-          filler: <<0::size(10 * 8)>>
-        ],
-        overrides
-      )
-    )
+    struct!(ArtPollReply, Keyword.merge(poll_reply_params(), overrides))
+  end
+
+  defp poll_reply_params do
+    [
+      ip_address: <<0, 0, 0, 0>>,
+      port: 6454,
+      version_info: 14,
+      net_switch: 0,
+      sub_switch: 0,
+      oem: 0,
+      ubea_version: 0,
+      status1: %BitField.Status1{
+        ubea: false,
+        rdm: false,
+        boot_rom: false,
+        port_address: :unknown,
+        indicator: :unknown
+      },
+      est_amanu_facturer: <<0, 0>>,
+      short_name: "test short name",
+      long_name: "test long name",
+      node_report: <<0::size(64 * 8)>>,
+      num_ports: 0,
+      port_types: zero_port_types(),
+      good_input: zero_good_input(),
+      good_output: zero_good_output(),
+      sw_in: [0, 0, 0, 0],
+      sw_out: [0, 0, 0, 0],
+      acn_priority: 0,
+      sw_macro: 0,
+      sw_remote: 0,
+      spare: <<0, 0, 0>>,
+      style: 0,
+      mac_address: <<0, 0, 0, 0, 0, 0>>,
+      bind_ip: <<0, 0, 0, 0>>,
+      bind_index: 0,
+      status2: %BitField.Status2{
+        support_browser: false,
+        dhcp: false,
+        dhcp_capable: false,
+        port_15bit: false,
+        can_switch: false,
+        squawking: false,
+        switch_output_style: false,
+        control_rdm: false
+      },
+      good_output_b: zero_good_output_b(),
+      status3: %BitField.Status3{},
+      default_responder_uid: <<0::size(6 * 8)>>,
+      user: 0,
+      refresh_rate: 0,
+      background_queue_policy: 0,
+      filler: <<0::size(10 * 8)>>
+    ]
   end
 
   defp zero_port_types do

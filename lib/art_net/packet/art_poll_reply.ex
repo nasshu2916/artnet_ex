@@ -47,9 +47,23 @@ defmodule ArtNet.Packet.ArtPollReply do
     field(:user, {:integer, 16}, default: 0)
     field(:refresh_rate, {:integer, 16}, default: 0)
     field(:background_queue_policy, {:integer, 8}, default: 0)
-    field(:filler, {:binary, 10})
+    field(:filler, {:binary, 10}, default: <<0::size(10 * 8)>>)
   end
 
   @impl ArtNet.Packet.Schema
   def pre_decode(body), do: ArtNet.Packet.Schema.pad_binary(body, 229, 191)
+
+  @impl ArtNet.Packet.Schema
+  def validate_encode(%__MODULE__{} = packet) do
+    validate_background_queue_policy(packet.background_queue_policy)
+  end
+
+  defp validate_background_queue_policy(value)
+       when is_integer(value) and value >= 0 and value <= 15 do
+    :ok
+  end
+
+  defp validate_background_queue_policy(_value) do
+    {:error, "background_queue_policy must be in the range 0..15"}
+  end
 end

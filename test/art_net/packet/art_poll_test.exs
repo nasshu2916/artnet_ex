@@ -69,6 +69,54 @@ defmodule ArtNet.Packet.ArtPollTest do
               }}
   end
 
+  test "decode rejects bodies shorter than the legacy minimum fields" do
+    data = <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x00>>
+
+    assert ArtNet.Packet.ArtPoll.decode(data) ==
+             {:error, %ArtNet.DecodeError{reason: {:decode_error, :priority}}}
+  end
+
+  test "validate rejects invalid target Port-Address values" do
+    packet = %ArtNet.Packet.ArtPoll{
+      talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+        reply_on_change: true,
+        diagnostics: true,
+        diag_unicast: true,
+        vlc: false,
+        targeted_mode: true
+      },
+      target_port_address_top: 0x8000
+    }
+
+    assert ArtNet.Packet.ArtPoll.encode(packet) ==
+             {:error,
+              %ArtNet.EncodeError{
+                reason: {:invalid_data, "target_port_address_top must be a 15-bit Port-Address"}
+              }}
+  end
+
+  test "decode does not apply encode-only target Port-Address validation" do
+    body = <<0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00>>
+    data = <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, body::binary>>
+
+    assert ArtNet.Packet.ArtPoll.decode(data) ==
+             {:ok,
+              %ArtNet.Packet.ArtPoll{
+                talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+                  reply_on_change: false,
+                  diagnostics: false,
+                  diag_unicast: false,
+                  vlc: false,
+                  targeted_mode: false
+                },
+                priority: :dp_all,
+                target_port_address_top: 0x8000,
+                target_port_address_bottom: 0,
+                esta_manufacturer: 0,
+                oem: 0
+              }}
+  end
+
   test "decode error" do
     data = <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0E, 0x0E, 0x01>>
 
