@@ -68,6 +68,15 @@ defmodule ArtNet.Packet.EnumTable do
       Module.put_attribute(__MODULE__, :bit_size, bit_size)
       Module.put_attribute(__MODULE__, :enum_table, table)
 
+      moduledoc =
+        ArtNet.Packet.EnumTable.__moduledoc_with_table__(
+          Module.get_attribute(__MODULE__, :moduledoc),
+          table,
+          bit_size
+        )
+
+      Module.put_attribute(__MODULE__, :moduledoc, {__ENV__.line, moduledoc})
+
       @doc """
       Returns the number of bits used to encode values in this enum table.
       """
@@ -115,6 +124,21 @@ defmodule ArtNet.Packet.EnumTable do
     end
   end
 
+  @doc false
+  @spec __moduledoc_with_table__(
+          false | nil | String.t() | {non_neg_integer, String.t()},
+          Keyword.t(),
+          pos_integer
+        ) ::
+          false | String.t()
+  def __moduledoc_with_table__(false, _table, _bit_size), do: false
+
+  def __moduledoc_with_table__(moduledoc, table, bit_size) do
+    moduledoc
+    |> moduledoc_text()
+    |> append_values_table(table, bit_size)
+  end
+
   defmacro __before_compile__(env) do
     bit_size = Module.get_attribute(env.module, :bit_size)
     enum_table = Module.get_attribute(env.module, :enum_table)
@@ -149,4 +173,43 @@ defmodule ArtNet.Packet.EnumTable do
   end
 
   defp format_value(value, _bit_size), do: inspect(value)
+
+  defp moduledoc_text(nil), do: ""
+  defp moduledoc_text({_line, text}) when is_binary(text), do: text
+  defp moduledoc_text(text) when is_binary(text), do: text
+
+  defp append_values_table(text, table, bit_size) do
+    [String.trim_trailing(text), values_table(table, bit_size)]
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.join("\n\n")
+  end
+
+  defp values_table(table, bit_size) do
+    rows =
+      Enum.map_join(table, "\n", fn {atom, value} ->
+        "| `#{atom}` | `#{format_table_value(value, bit_size)}` |"
+      end)
+
+    """
+    ## Values
+
+    | Atom | Value |
+    | --- | --- |
+    #{rows}
+    """
+    |> String.trim_trailing()
+  end
+
+  defp format_table_value(value, bit_size) when is_integer(value) do
+    hex = inspect(value, base: :hex)
+
+    binary =
+      value
+      |> Integer.to_string(2)
+      |> String.pad_leading(bit_size, "0")
+
+    "#{hex} / 0b#{binary}"
+  end
+
+  defp format_table_value(value, _bit_size), do: inspect(value)
 end

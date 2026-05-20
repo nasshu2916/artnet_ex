@@ -5,8 +5,13 @@ defmodule ArtNet.Packet.EnumTableTest do
 
   describe "generated docs" do
     test "documents generated enum table functions" do
-      assert {:docs_v1, _, :elixir, "text/markdown", _, _, docs} =
+      assert {:docs_v1, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, docs} =
                Code.fetch_docs(ArtNet.Packet.EnumTable.Priority)
+
+      assert moduledoc =~ "## Values"
+      assert moduledoc =~ "| Atom | Value |"
+      assert moduledoc =~ "| `dp_all` | `0x0 / 0b00000000` |"
+      assert moduledoc =~ "| `dp_volatile` | `0xF0 / 0b11110000` |"
 
       docs_by_function =
         Map.new(docs, fn
