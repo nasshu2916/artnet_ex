@@ -195,7 +195,7 @@ defmodule ArtNet.Encoder do
       iex> ArtNet.Encoder.binary(<<1, 2>>, 1)
       :error
   """
-  @spec binary(binary, pos_integer) :: {:ok, binary} | :error
+  @spec binary(binary, pos_integer | nil) :: {:ok, binary} | :error
   def binary(value, nil) do
     {:ok, value}
   end

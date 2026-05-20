@@ -195,27 +195,27 @@ Status: ✅ supported, ❌ not supported.
 | --- | --- | --- | --- |
 | `0x2000` | `ArtPoll` | Discover Art-Net nodes. | ✅ |
 | `0x2100` | `ArtPollReply` | Respond to an `ArtPoll` packet with device status information. | ✅ |
-| `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ❌ |
-| `0x2400` | `ArtCommand` | Send text-based parameter commands. | ❌ |
+| `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ✅ |
+| `0x2400` | `ArtCommand` | Send text-based parameter commands. | ✅ |
 | `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ❌ |
 | `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
 | `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
-| `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ❌ |
+| `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ✅ |
 | `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ✅ |
 | `0x6000` | `ArtAddress` | Send remote programming information for a node. | ✅ |
-| `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ❌ |
-| `0x8000` | `ArtTodRequest` | Request a Table of Devices for RDM discovery. | ❌ |
-| `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ❌ |
-| `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ❌ |
-| `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ❌ |
-| `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ❌ |
+| `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ✅ |
+| `0x8000` | `ArtTodRequest` | Request a Table of Devices for RDM discovery. | ✅ |
+| `0x8100` | `ArtTodData` | Send a Table of Devices for RDM discovery. | ✅ |
+| `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ✅ |
+| `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ✅ |
+| `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ✅ |
 | `0x9000` | `ArtMedia` | Send media-server data to a controller. | ❌ |
 | `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ❌ |
 | `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ❌ |
 | `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ❌ |
-| `0x9700` | `ArtTimeCode` | Transport time code over the network. | ❌ |
-| `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ❌ |
-| `0x9900` | `ArtTrigger` | Send trigger macros. | ❌ |
+| `0x9700` | `ArtTimeCode` | Transport time code over the network. | ✅ |
+| `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ✅ |
+| `0x9900` | `ArtTrigger` | Send trigger macros. | ✅ |
 | `0x9a00` | `ArtDirectory` | Request a node's file list. | ❌ |
 | `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ❌ |
 | `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ❌ |

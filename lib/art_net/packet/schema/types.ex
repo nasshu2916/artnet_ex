@@ -4,8 +4,8 @@ defmodule ArtNet.Packet.Schema.Types do
   @type format ::
           {:integer, pos_integer}
           | {:integer, pos_integer, :little_endian}
-          | {:binary, pos_integer}
-          | {:string, pos_integer}
+          | {:binary, pos_integer | nil}
+          | {:string, pos_integer | nil}
           | {:enum_table, module()}
           | {:bit_field, module()}
           | [format()]
