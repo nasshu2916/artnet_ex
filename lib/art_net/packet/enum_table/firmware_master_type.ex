@@ -1,4 +1,15 @@
 defmodule ArtNet.Packet.EnumTable.FirmwareMasterType do
+  @moduledoc """
+  Firmware transfer block types used by `ArtNet.Packet.ArtFirmwareMaster`.
+
+    * `:firm_first` - first firmware block.
+    * `:firm_cont` - continuation firmware block.
+    * `:firm_last` - final firmware block.
+    * `:ubea_first` - first UBEA block.
+    * `:ubea_cont` - continuation UBEA block.
+    * `:ubea_last` - final UBEA block.
+  """
+
   use ArtNet.Packet.EnumTable
 
   defenumtable([bit_size: 8],

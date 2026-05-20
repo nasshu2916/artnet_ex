@@ -1,4 +1,16 @@
 defmodule ArtNet.Packet.EnumTable.PortType do
+  @moduledoc """
+  Port protocol type values used by `ArtNet.Packet.BitField.PortType`.
+
+    * `:dmx512` - DMX512.
+    * `:midi` - MIDI.
+    * `:avab` - Avab.
+    * `:colortran` - Colortran CMX.
+    * `:adb` - ADB 62.5.
+    * `:art_net` - Art-Net.
+    * `:dali` - DALI.
+  """
+
   use ArtNet.Packet.EnumTable
 
   defenumtable([bit_size: 6],

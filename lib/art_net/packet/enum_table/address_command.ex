@@ -1,4 +1,32 @@
 defmodule ArtNet.Packet.EnumTable.AddressCommand do
+  @moduledoc """
+  Address command values used by `ArtNet.Packet.ArtAddress`.
+
+  These values encode the command byte that changes node state or per-port
+  behavior.
+
+    * `:ac_none` - no command.
+    * `:ac_cancel_merge` - cancel merge mode.
+    * `:ac_led_normal`, `:ac_led_mute`, `:ac_led_locate` - control indicator
+      LEDs.
+    * `:ac_reset_rx_flags` - reset receiver status flags.
+    * `:ac_analysis_on`, `:ac_analysis_off` - control analysis mode.
+    * `:ac_fail_hold`, `:ac_fail_zero`, `:ac_fail_full`, `:ac_fail_scene`,
+      `:ac_fail_record` - configure failsafe behavior.
+    * `:ac_merge_ltp0`..`:ac_merge_ltp3` - set an output port to LTP merge.
+    * `:ac_merge_htp0`..`:ac_merge_htp3` - set an output port to HTP merge.
+    * `:ac_direction_tx0`..`:ac_direction_tx3` - set a port to output.
+    * `:ac_direction_rx0`..`:ac_direction_rx3` - set a port to input.
+    * `:ac_art_net_sel0`..`:ac_art_net_sel3` - select Art-Net input.
+    * `:ac_acn_sel0`..`:ac_acn_sel3` - select sACN input.
+    * `:ac_clear_op0`..`:ac_clear_op3` - clear output state.
+    * `:ac_style_delta0`..`:ac_style_delta3` - select delta output style.
+    * `:ac_style_const0`..`:ac_style_const3` - select constant output style.
+    * `:ac_rdm_enable0`..`:ac_rdm_enable3` - enable RDM on a port.
+    * `:ac_rdm_disable0`..`:ac_rdm_disable3` - disable RDM on a port.
+    * `:ac_bqp0`..`:ac_bqp15` - configure the BQP value.
+  """
+
   use ArtNet.Packet.EnumTable
 
   defenumtable([bit_size: 8],

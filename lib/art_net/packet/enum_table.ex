@@ -47,6 +47,9 @@ defmodule ArtNet.Packet.EnumTable do
   The first argument is an option list and must include `:bit_size`. The second
   argument is a keyword list mapping atom keys to integer codes.
 
+  The generated module documents `bit_size/0`, each zero-arity enum key
+  function, `to_code/1`, and `to_atom/1`.
+
   ```elixir
   defenumtable([bit_size: 2],
     disabled: 0,
@@ -65,22 +68,50 @@ defmodule ArtNet.Packet.EnumTable do
       Module.put_attribute(__MODULE__, :bit_size, bit_size)
       Module.put_attribute(__MODULE__, :enum_table, table)
 
+      @doc """
+      Returns the number of bits used to encode values in this enum table.
+      """
+      @spec bit_size :: pos_integer
       def bit_size, do: @bit_size
 
       for {key, value} <- table do
+        @doc """
+        Returns the integer code for `#{inspect(key)}`.
+
+        The code is `#{inspect(value, base: :hex)}`.
+        """
+        @spec unquote(key)() :: non_neg_integer
         def unquote(key)(), do: unquote(value)
       end
+
+      @doc """
+      Converts an enum atom into its integer code.
+
+      Returns `{:ok, code}` when the atom is defined by this enum table, or
+      `:error` otherwise.
+      """
+      @spec to_code(term) :: {:ok, non_neg_integer} | :error
+      def to_code(value)
 
       for {key, value} <- table do
         def to_code(unquote(key)), do: {:ok, unquote(value)}
       end
 
+      @doc """
+      Converts an integer code into its enum atom.
+
+      Returns `{:ok, atom}` when the code is defined by this enum table, or
+      `:error` otherwise.
+      """
+      @spec to_atom(term) :: {:ok, type()} | :error
+      def to_atom(code)
+
       for {key, value} <- table do
         def to_atom(unquote(value)), do: {:ok, unquote(key)}
       end
 
-      def to_code(_), do: :error
-      def to_atom(_), do: :error
+      def to_code(_value), do: :error
+      def to_atom(_code), do: :error
     end
   end
 

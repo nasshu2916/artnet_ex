@@ -1,4 +1,16 @@
 defmodule ArtNet.Packet.EnumTable.Priority do
+  @moduledoc """
+  Diagnostic priority values used by `ArtNet.Packet.ArtPoll` and
+  `ArtNet.Packet.ArtDiagData`.
+
+    * `:dp_all` - all diagnostic messages.
+    * `:dp_low` - low priority and above.
+    * `:dp_med` - medium priority and above.
+    * `:dp_high` - high priority and above.
+    * `:dp_critical` - critical messages only.
+    * `:dp_volatile` - volatile messages.
+  """
+
   use ArtNet.Packet.EnumTable
 
   defenumtable([bit_size: 8],

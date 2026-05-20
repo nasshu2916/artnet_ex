@@ -1,4 +1,19 @@
 defmodule ArtNet.Packet.BitField.Status2 do
+  @moduledoc """
+  Status2 bit field used by `ArtNet.Packet.ArtPollReply`.
+
+  This field reports additional node capabilities and runtime state.
+
+    * `:support_browser` - node supports web browser configuration.
+    * `:dhcp` - node is currently using DHCP.
+    * `:dhcp_capable` - node can use DHCP.
+    * `:port_15bit` - node supports 15-bit Port-Address fields.
+    * `:can_switch` - output style can be switched.
+    * `:squawking` - node is currently squawking.
+    * `:switch_output_style` - output style switch is active.
+    * `:control_rdm` - RDM can be controlled.
+  """
+
   use ArtNet.Packet.BitField
 
   defbitfield bit_size: 8 do

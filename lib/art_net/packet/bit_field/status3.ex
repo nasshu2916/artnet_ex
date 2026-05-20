@@ -1,4 +1,19 @@
 defmodule ArtNet.Packet.BitField.Status3 do
+  @moduledoc """
+  Status3 bit field used by `ArtNet.Packet.ArtPollReply`.
+
+  This field reports newer discovery, RDMnet, LLRP, and failsafe capabilities.
+
+    * `:background_discovery_control` - background discovery can be controlled.
+    * `:background_queue` - background discovery queue is supported.
+    * `:rdmnet` - RDMnet is supported.
+    * `:port_direction_switch` - port direction can be switched.
+    * `:llrp` - LLRP is supported.
+    * `:programmable_failsafe` - failsafe behavior can be programmed.
+    * `:failsafe_state` - active failsafe state reported by
+      `ArtNet.Packet.EnumTable.FailsafeState`.
+  """
+
   use ArtNet.Packet.BitField
 
   alias ArtNet.Packet.EnumTable
