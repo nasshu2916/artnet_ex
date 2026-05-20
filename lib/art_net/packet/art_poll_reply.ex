@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtPollReply do
+  @moduledoc """
+  Reports node identity, addressing, port status, and capability information.
+
+  Nodes send this packet in response to `ArtNet.Packet.ArtPoll` and when their
+  advertised state changes.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.BitField

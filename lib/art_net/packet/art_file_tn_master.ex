@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtFileTnMaster do
+  @moduledoc """
+  Uploads a user file to a node.
+
+  The packet carries file transfer type, block identifiers, and one data block.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

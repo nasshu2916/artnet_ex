@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtMediaPatch do
+  @moduledoc """
+  Sends media patch information to a media server.
+
+  Controllers use this packet to map media server layers and outputs for
+  Art-Net media extensions.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

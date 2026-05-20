@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtFirmwareMaster do
+  @moduledoc """
+  Uploads firmware or firmware extensions to a node.
+
+  The packet identifies the firmware block type and carries one transfer block
+  of firmware data.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

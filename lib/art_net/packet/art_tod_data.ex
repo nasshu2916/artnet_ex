@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtTodData do
+  @moduledoc """
+  Sends a Table of Devices for RDM discovery.
+
+  Nodes use this packet to return discovered RDM UIDs and discovery response
+  status to a controller.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

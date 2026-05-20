@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtSync do
+  @moduledoc """
+  Synchronizes output of previously received DMX packets.
+
+  Controllers send this packet to force nodes to transfer buffered `ArtDmx`
+  packets to their outputs at the same time.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

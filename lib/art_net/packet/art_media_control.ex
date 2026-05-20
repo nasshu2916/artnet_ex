@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtMediaControl do
+  @moduledoc """
+  Sends media control commands to a media server.
+
+  This packet carries control values such as media type, page, file, and
+  playback-related parameters.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

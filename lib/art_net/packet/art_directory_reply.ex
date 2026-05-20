@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtDirectoryReply do
+  @moduledoc """
+  Replies to `ArtNet.Packet.ArtDirectory` with file list information.
+
+  The payload describes a file entry, including name, description, length, and
+  data metadata.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

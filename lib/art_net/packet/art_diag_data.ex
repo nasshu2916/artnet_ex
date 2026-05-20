@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtDiagData do
+  @moduledoc """
+  Carries diagnostic and data logging text from a node.
+
+  The `priority` field classifies the diagnostic severity, and `data` contains
+  the diagnostic payload bytes.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

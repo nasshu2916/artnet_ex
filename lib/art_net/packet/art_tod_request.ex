@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtTodRequest do
+  @moduledoc """
+  Requests a Table of Devices for RDM discovery.
+
+  Controllers use this packet to ask a node for discovered RDM UIDs on one or
+  more ports.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

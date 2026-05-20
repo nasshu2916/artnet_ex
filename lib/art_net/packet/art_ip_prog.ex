@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtIpProg do
+  @moduledoc """
+  Reprograms a node's IP addressing configuration.
+
+  This packet can request changes to IP address, subnet mask, default gateway,
+  DHCP state, and related programming flags.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.BitField

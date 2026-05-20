@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtPoll do
+  @moduledoc """
+  Discovers Art-Net nodes on the network.
+
+  Controllers broadcast this packet to ask nodes to identify themselves. Nodes
+  respond with `ArtNet.Packet.ArtPollReply`.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.{BitField, EnumTable}

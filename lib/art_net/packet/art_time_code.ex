@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtTimeCode do
+  @moduledoc """
+  Transports time code over Art-Net.
+
+  The packet carries frame, seconds, minutes, hours, and time-code type fields.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

@@ -8,6 +8,7 @@ defmodule ArtNet.Packet.SchemaTest do
       assert {:docs_v1, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, docs} =
                Code.fetch_docs(ArtNet.Packet.ArtDmx)
 
+      assert moduledoc =~ "Transmits zero-start-code DMX512 data for a single universe."
       assert moduledoc =~ "## Packet layout"
       assert moduledoc =~ "| Part | Field | Size | Format | Default |"
       assert moduledoc =~ "| Header | `id` | 8 bytes | `\"Art-Net\\\\0\"` | fixed |"

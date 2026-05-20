@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtRdm do
+  @moduledoc """
+  Carries non-discovery RDM messages over Art-Net.
+
+  Use this packet for RDM traffic that is not part of the RDM discovery
+  process.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

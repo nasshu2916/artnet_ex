@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtVideoPalette do
+  @moduledoc """
+  Sends color palette setup information for extended video features.
+
+  The packet carries red, green, and blue palette values used by Art-Net video
+  data.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

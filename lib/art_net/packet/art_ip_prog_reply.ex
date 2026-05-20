@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtIpProgReply do
+  @moduledoc """
+  Acknowledges receipt of an `ArtNet.Packet.ArtIpProg` packet.
+
+  Nodes use this packet to report their programmed IP address, subnet mask,
+  gateway, and DHCP status.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.BitField

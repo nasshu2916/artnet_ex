@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtInput do
+  @moduledoc """
+  Enables or disables DMX inputs on a node.
+
+  The packet reports the target bind index and four input control bytes.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

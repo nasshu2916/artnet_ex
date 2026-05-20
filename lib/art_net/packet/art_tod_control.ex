@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtTodControl do
+  @moduledoc """
+  Sends RDM discovery control commands to a node.
+
+  This packet controls behavior such as flushing or updating the node's Table
+  of Devices.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

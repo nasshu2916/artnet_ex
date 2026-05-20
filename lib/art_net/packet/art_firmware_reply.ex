@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtFirmwareReply do
+  @moduledoc """
+  Acknowledges receipt of firmware transfer packets.
+
+  Nodes use this packet to report whether a firmware block, complete transfer,
+  or transfer failure was detected.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

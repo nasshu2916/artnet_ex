@@ -1,4 +1,12 @@
 defmodule ArtNet.Packet.ArtNzs do
+  @moduledoc """
+  Transmits non-zero-start-code DMX512 data for a single universe.
+
+  This packet carries DMX-style payloads identified by `start_code`, except RDM.
+  VLC payloads use start code `0x91` and can be decoded with
+  `ArtNet.Packet.ArtVlc.decode/1`.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

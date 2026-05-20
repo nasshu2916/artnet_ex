@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtDataRequest do
+  @moduledoc """
+  Requests manufacturer-specific data from a device.
+
+  The `esta_manufacturer`, `oem`, and `request` fields identify the data being
+  requested, such as product URLs or other vendor-defined records.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

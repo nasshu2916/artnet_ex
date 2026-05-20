@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtDmx do
+  @moduledoc """
+  Transmits zero-start-code DMX512 data for a single universe.
+
+  This packet is also known as ArtOutput. The `length` field must match the
+  number of DMX slots carried in `data`.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

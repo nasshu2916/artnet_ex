@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtRdmSub do
+  @moduledoc """
+  Carries compressed RDM sub-device data.
+
+  This packet is used for RDM sub-device communication with command class and
+  parameter metadata included in the payload.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

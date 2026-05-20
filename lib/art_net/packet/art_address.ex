@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtAddress do
+  @moduledoc """
+  Sends remote programming information to a node.
+
+  This packet can change node addressing, short/long names, merge behavior,
+  port direction, indicator state, and related node configuration.
+  """
+
   use ArtNet.Packet.Schema
 
   alias ArtNet.Packet.EnumTable

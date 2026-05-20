@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtVideoData do
+  @moduledoc """
+  Sends display data for extended video features.
+
+  The packet carries tile position, dimensions, and pixel data for an Art-Net
+  video surface.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

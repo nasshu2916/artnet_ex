@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtMedia do
+  @moduledoc """
+  Sends media-server data to a controller.
+
+  This packet carries media information such as media type, page, and file
+  identifiers for Art-Net media extensions.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtDataReply do
+  @moduledoc """
+  Replies to `ArtNet.Packet.ArtDataRequest` with manufacturer-specific data.
+
+  The `payload_length` field must match the number of bytes in `payload`.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtVideoSetup do
+  @moduledoc """
+  Sends video screen setup information for extended video features.
+
+  The packet configures screen control, font, window, and cursor parameters.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtTrigger do
+  @moduledoc """
+  Sends trigger macro commands.
+
+  This packet carries OEM-specific trigger information identified by `key`,
+  `subkey`, and payload bytes.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do

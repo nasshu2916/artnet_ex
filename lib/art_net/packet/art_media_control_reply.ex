@@ -1,4 +1,10 @@
 defmodule ArtNet.Packet.ArtMediaControlReply do
+  @moduledoc """
+  Reports media control state from a media server.
+
+  Media servers send this packet in response to media control activity.
+  """
+
   use ArtNet.Packet.Schema
 
   defpacket do
