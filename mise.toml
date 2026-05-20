@@ -9,4 +9,5 @@ run = [
   "mix credo",
   "mix dialyzer",
   "mix test",
+  "mix docs"
 ]
