@@ -50,6 +50,19 @@ The `ArtPoll` packet is used to discover Art-Net nodes on the network.
 
 The `ArtPollReply` packet is used to respond to an `ArtPoll` packet.
 
+### ArtVlc
+
+`ArtVlc` is a VLC-specific payload carried by `ArtNzs` (`OpNzs`, start code `0x91`).
+Decode the packet as usual, then pass the resulting `ArtNzs` packet to
+`ArtNet.Packet.ArtVlc.decode/1` to parse the VLC fields.
+
+```elixir
+with {:ok, %ArtNet.Packet.ArtNzs{} = nzs} <- ArtNet.decode(binary),
+     {:ok, vlc} <- ArtNet.Packet.ArtVlc.decode(nzs) do
+  vlc.payload
+end
+```
+
 ## Packet Definitions
 
 The `ArtNet.Packet.Schema` module provides packet definitions macro. The packet definitions are used to encode and decode the packet. The packet definitions are defined using the `defpacket` macro.
@@ -197,10 +210,10 @@ Status: ✅ supported, ❌ not supported.
 | `0x2100` | `ArtPollReply` | Respond to an `ArtPoll` packet with device status information. | ✅ |
 | `0x2300` | `ArtDiagData` | Send diagnostics and data logging information. | ✅ |
 | `0x2400` | `ArtCommand` | Send text-based parameter commands. | ✅ |
-| `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ❌ |
-| `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ❌ |
+| `0x2700` | `ArtDataRequest` | Request data such as product URLs. | ✅ |
+| `0x2800` | `ArtDataReply` | Reply to an `ArtDataRequest` packet. | ✅ |
 | `0x5000` | `ArtDmx` / `ArtOutput` | Transmit zero start code DMX512 data for a single universe. | ✅ |
-| `0x5100` | `ArtNzs` | Transmit non-zero start code DMX512 data, except RDM, for a single universe. | ✅ |
+| `0x5100` | `ArtNzs` / `ArtVlc` helper | Transmit non-zero start code DMX512 data, except RDM, for a single universe. `ArtVlc` payloads can be parsed with `ArtNet.Packet.ArtVlc.decode/1`. | ✅ |
 | `0x5200` | `ArtSync` | Force synchronous transfer of `ArtDmx` packets to node outputs. | ✅ |
 | `0x6000` | `ArtAddress` | Send remote programming information for a node. | ✅ |
 | `0x7000` | `ArtInput` | Enable or disable DMX inputs. | ✅ |
@@ -209,25 +222,25 @@ Status: ✅ supported, ❌ not supported.
 | `0x8200` | `ArtTodControl` | Send RDM discovery control messages. | ✅ |
 | `0x8300` | `ArtRdm` | Send non-discovery RDM messages. | ✅ |
 | `0x8400` | `ArtRdmSub` | Send compressed RDM sub-device data. | ✅ |
-| `0x9000` | `ArtMedia` | Send media-server data to a controller. | ❌ |
-| `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ❌ |
-| `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ❌ |
-| `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ❌ |
+| `0x9000` | `ArtMedia` | Send media-server data to a controller. | ✅ |
+| `0x9100` | `ArtMediaPatch` | Send media patch data to a media server. | ✅ |
+| `0x9200` | `ArtMediaControl` | Send media control data to a media server. | ✅ |
+| `0x9300` | `ArtMediaControlReply` | Reply with media control data from a media server. | ✅ |
 | `0x9700` | `ArtTimeCode` | Transport time code over the network. | ✅ |
 | `0x9800` | `ArtTimeSync` | Synchronize real-time date and clock data. | ✅ |
 | `0x9900` | `ArtTrigger` | Send trigger macros. | ✅ |
-| `0x9a00` | `ArtDirectory` | Request a node's file list. | ❌ |
-| `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ❌ |
-| `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ❌ |
-| `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ❌ |
-| `0xa040` | `ArtVideoData` | Send display data for extended video features. | ❌ |
-| `0xf000` | `ArtMacMaster` | Deprecated packet. | ❌ |
-| `0xf100` | `ArtMacSlave` | Deprecated packet. | ❌ |
-| `0xf200` | `ArtFirmwareMaster` | Upload firmware or firmware extensions to a node. | ❌ |
-| `0xf300` | `ArtFirmwareReply` | Acknowledge receipt of firmware or file-transfer packets. | ❌ |
-| `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ❌ |
-| `0xf500` | `ArtFileFnMaster` | Download a user file from a node. | ❌ |
-| `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ❌ |
+| `0x9a00` | `ArtDirectory` | Request a node's file list. | ✅ |
+| `0x9b00` | `ArtDirectoryReply` | Reply to `ArtDirectory` with a file list. | ✅ |
+| `0xa010` | `ArtVideoSetup` | Send video screen setup information for extended video features. | ✅ |
+| `0xa020` | `ArtVideoPalette` | Send color palette setup information for extended video features. | ✅ |
+| `0xa040` | `ArtVideoData` | Send display data for extended video features. | ✅ |
+| `0xf000` | `ArtMacMaster` | Deprecated packet. | ✅ |
+| `0xf100` | `ArtMacSlave` | Deprecated packet. | ✅ |
+| `0xf200` | `ArtFirmwareMaster` | Upload firmware or firmware extensions to a node. | ✅ |
+| `0xf300` | `ArtFirmwareReply` | Acknowledge receipt of firmware or file-transfer packets. | ✅ |
+| `0xf400` | `ArtFileTnMaster` | Upload a user file to a node. | ✅ |
+| `0xf500` | `ArtFileFnMaster` | Download a user file from a node. | ✅ |
+| `0xf600` | `ArtFileFnReply` | Acknowledge file download packets. | ✅ |
 | `0xf800` | `ArtIpProg` | Reprogram a node IP address and subnet mask. | ✅ |
 | `0xf900` | `ArtIpProgReply` | Acknowledge receipt of an `ArtIpProg` packet. | ✅ |
 
