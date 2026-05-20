@@ -160,14 +160,14 @@ defmodule ArtNet.Packet.BitField do
 
   ### Examples
 
-    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 0, 2)
-    0b10
+      iex> ArtNet.Packet.BitField.extract_bits(0b0110, 0, 2)
+      0b10
 
-    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 2)
-    0b01
+      iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 2)
+      0b01
 
-    iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 4)
-    0b0001
+      iex> ArtNet.Packet.BitField.extract_bits(0b0110, 2, 4)
+      0b0001
   """
   @spec extract_bits(integer, non_neg_integer, pos_integer) :: non_neg_integer
   def extract_bits(value, offset, length) do

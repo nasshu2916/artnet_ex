@@ -30,6 +30,7 @@ defmodule ArtNet.Packet.Schema.Types do
   Converts a list of atoms into a type AST.
 
   ## Examples
+
       iex> ArtNet.Packet.Schema.Types.type_ast([:key1])
       :key1
 

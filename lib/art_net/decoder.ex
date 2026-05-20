@@ -52,6 +52,7 @@ defmodule ArtNet.Decoder do
   If the values could not be decoded, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Decoder.decode_list(<<1, 2, 3>>, {:integer, 8}, [])
       {:ok, {[1, 2, 3], <<>>}}
 
@@ -107,6 +108,7 @@ defmodule ArtNet.Decoder do
   If the integer could not be extracted, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Decoder.integer(<<1, 2, 3, 4>>, 16)
       {:ok, {0x0102, <<3, 4>>}}
 
@@ -133,6 +135,7 @@ defmodule ArtNet.Decoder do
   This function is used to extract little-endian integer values from a binary.
 
   ## Examples
+
       iex> ArtNet.Decoder.little_integer(<<1, 2, 3, 4>>, 16)
       {:ok, {0x0201, <<3, 4>>}}
 
@@ -165,6 +168,7 @@ defmodule ArtNet.Decoder do
   The `value` is the extracted binary and `rest` is the remaining binary.
 
   ## Examples
+
       iex> ArtNet.Decoder.binary(<<1, 2, 3, 4>>, nil)
       {:ok, {<<1, 2, 3, 4>>, <<>>}}
 
@@ -200,6 +204,7 @@ defmodule ArtNet.Decoder do
   The function trims trailing null bytes from the string.
 
   ## Examples
+
       iex> ArtNet.Decoder.string(<<65, 66, 67, 0, 0>>, nil)
       {:ok, {"ABC", <<>>}}
 
@@ -243,6 +248,7 @@ defmodule ArtNet.Decoder do
   If the table could not be enumerated, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Decoder.enum_table(<<0x00, 0x00>>, ArtNet.Packet.EnumTable.Priority)
       {:ok, {:dp_all, <<0x00>>}}
 
@@ -282,6 +288,7 @@ defmodule ArtNet.Decoder do
   If the bit field could not be extracted, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Decoder.bit_field(<<0b00110, 0b0001>>, ArtNet.Packet.BitField.TalkToMe)
       {:ok,
         {%ArtNet.Packet.BitField.TalkToMe{

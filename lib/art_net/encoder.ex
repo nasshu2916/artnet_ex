@@ -47,6 +47,7 @@ defmodule ArtNet.Encoder do
   describing the list failure.
 
   ## Examples
+
       iex> ArtNet.Encoder.encode_list([1, 2, 3], {:integer, 8}, [])
       {:ok, <<1, 2, 3>>}
 
@@ -131,6 +132,7 @@ defmodule ArtNet.Encoder do
   If the integer could not be encoded, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Encoder.integer(0x0102, 16)
       {:ok, <<1, 2>>}
 
@@ -155,6 +157,7 @@ defmodule ArtNet.Encoder do
   This function is used to encode little-endian integer values into a binary.
 
   ## Examples
+
       iex> ArtNet.Encoder.little_integer(0x0102, 16)
       {:ok, <<2, 1>>}
 
@@ -186,6 +189,7 @@ defmodule ArtNet.Encoder do
   If the binary could not be encoded, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Encoder.binary(<<1, 2>>, 2)
       {:ok, <<1, 2>>}
 
@@ -222,6 +226,7 @@ defmodule ArtNet.Encoder do
   If the enum value could not be encoded, the function returns `:error`.
 
   ## Examples
+
       iex> ArtNet.Encoder.enum_table(:dp_all, ArtNet.Packet.EnumTable.Priority)
       {:ok, <<0x00>>}
 
@@ -253,6 +258,7 @@ defmodule ArtNet.Encoder do
   The function returns `{:ok, binary}` if the bit field value was successfully encoded.
 
   ## Examples
+
       iex> ArtNet.Encoder.bit_field(%ArtNet.Packet.BitField.TalkToMe{reply_on_change: true,diagnostics: true,diag_unicast: false,vlc: false})
       {:ok, <<0b00110>>}
   """
