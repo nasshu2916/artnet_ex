@@ -91,6 +91,11 @@ defmodule ArtNet.Packet.BitField do
       ArtNet.Packet.BitField.__struct_type__(@artnet_types)
 
       @schema Enum.reverse(@artnet_schema)
+      @doc ArtNet.Packet.BitField.__bit_field_schema_doc__(
+             @schema,
+             Enum.reverse(@artnet_fields),
+             @artnet_enforce_keys
+           )
       @spec bit_field_schema :: [
               {key :: atom,
                {ArtNet.Packet.BitField.schema_type(),
@@ -99,14 +104,54 @@ defmodule ArtNet.Packet.BitField do
       def bit_field_schema, do: @schema
 
       @bit_size Keyword.fetch!(unquote(opts), :bit_size)
+
+      @doc """
+      Returns the total number of bits encoded by this bit field.
+      """
+      @spec bit_size :: pos_integer
       def bit_size, do: @bit_size
 
+      @doc """
+      Decodes an unsigned integer into this bit-field struct.
+      """
       @spec decode(non_neg_integer) :: {:ok, t()} | :error
       def decode(value), do: ArtNet.Packet.BitField.decode(value, __MODULE__)
 
+      @doc """
+      Encodes this bit-field struct into an unsigned integer.
+      """
       @spec encode(t()) :: {:ok, non_neg_integer} | :error
       def encode(struct), do: ArtNet.Packet.BitField.encode(struct, __MODULE__)
     end
+  end
+
+  @doc false
+  @spec __bit_field_schema_doc__(
+          [
+            {atom, {schema_type(), {start_bit :: non_neg_integer, length :: pos_integer}}}
+          ],
+          Keyword.t(),
+          [atom]
+        ) :: String.t()
+  def __bit_field_schema_doc__(schema, fields, enforce_keys) do
+    rows =
+      schema
+      |> Enum.map(fn {name, {format, {offset, size}}} ->
+        [
+          "`#{name}`",
+          "`#{bit_range(offset, size)}`",
+          format_description(format),
+          default_description(name, fields, enforce_keys)
+        ]
+      end)
+
+    """
+    Returns the bit-field schema in declaration order.
+
+    ## Bit layout
+
+    #{markdown_table(["Field", "Bits", "Value", "Default"], rows)}
+    """
   end
 
   defmacro __struct_type__(types) do
@@ -221,6 +266,34 @@ defmodule ArtNet.Packet.BitField do
   defp dump_value(:boolean, false), do: {:ok, 0}
   defp dump_value(:boolean, true), do: {:ok, 1}
   defp dump_value({:enum_table, enum_module}, value), do: enum_module.to_code(value)
+
+  defp bit_range(offset, 1), do: offset
+  defp bit_range(offset, size), do: "#{offset}..#{offset + size - 1}"
+
+  defp format_description(:boolean), do: "`boolean` flag"
+
+  defp format_description({:enum_table, enum_module}) do
+    "`#{inspect(enum_module)}` enum (`#{enum_module.bit_size()}` bits)"
+  end
+
+  defp default_description(name, fields, enforce_keys) do
+    if name in enforce_keys do
+      "required"
+    else
+      fields
+      |> Keyword.fetch!(name)
+      |> inspect()
+      |> then(&"`#{&1}`")
+    end
+  end
+
+  defp markdown_table(headers, rows) do
+    header = "| #{Enum.join(headers, " | ")} |"
+    divider = "| #{Enum.map_join(headers, " | ", fn _ -> "---" end)} |"
+    body = Enum.map_join(rows, "\n", fn row -> "| #{Enum.join(row, " | ")} |" end)
+
+    Enum.join([header, divider, body], "\n")
+  end
 
   @doc """
   Extracts bits from a value.
