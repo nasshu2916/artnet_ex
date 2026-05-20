@@ -11,6 +11,7 @@ defmodule ArtNet.Packet.SchemaTest do
       assert moduledoc =~ "## Packet layout"
       assert moduledoc =~ "| Part | Field | Size | Format | Default |"
       assert moduledoc =~ "| Header | `id` | 8 bytes | `\"Art-Net\\\\0\"` | fixed |"
+      assert moduledoc =~ "| Header | `op_code` | 2 bytes | little-endian OpCode | `0x5000` |"
       assert moduledoc =~ "| Header | `prot_ver` | 2 bytes | protocol version | `14` |"
 
       assert moduledoc =~
@@ -25,6 +26,9 @@ defmodule ArtNet.Packet.SchemaTest do
       assert schema_doc =~ "Returns the packet payload schema in declaration order."
       assert schema_doc =~ "| Payload | `sequence` | 1 byte | unsigned integer (8 bits) | `0` |"
 
+      assert {["op_code()"], op_code_doc} = docs_by_function[{:op_code, 0}]
+      assert op_code_doc =~ "The OpCode is `0x5000`."
+
       assert {["decode(data)"], _decode_doc} = docs_by_function[{:decode, 1}]
       assert {["encode(packet)"], _encode_doc} = docs_by_function[{:encode, 1}]
     end
@@ -34,7 +38,7 @@ defmodule ArtNet.Packet.SchemaTest do
                Code.fetch_docs(ArtNet.Packet.ArtPollReply)
 
       refute moduledoc =~ "`prot_ver`"
-      assert moduledoc =~ "| Header | `op_code` | 2 bytes | little-endian OpCode | `op_code/0` |"
+      assert moduledoc =~ "| Header | `op_code` | 2 bytes | little-endian OpCode | `0x2100` |"
     end
   end
 

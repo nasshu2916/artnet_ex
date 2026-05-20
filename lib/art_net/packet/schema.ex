@@ -252,6 +252,7 @@ defmodule ArtNet.Packet.Schema do
       moduledoc =
         ArtNet.Packet.Schema.__moduledoc_with_layout__(
           Module.get_attribute(__MODULE__, :moduledoc),
+          __MODULE__,
           @artnet_schema,
           Enum.reverse(@artnet_fields),
           @artnet_enforce_keys,
@@ -261,6 +262,7 @@ defmodule ArtNet.Packet.Schema do
       Module.put_attribute(__MODULE__, :moduledoc, {__ENV__.line, moduledoc})
 
       @doc ArtNet.Packet.Schema.__schema_doc__(
+             __MODULE__,
              @artnet_schema,
              Enum.reverse(@artnet_fields),
              @artnet_enforce_keys,
@@ -268,9 +270,7 @@ defmodule ArtNet.Packet.Schema do
            )
       def schema, do: @artnet_schema
 
-      @doc """
-      Returns the Art-Net OpCode value for this packet module.
-      """
+      @doc ArtNet.Packet.Schema.__op_code_doc__(__MODULE__)
       @spec op_code :: pos_integer
       def op_code do
         ArtNet.OpCode.op_code(__MODULE__)
@@ -323,39 +323,64 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc false
-  @spec __schema_doc__([{atom, {format(), Keyword.t()}}], Keyword.t(), [atom], boolean) ::
+  @spec __schema_doc__(module, [{atom, {format(), Keyword.t()}}], Keyword.t(), [atom], boolean) ::
           String.t()
-  def __schema_doc__(schema, fields, enforce_keys, require_version_header?) do
+  def __schema_doc__(module, schema, fields, enforce_keys, require_version_header?) do
     """
     Returns the packet payload schema in declaration order.
 
     ## Packet layout
 
-    #{packet_layout_table(schema, fields, enforce_keys, require_version_header?)}
+    #{packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
     """
   end
 
   @doc false
   @spec __moduledoc_with_layout__(
           false | nil | String.t() | {non_neg_integer, String.t()},
+          module,
           [{atom, {format(), Keyword.t()}}],
           Keyword.t(),
           [atom],
           boolean
         ) :: false | String.t()
-  def __moduledoc_with_layout__(false, _schema, _fields, _enforce_keys, _require_version_header?),
-    do: false
+  def __moduledoc_with_layout__(
+        false,
+        _module,
+        _schema,
+        _fields,
+        _enforce_keys,
+        _require_version_header?
+      ),
+      do: false
 
-  def __moduledoc_with_layout__(moduledoc, schema, fields, enforce_keys, require_version_header?) do
+  def __moduledoc_with_layout__(
+        moduledoc,
+        module,
+        schema,
+        fields,
+        enforce_keys,
+        require_version_header?
+      ) do
     layout = """
     ## Packet layout
 
-    #{packet_layout_table(schema, fields, enforce_keys, require_version_header?)}
+    #{packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
     """
 
     moduledoc
     |> moduledoc_text()
     |> append_doc_section(layout)
+  end
+
+  @doc false
+  @spec __op_code_doc__(module) :: String.t()
+  def __op_code_doc__(module) do
+    """
+    Returns the Art-Net OpCode value for this packet module.
+
+    The OpCode is `#{op_code_value(module)}`.
+    """
   end
 
   defmacro __def_header__(opts) do
@@ -414,11 +439,11 @@ defmodule ArtNet.Packet.Schema do
     Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
   end
 
-  defp packet_layout_table(schema, fields, enforce_keys, require_version_header?) do
+  defp packet_layout_table(module, schema, fields, enforce_keys, require_version_header?) do
     header_rows =
       [
         ["Header", "`id`", "8 bytes", "`\"Art-Net\\\\0\"`", "fixed"],
-        ["Header", "`op_code`", "2 bytes", "little-endian OpCode", "`op_code/0`"]
+        ["Header", "`op_code`", "2 bytes", "little-endian OpCode", "`#{op_code_value(module)}`"]
       ] ++ version_header_rows(require_version_header?)
 
     payload_rows =
@@ -433,6 +458,12 @@ defmodule ArtNet.Packet.Schema do
       end)
 
     markdown_table(["Part", "Field", "Size", "Format", "Default"], header_rows ++ payload_rows)
+  end
+
+  defp op_code_value(module) do
+    module
+    |> ArtNet.OpCode.op_code()
+    |> inspect(base: :hex)
   end
 
   defp version_header_rows(true),
