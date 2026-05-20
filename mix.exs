@@ -1,6 +1,8 @@
 defmodule ArtNet.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/nasshu2916/artnet_ex"
+
   def project do
     [
       app: :art_net,
@@ -8,6 +10,9 @@ defmodule ArtNet.MixProject do
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      name: "ArtNet",
+      source_url: @source_url,
+      homepage_url: @source_url,
       docs: docs()
     ]
   end
@@ -32,11 +37,77 @@ defmodule ArtNet.MixProject do
   defp docs do
     [
       formatters: ["html"],
+      main: "readme",
+      source_ref: "main",
       extras: [
         "README.md",
         "livebook/artnet_sample.livemd",
         {:LICENSE, [title: "License (MIT)"]}
-      ]
+      ],
+      groups_for_extras: [
+        Guides: ["README.md", "livebook/artnet_sample.livemd"],
+        Legal: ["LICENSE"]
+      ],
+      groups_for_modules: [
+        "Main API": [
+          ArtNet,
+          ArtNet.Packet,
+          ArtNet.OpCode
+        ],
+        "Packet Structs": ~r/^ArtNet\.Packet\.Art/,
+        "Schema DSL": [
+          ArtNet.Packet.Schema,
+          ArtNet.Packet.BitField,
+          ArtNet.Packet.EnumTable
+        ],
+        "Bit Fields": ~r/^ArtNet\.Packet\.BitField\./,
+        "Enum Tables": ~r/^ArtNet\.Packet\.EnumTable\./,
+        "Low-level Codecs": [
+          ArtNet.Decoder,
+          ArtNet.Encoder
+        ],
+        Errors: [
+          ArtNet.DecodeError,
+          ArtNet.EncodeError
+        ],
+        Utilities: [
+          ArtNet.Misc
+        ]
+      ],
+      nest_modules_by_prefix: [
+        ArtNet.Packet,
+        ArtNet.Packet.BitField,
+        ArtNet.Packet.EnumTable
+      ],
+      before_closing_head_tag: &before_closing_head_tag/1
     ]
   end
+
+  defp before_closing_head_tag(:html) do
+    """
+    <script>
+    (() => {
+      let sidebarNodesValue;
+
+      Object.defineProperty(window, "sidebarNodes", {
+        configurable: true,
+        get() {
+          return sidebarNodesValue;
+        },
+        set(value) {
+          for (const moduleNode of value?.modules ?? []) {
+            if (moduleNode.nested_title?.startsWith(".")) {
+              moduleNode.nested_title = moduleNode.nested_title.slice(1);
+            }
+          }
+
+          sidebarNodesValue = value;
+        }
+      });
+    })();
+    </script>
+    """
+  end
+
+  defp before_closing_head_tag(_), do: ""
 end
