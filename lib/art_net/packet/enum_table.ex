@@ -1,4 +1,38 @@
 defmodule ArtNet.Packet.EnumTable do
+  @moduledoc """
+  DSL for defining integer-backed enum tables.
+
+  `ArtNet.Packet.EnumTable` maps atom values used by packet structs to the
+  integer codes used on the wire. Packet schemas use enum table modules with
+  the `{:enum_table, Module}` field format. Bit-field schemas may also use enum
+  tables with the same format.
+
+  ```elixir
+  defmodule ArtNet.Packet.EnumTable.Priority do
+    use ArtNet.Packet.EnumTable
+
+    defenumtable([bit_size: 8],
+      dp_all: 0x00,
+      dp_low: 0x40,
+      dp_med: 0x80,
+      dp_high: 0xC0
+    )
+  end
+  ```
+
+  A generated enum table module receives:
+
+    * `bit_size/0` - returns the declared size in bits.
+    * one zero-arity function per enum key, returning that key's integer code.
+    * `to_code/1` - converts an atom key to `{:ok, integer}` or `:error`.
+    * `to_atom/1` - converts an integer code to `{:ok, atom}` or `:error`.
+    * `@type type` - union type of the declared atom keys.
+
+  At compile time, each integer code is checked against `:bit_size`. Values must
+  be integers in `0..(2 ** bit_size - 1)`.
+  """
+
+  @doc false
   defmacro __using__(_) do
     quote do
       import ArtNet.Packet.EnumTable, only: [defenumtable: 2]
@@ -7,6 +41,20 @@ defmodule ArtNet.Packet.EnumTable do
     end
   end
 
+  @doc """
+  Defines an enum table.
+
+  The first argument is an option list and must include `:bit_size`. The second
+  argument is a keyword list mapping atom keys to integer codes.
+
+  ```elixir
+  defenumtable([bit_size: 2],
+    disabled: 0,
+    input: 1,
+    output: 2
+  )
+  ```
+  """
   defmacro defenumtable(opts, table) do
     quote bind_quoted: [opts: opts, table: table] do
       keys = Enum.map(table, fn {key, _value} -> key end)

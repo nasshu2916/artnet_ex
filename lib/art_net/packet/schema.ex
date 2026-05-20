@@ -1,15 +1,95 @@
 defmodule ArtNet.Packet.Schema do
+  @moduledoc """
+  DSL for defining Art-Net packet structs.
+
+  `ArtNet.Packet.Schema` turns a packet declaration into a typed struct and the
+  functions used by `ArtNet.Packet` to encode and decode packet payloads. A
+  packet module normally calls `use ArtNet.Packet.Schema` and then defines its
+  payload layout inside a `defpacket/2` block.
+
+  ```elixir
+  defmodule ArtNet.Packet.ArtPoll do
+    use ArtNet.Packet.Schema
+
+    alias ArtNet.Packet.{BitField, EnumTable}
+
+    defpacket do
+      field(:talk_to_me, {:bit_field, BitField.TalkToMe})
+      field(:priority, {:enum_table, EnumTable.Priority}, default: :dp_all)
+      field(:target_port_address_top, {:integer, 16}, default: 0)
+      field(:target_port_address_bottom, {:integer, 16}, default: 0)
+    end
+  end
+  ```
+
+  Fields are decoded and encoded in declaration order. Fields without a
+  `:default` option become enforced struct keys, while fields with `:default`
+  are optional when constructing the packet.
+
+  ## Generated API
+
+  A packet module that uses `defpacket/2` receives:
+
+    * `schema/0` - returns the internal field schema in declaration order.
+    * `op_code/0` - returns the Art-Net OpCode registered for the packet
+      module.
+    * `new/1` and `new!/1` - build validated packet structs from a map or
+      keyword list.
+    * `require_version_header?/0` - reports whether the protocol version
+      header is expected before this packet's payload.
+    * `decode/1` and `encode/1` - delegate payload decoding and encoding to
+      `ArtNet.Packet`.
+
+  ## Field formats
+
+    * `{:integer, bit_size}` - unsigned big-endian integer.
+    * `{:integer, bit_size, :little_endian}` - unsigned little-endian integer.
+    * `{:binary, byte_size}` - fixed-size binary. Use `nil` to consume the
+      remaining payload when decoding.
+    * `{:string, byte_size}` - fixed-size null-padded string. Use `nil` to
+      consume the remaining payload when decoding.
+    * `{:enum_table, module}` - an atom backed by an
+      `ArtNet.Packet.EnumTable` module.
+    * `{:bit_field, module}` - a struct backed by an
+      `ArtNet.Packet.BitField` module.
+    * `[format]` - a list of values encoded with the nested format.
+
+  ## Field options
+
+    * `:default` - value used in the generated struct when the caller does not
+      provide the field.
+    * `:length` - exact number of items for list fields. Decode reads that many
+      items and leaves the rest of the payload for following fields. Encode
+      fails when the list length differs.
+
+  ## Packet validation
+
+  Packet modules may override `validate/1`, `validate_decode/1`, or
+  `validate_encode/1`. `validate/1` is the shared default for both decode and
+  encode validation. Return `:ok` for valid packets or `{:error, reason}` for
+  invalid packets.
+
+  Packet modules may also implement `pre_decode/1` when a payload needs to be
+  normalized before field decoding. If omitted, the payload is decoded as-is.
+  """
+
   alias ArtNet.Packet.Schema.{CodeGenerator, Types}
 
+  @typedoc """
+  Format used by `field/3` in packet schemas.
+  """
   @type format ::
           {:integer, pos_integer}
           | {:integer, pos_integer, :little_endian}
-          | {:binary, pos_integer}
-          | {:string, pos_integer}
+          | {:binary, pos_integer | nil}
+          | {:string, pos_integer | nil}
           | {:enum_table, module()}
           | {:bit_field, module()}
           | [format()]
 
+  @typedoc """
+  Format used by `ArtNet.Packet.BitField.field/3`.
+  """
   @type bit_field_format :: :boolean | {:enum_table, module()}
 
   @struct_accumulate_attrs [
@@ -19,9 +99,28 @@ defmodule ArtNet.Packet.Schema do
     :artnet_reversed_schema
   ]
 
+  @doc """
+  Validates a packet for both decode and encode paths.
+
+  `use ArtNet.Packet.Schema` provides a default implementation that returns
+  `:ok`. Override this callback when the same rule applies to decoded packets
+  and packets constructed for encoding.
+  """
   @callback validate(packet :: struct) :: :ok | {:error, String.t()}
+
+  @doc """
+  Validates a decoded packet before it is returned to the caller.
+  """
   @callback validate_decode(packet :: struct) :: :ok | {:error, String.t()}
+
+  @doc """
+  Validates a packet before it is encoded or returned from `new/1`.
+  """
   @callback validate_encode(packet :: struct) :: :ok | {:error, String.t()}
+
+  @doc """
+  Normalizes a payload before schema-driven field decoding starts.
+  """
   @callback pre_decode(body :: binary) :: binary
 
   @optional_callbacks pre_decode: 1
@@ -117,10 +216,15 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc """
-  Defines a typed struct.
+  Defines a packet schema and generates its typed struct.
 
   Inside a `defpacket` block, each field is defined through the `field/3`
   macro.
+
+  ## Options
+
+    * `:require_version_header?` - controls whether `ArtNet.Packet` expects the
+      protocol version header before this packet's payload. Defaults to `true`.
   """
   defmacro defpacket(opts \\ [], do: block) do
     ArtNet.Packet.Schema.__defpacket__(block, opts)
@@ -194,11 +298,17 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc """
-  Defines a field in a typed struct.
+  Defines a field in a packet schema.
 
-  options:
-    * `default` - the default value for the field, default is nil
-    * `length` - the length of the field
+  The field order is the binary payload order. The `format` argument controls
+  how the field is decoded and encoded, and `opts` may provide a default value
+  or list length.
+
+  ## Options
+
+    * `:default` - default struct value. Without this option, the field is an
+      enforced key.
+    * `:length` - exact item count for list formats.
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: format, opts: opts] do
