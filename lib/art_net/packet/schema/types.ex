@@ -1,16 +1,9 @@
 defmodule ArtNet.Packet.Schema.Types do
   @moduledoc false
 
-  @type format ::
-          {:integer, pos_integer}
-          | {:integer, pos_integer, :little_endian}
-          | {:binary, pos_integer | nil}
-          | {:string, pos_integer | nil}
-          | {:enum_table, module()}
-          | {:bit_field, module()}
-          | [format()]
+  @type format :: ArtNet.Packet.Schema.format()
 
-  @type bit_field_format :: :boolean | {:enum_table, module()}
+  @type bit_field_format :: ArtNet.Packet.Schema.bit_field_format()
 
   @doc false
   @spec type_for(format()) :: Macro.t()

@@ -1,6 +1,17 @@
 defmodule ArtNet.Packet.Schema do
   alias ArtNet.Packet.Schema.{CodeGenerator, Types}
 
+  @type format ::
+          {:integer, pos_integer}
+          | {:integer, pos_integer, :little_endian}
+          | {:binary, pos_integer}
+          | {:string, pos_integer}
+          | {:enum_table, module()}
+          | {:bit_field, module()}
+          | [format()]
+
+  @type bit_field_format :: :boolean | {:enum_table, module()}
+
   @struct_accumulate_attrs [
     :artnet_fields,
     :artnet_enforce_keys,

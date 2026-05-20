@@ -22,7 +22,7 @@ end
 defmodule ArtNet.Decoder do
   alias ArtNet.Packet.Schema
 
-  @spec decode(binary, Schema.Types.format(), Keyword.t()) ::
+  @spec decode(binary, Schema.format(), Keyword.t()) ::
           {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)
 
@@ -64,7 +64,7 @@ defmodule ArtNet.Decoder do
       iex> ArtNet.Decoder.decode_list(<<0, 1, 1>>, {:integer, 8}, [length: 2])
       {:ok, {[0, 1], <<1>>}}
   """
-  @spec decode_list(binary, atom, Keyword.t()) :: {:ok, {list, binary}} | :error
+  @spec decode_list(binary, Schema.format(), Keyword.t()) :: {:ok, {list, binary}} | :error
   def decode_list(data, format, opts) do
     fun = fn rest -> decode(rest, format, opts) end
 

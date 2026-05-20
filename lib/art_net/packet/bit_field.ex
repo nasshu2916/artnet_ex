@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.BitField do
     :artnet_schema
   ]
 
-  @type schema_type :: Schema.Types.bit_field_format()
+  @type schema_type :: Schema.bit_field_format()
 
   defmacro __using__(_) do
     quote do
