@@ -27,6 +27,57 @@ defmodule ArtNet.Packet.Schema do
   @optional_callbacks pre_decode: 1
 
   @doc false
+  @spec __new__(module, map | Keyword.t()) :: {:ok, struct} | {:error, ArtNet.EncodeError.t()}
+  def __new__(module, attrs) when is_map(attrs) or is_list(attrs) do
+    build_validated_struct(module, attrs)
+  end
+
+  def __new__(_module, _attrs), do: invalid_attrs_error()
+
+  @doc false
+  @spec __new__!(module, map | Keyword.t()) :: struct
+  def __new__!(module, attrs) do
+    case __new__(module, attrs) do
+      {:ok, packet} -> packet
+      {:error, %ArtNet.EncodeError{} = error} -> raise error
+    end
+  end
+
+  defp build_validated_struct(module, attrs) do
+    with {:ok, packet} <- build_struct(module, attrs),
+         :ok <- module.validate_encode(packet) do
+      {:ok, packet}
+    else
+      {:error, %ArtNet.EncodeError{} = error} ->
+        {:error, error}
+
+      {:error, reason} when is_binary(reason) ->
+        {:error, invalid_data_error(reason)}
+
+      {:error, reason} ->
+        {:error, invalid_data_error(inspect(reason))}
+    end
+  end
+
+  defp build_struct(module, attrs) do
+    {:ok, struct!(module, attrs)}
+  rescue
+    error in [ArgumentError, KeyError] ->
+      {:error, invalid_data_error(Exception.message(error))}
+
+    FunctionClauseError ->
+      invalid_attrs_error()
+  end
+
+  defp invalid_attrs_error do
+    {:error, invalid_data_error("attributes must be a map or keyword list")}
+  end
+
+  defp invalid_data_error(reason) do
+    %ArtNet.EncodeError{reason: {:invalid_data, reason}}
+  end
+
+  @doc false
   defmacro __using__(_) do
     quote do
       @behaviour ArtNet.Packet.Schema
@@ -98,6 +149,16 @@ defmodule ArtNet.Packet.Schema do
 
       def op_code do
         ArtNet.OpCode.op_code(__MODULE__)
+      end
+
+      @spec new(map() | Keyword.t()) :: {:ok, t()} | {:error, ArtNet.EncodeError.t()}
+      def new(attrs) do
+        ArtNet.Packet.Schema.__new__(__MODULE__, attrs)
+      end
+
+      @spec new!(map() | Keyword.t()) :: t()
+      def new!(attrs) do
+        ArtNet.Packet.Schema.__new__!(__MODULE__, attrs)
       end
 
       @spec require_version_header? :: boolean

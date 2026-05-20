@@ -95,6 +95,23 @@ defmodule ArtNet.Packet.ArtPollTest do
               }}
   end
 
+  test "new applies encode-only validation" do
+    assert ArtNet.Packet.ArtPoll.new(
+             talk_to_me: %ArtNet.Packet.BitField.TalkToMe{
+               reply_on_change: false,
+               diagnostics: false,
+               diag_unicast: false,
+               vlc: false,
+               targeted_mode: false
+             },
+             target_port_address_top: 0x8000
+           ) ==
+             {:error,
+              %ArtNet.EncodeError{
+                reason: {:invalid_data, "target_port_address_top must be a 15-bit Port-Address"}
+              }}
+  end
+
   test "decode does not apply encode-only target Port-Address validation" do
     body = <<0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00>>
     data = <<"Art-Net", 0, 0x00, 0x20, 0x00, 0x0E, body::binary>>
