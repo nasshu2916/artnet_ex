@@ -1,4 +1,17 @@
 defmodule ArtNet.EncodeError do
+  @moduledoc """
+  Exception returned or raised when packet encoding fails.
+
+  `ArtNet.encode/1` returns this exception inside `{:error, exception}`.
+  `ArtNet.encode!/1` raises it directly.
+  """
+
+  @typedoc """
+  Encoding error details.
+
+    * `{:encode_error, details}` - a schema field could not be encoded.
+    * `{:invalid_data, reason}` - packet construction or validation failed.
+  """
   @type t :: %__MODULE__{
           reason:
             {:encode_error, %{key: atom, type: atom, value: any()}}
@@ -17,10 +30,29 @@ defmodule ArtNet.EncodeError do
 end
 
 defmodule ArtNet.Encoder do
+  @moduledoc """
+  Low-level field encoders used by packet schemas.
+
+  Most callers should use `ArtNet.encode/1` or `ArtNet.Packet.encode/1`.
+  This module works one field at a time and mirrors the formats accepted by
+  `ArtNet.Packet.Schema.field/3`.
+
+  The generic `encode/3` dispatcher returns `{:ok, binary}` or `:error`.
+  Packet-level encoding wraps those failures in `ArtNet.EncodeError` with the
+  field name that failed.
+  """
+
   alias ArtNet.Packet.Schema
 
   import Bitwise
 
+  @doc """
+  Encodes one value using a schema field format.
+
+  The `format` argument is one of the formats documented in
+  `ArtNet.Packet.Schema`. For list formats, `opts[:length]` may require an
+  exact number of elements.
+  """
   @spec encode(any, Schema.format(), Keyword.t()) :: {:ok, binary} | :error
   def encode(values, [format], opts), do: encode_list(values, format, opts)
 
@@ -35,8 +67,6 @@ defmodule ArtNet.Encoder do
 
   @doc """
   Encodes a list of values into a binary.
-
-  This function is used to encode a list of values into a binary.
 
   - `values` is the list of values to encode.
   - `format` is the format of the values.
@@ -123,8 +153,6 @@ defmodule ArtNet.Encoder do
   @doc """
   Encodes an integer value into a binary.
 
-  This function is used to encode integer values into a binary.
-
   - `value` is the integer to encode.
   - `size` is the size of the integer in bits.
 
@@ -154,7 +182,7 @@ defmodule ArtNet.Encoder do
   @doc """
   Encodes a little-endian integer value into a binary.
 
-  This function is used to encode little-endian integer values into a binary.
+  The integer must be non-negative and fit in `size` bits.
 
   ## Examples
 
@@ -179,11 +207,9 @@ defmodule ArtNet.Encoder do
   @doc """
   Encodes a binary value into a binary.
 
-  This function is used to encode binary values into a binary.
-
   - `data` is the binary to encode.
   - `size` is the size of the binary in bytes. If the binary is smaller than
-    the size, it is padded with zeros.
+    the size, it is padded with zeros. If `nil`, the binary is returned as-is.
 
   The function returns `{:ok, binary}` if the binary was successfully encoded.
   If the binary could not be encoded, the function returns `:error`.
@@ -217,8 +243,6 @@ defmodule ArtNet.Encoder do
   @doc """
   Encodes an enum value into a binary.
 
-  This function is used to encode enum values into a binary.
-
   - `value` is the enum value to encode.
   - `module` is the module that defines the enum.
 
@@ -236,7 +260,7 @@ defmodule ArtNet.Encoder do
       iex> ArtNet.Encoder.enum_table(:none, ArtNet.Packet.EnumTable.Priority)
       :error
   """
-  @spec enum_table(atom, module) :: {:ok, binary}
+  @spec enum_table(atom, module) :: {:ok, binary} | :error
   def enum_table(value, module) do
     case module.to_code(value) do
       {:ok, code} ->
@@ -251,18 +275,17 @@ defmodule ArtNet.Encoder do
   @doc """
   Encodes a bit field value into a binary.
 
-  This function is used to encode bit field values into a binary.
-
   - `value` is the bit field value to encode.
 
-  The function returns `{:ok, binary}` if the bit field value was successfully encoded.
+  The function returns `{:ok, binary}` if the bit field value was successfully
+  encoded, or `:error` if one of its fields cannot be converted.
 
   ## Examples
 
       iex> ArtNet.Encoder.bit_field(%ArtNet.Packet.BitField.TalkToMe{reply_on_change: true,diagnostics: true,diag_unicast: false,vlc: false})
       {:ok, <<0b00110>>}
   """
-  @spec bit_field(struct) :: {:ok, binary}
+  @spec bit_field(struct) :: {:ok, binary} | :error
   def bit_field(value) do
     module = value.__struct__
     size = module.bit_size()

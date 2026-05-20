@@ -1,4 +1,12 @@
 defmodule ArtNet.OpCode do
+  @moduledoc """
+  OpCode registry for supported Art-Net packet modules.
+
+  The packet codec uses this module to translate between the little-endian
+  OpCode value in a binary packet, the public OpCode atom, and the packet
+  module that owns the schema.
+  """
+
   alias ArtNet.Packet
 
   # Define the op codes for the Art-Net protocol
@@ -45,24 +53,39 @@ defmodule ArtNet.OpCode do
   # Define the op codes as atoms
   @op_codes Map.keys(@op_code_config)
 
+  @typedoc """
+  Supported Art-Net OpCode atoms.
+  """
   @type type :: unquote(ArtNet.Packet.Schema.Types.type_ast(@op_codes))
 
   @doc """
   Returns the Packet module for the given op code.
+
   If the op code is not supported, nil is returned.
   """
+  @spec packet_module_from_value(pos_integer) :: module | nil
   for {_name, {code, packet_module}} <- @op_code_config do
     def packet_module_from_value(unquote(code)), do: unquote(packet_module)
   end
 
   def packet_module_from_value(_), do: nil
 
+  @doc """
+  Returns the OpCode atom for the given integer code.
+
+  If the op code is not supported, nil is returned.
+  """
+  @spec op_code_type(pos_integer) :: type | nil
   for {name, {code, _}} <- @op_code_config do
     def op_code_type(unquote(code)), do: unquote(name)
   end
 
   def op_code_type(_), do: nil
 
+  @doc """
+  Returns the integer OpCode for a supported OpCode atom or packet module.
+  """
+  @spec op_code(type | module) :: pos_integer
   for {name, {code, packet_module}} <- @op_code_config do
     def op_code(unquote(packet_module)), do: unquote(code)
     def op_code(unquote(name)), do: unquote(code)

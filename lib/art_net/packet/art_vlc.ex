@@ -1,4 +1,11 @@
 defmodule ArtNet.Packet.ArtVlc.Flags do
+  @moduledoc """
+  Decoded VLC flag bits from an `ArtVlc` payload.
+  """
+
+  @typedoc """
+  VLC flags with the original raw byte retained.
+  """
   @type t :: %__MODULE__{
           ieee?: boolean,
           reply?: boolean,
@@ -13,6 +20,24 @@ defmodule ArtNet.Packet.ArtVlc.Flags do
 end
 
 defmodule ArtNet.Packet.ArtVlc do
+  @moduledoc """
+  Decoder for VLC payloads carried by `ArtNet.Packet.ArtNzs`.
+
+  Art-Net VLC data is represented on the wire as an `ArtNzs` packet with start
+  code `0x91`. Decode the Art-Net packet first with `ArtNet.decode/1`, or pass
+  the complete binary directly to `decode/1`.
+
+  ```elixir
+  with {:ok, %ArtNet.Packet.ArtNzs{} = nzs} <- ArtNet.decode(binary),
+       {:ok, vlc} <- ArtNet.Packet.ArtVlc.decode(nzs) do
+    vlc.payload
+  end
+  ```
+
+  This module currently provides decoding and checksum helpers for VLC payloads.
+  Encoding is handled by building the corresponding `ArtNzs` packet.
+  """
+
   alias ArtNet.Packet.ArtNzs
   alias ArtNet.Packet.ArtVlc.Flags
 
@@ -24,6 +49,9 @@ defmodule ArtNet.Packet.ArtVlc do
   @fixed_data_size 22
   @max_payload_size 480
 
+  @typedoc """
+  Structured ArtVlc payload decoded from an `ArtNzs` packet.
+  """
   @type t :: %__MODULE__{
           sequence: non_neg_integer,
           sub_universe: non_neg_integer,
@@ -62,6 +90,12 @@ defmodule ArtNet.Packet.ArtVlc do
             beacon_repeat: 0,
             payload: []
 
+  @doc """
+  Decodes an ArtVlc payload from a complete Art-Net binary or an `ArtNzs` packet.
+
+  The function validates the `ArtNzs` start code, fixed VLC magic fields,
+  payload length, maximum payload size, and payload checksum.
+  """
   @spec decode(binary | ArtNzs.t()) :: {:ok, t()} | {:error, ArtNet.DecodeError.t()}
   def decode(binary) when is_binary(binary) do
     case ArtNet.Packet.decode(binary) do
@@ -96,6 +130,9 @@ defmodule ArtNet.Packet.ArtVlc do
     invalid_data("ArtVlc decode expects an ArtNzs packet or binary")
   end
 
+  @doc """
+  Calculates the 16-bit additive checksum for a VLC payload.
+  """
   @spec checksum([non_neg_integer]) :: non_neg_integer
   def checksum(payload) when is_list(payload) do
     payload

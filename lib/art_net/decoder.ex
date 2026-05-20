@@ -1,4 +1,20 @@
 defmodule ArtNet.DecodeError do
+  @moduledoc """
+  Exception returned or raised when packet decoding fails.
+
+  `ArtNet.decode/1` returns this exception inside `{:error, exception}`.
+  `ArtNet.decode!/1` raises it directly.
+  """
+
+  @typedoc """
+  Decoding error details.
+
+    * `{:decode_error, field}` - a schema field could not be decoded.
+    * `{:invalid_data, reason}` - header or packet validation failed.
+    * `{:excess_bytes, bytes}` - schema decoding completed with extra payload
+      bytes.
+    * `{:invalid_op_code, op_code}` - the OpCode is not supported.
+  """
   @type t :: %__MODULE__{
           reason:
             {:decode_error, atom}
@@ -20,8 +36,27 @@ defmodule ArtNet.DecodeError do
 end
 
 defmodule ArtNet.Decoder do
+  @moduledoc """
+  Low-level field decoders used by packet schemas.
+
+  Most callers should use `ArtNet.decode/1` or `ArtNet.Packet.decode/1`.
+  This module works one field at a time and mirrors the formats accepted by
+  `ArtNet.Packet.Schema.field/3`.
+
+  Field decoders return `{:ok, {value, rest}}` on success, where `rest` is the
+  unconsumed binary. They return `:error` when the value cannot be read or
+  mapped to the requested format.
+  """
+
   alias ArtNet.Packet.Schema
 
+  @doc """
+  Decodes one value from `data` using a schema field format.
+
+  The `format` argument is one of the formats documented in
+  `ArtNet.Packet.Schema`. For list formats, `opts[:length]` may limit the
+  number of decoded elements.
+  """
   @spec decode(binary, Schema.format(), Keyword.t()) ::
           {:ok, {any, binary}} | :error
   def decode(data, [format], opts), do: decode_list(data, format, opts)
@@ -39,12 +74,11 @@ defmodule ArtNet.Decoder do
   @doc """
   Decodes a list of values from a binary.
 
-  This function is used to decode a list of values from a binary.
-
   - `data` is the binary to decode the values from.
   - `format` is the format of the values.
   - `opts` is a keyword of format options.
-    + `length` is the number of values to decode. If `nil`, all values are decoded.
+    + `length` is the number of values to decode. If `nil`, all values are
+      decoded until the binary is exhausted.
 
   The function returns `{:ok, {list, binary}}` if the values were successfully decoded.
   The `list` is the decoded list of values and `binary` is the remaining binary.
@@ -97,8 +131,6 @@ defmodule ArtNet.Decoder do
   @doc """
   Extracts an integer value from a binary.
 
-  This function is used to extract integer values from a binary.
-
   - `data` is the binary to extract the integer from.
   - `size` is the size of the integer in bits.
 
@@ -132,7 +164,7 @@ defmodule ArtNet.Decoder do
   @doc """
   Extracts a little-endian integer value from a binary.
 
-  This function is used to extract little-endian integer values from a binary.
+  The value is read as an unsigned integer.
 
   ## Examples
 
@@ -158,8 +190,6 @@ defmodule ArtNet.Decoder do
 
   @doc """
   Extracts a binary value from a binary.
-
-  This function is used to extract binary values from a binary.
 
   - `data` is the binary to extract the binary from.
   - `size` is the size of the binary in bytes. If `nil`, the entire binary is extracted.
@@ -192,8 +222,6 @@ defmodule ArtNet.Decoder do
 
   @doc """
   Extracts a string value from a binary.
-
-  This function is used to extract string values from a binary.
 
   - `data` is the binary to extract the string from.
   - `size` is the size of the string in bytes. If `nil`, the entire binary is extracted.
@@ -235,9 +263,7 @@ defmodule ArtNet.Decoder do
   end
 
   @doc """
-  Enumerates a table of values from a binary.
-
-  This function is used to enumerate a table of values from a binary.
+  Decodes an enum table value from a binary.
 
   - `data` is the binary to enumerate the table from.
   - `module` is the module that defines the enum.
@@ -258,7 +284,7 @@ defmodule ArtNet.Decoder do
       iex> ArtNet.Decoder.enum_table(<<0x01, 0x00>>, ArtNet.Packet.EnumTable.Priority)
       :error
   """
-  # @spec enum_table(binary, Keyword.t()) :: {:ok, {atom, binary}} | :error
+  @spec enum_table(binary, module) :: {:ok, {atom, binary}} | :error
   def enum_table(data, module) do
     bit_size = module.bit_size()
 
@@ -276,8 +302,6 @@ defmodule ArtNet.Decoder do
 
   @doc """
   Extracts a bit field from a binary.
-
-  This function is used to extract a bit field from a binary.
 
   - `data` is the binary to extract the bit field from.
   - `module` is the module that defines the bit field.
