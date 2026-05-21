@@ -5,8 +5,11 @@ defmodule ArtNet.Packet.BitFieldTest do
 
   describe "generated docs" do
     test "documents generated bit-field schema layout" do
-      assert {:docs_v1, _, :elixir, "text/markdown", _, _, docs} =
+      assert {:docs_v1, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, docs} =
                Code.fetch_docs(ArtNet.Packet.BitField.Status3)
+
+      assert moduledoc =~ "## Bit size"
+      assert moduledoc =~ "This bit field is encoded in `8` bits."
 
       docs_by_function =
         Map.new(docs, fn
@@ -27,6 +30,9 @@ defmodule ArtNet.Packet.BitFieldTest do
       assert schema_doc =~ "| `failsafe_state` | `6..7` |"
       assert schema_doc =~ "`ArtNet.Packet.EnumTable.FailsafeState` enum (`2` bits)"
       assert schema_doc =~ "`:hold_last`"
+
+      assert {["bit_size()"], bit_size_doc} = docs_by_function[{:bit_size, 0}]
+      assert bit_size_doc =~ "This bit field is encoded in `8` bits."
 
       assert {["decode(value)"], _decode_doc} = docs_by_function[{:decode, 1}]
       assert {["encode(struct)"], _encode_doc} = docs_by_function[{:encode, 1}]

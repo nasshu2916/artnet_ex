@@ -90,6 +90,16 @@ defmodule ArtNet.Packet.BitField do
 
       ArtNet.Packet.BitField.__struct_type__(@artnet_types)
 
+      @bit_size Keyword.fetch!(unquote(opts), :bit_size)
+
+      moduledoc =
+        ArtNet.Packet.BitField.__moduledoc_with_bit_size__(
+          Module.get_attribute(__MODULE__, :moduledoc),
+          @bit_size
+        )
+
+      Module.put_attribute(__MODULE__, :moduledoc, {__ENV__.line, moduledoc})
+
       @schema Enum.reverse(@artnet_schema)
       @doc ArtNet.Packet.BitField.__bit_field_schema_doc__(
              @schema,
@@ -103,11 +113,7 @@ defmodule ArtNet.Packet.BitField do
             ]
       def bit_field_schema, do: @schema
 
-      @bit_size Keyword.fetch!(unquote(opts), :bit_size)
-
-      @doc """
-      Returns the total number of bits encoded by this bit field.
-      """
+      @doc ArtNet.Packet.BitField.__bit_size_doc__(@bit_size)
       @spec bit_size :: pos_integer
       def bit_size, do: @bit_size
 
@@ -123,6 +129,30 @@ defmodule ArtNet.Packet.BitField do
       @spec encode(t()) :: {:ok, non_neg_integer} | :error
       def encode(struct), do: ArtNet.Packet.BitField.encode(struct, __MODULE__)
     end
+  end
+
+  @doc false
+  @spec __moduledoc_with_bit_size__(
+          false | nil | String.t() | {non_neg_integer, String.t()},
+          pos_integer
+        ) ::
+          false | String.t()
+  def __moduledoc_with_bit_size__(false, _bit_size), do: false
+
+  def __moduledoc_with_bit_size__(moduledoc, bit_size) do
+    moduledoc
+    |> moduledoc_text()
+    |> append_bit_size_section(bit_size)
+  end
+
+  @doc false
+  @spec __bit_size_doc__(pos_integer) :: String.t()
+  def __bit_size_doc__(bit_size) do
+    """
+    Returns the total number of bits encoded by this bit field.
+
+    This bit field is encoded in `#{bit_size}` bits.
+    """
   end
 
   @doc false
@@ -285,6 +315,25 @@ defmodule ArtNet.Packet.BitField do
       |> inspect()
       |> then(&"`#{&1}`")
     end
+  end
+
+  defp moduledoc_text(nil), do: ""
+  defp moduledoc_text({_line, text}) when is_binary(text), do: text
+  defp moduledoc_text(text) when is_binary(text), do: text
+
+  defp append_bit_size_section(text, bit_size) do
+    [String.trim_trailing(text), bit_size_section(bit_size)]
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.join("\n\n")
+  end
+
+  defp bit_size_section(bit_size) do
+    """
+    ## Bit size
+
+    This bit field is encoded in `#{bit_size}` bits.
+    """
+    |> String.trim_trailing()
   end
 
   defp markdown_table(headers, rows) do
