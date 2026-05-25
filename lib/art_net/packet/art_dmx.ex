@@ -9,12 +9,31 @@ defmodule ArtNet.Packet.ArtDmx do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:sequence, {:integer, 8}, default: 0)
-    field(:physical, {:integer, 8}, default: 0)
-    field(:sub_universe, {:integer, 8}, default: 0)
-    field(:net, {:integer, 8}, default: 0)
-    field(:length, {:integer, 16})
-    field(:data, [{:integer, 8}])
+    field(:sequence, {:integer, 8},
+      default: 0,
+      description: "Packet sequence number, or 0 to disable sequence checking."
+    )
+
+    field(:physical, {:integer, 8},
+      default: 0,
+      description: "Physical input port that generated the DMX data."
+    )
+
+    field(:sub_universe, {:integer, 8},
+      default: 0,
+      description: "Low byte of the 15-bit Port-Address."
+    )
+
+    field(:net, {:integer, 8},
+      default: 0,
+      description: "Bits 8-14 of the 15-bit Port-Address."
+    )
+
+    field(:length, {:integer, 16},
+      description: "Number of DMX512 slots included in the data field."
+    )
+
+    field(:data, [{:integer, 8}], description: "DMX512 level data, one byte per slot.")
   end
 
   @impl ArtNet.Packet.Schema

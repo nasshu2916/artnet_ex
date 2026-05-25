@@ -61,6 +61,8 @@ defmodule ArtNet.Packet.Schema do
     * `:length` - exact number of items for list fields. Decode reads that many
       items and leaves the rest of the payload for following fields. Encode
       fails when the list length differs.
+    * `:description` - field description shown in the generated packet layout
+      docs.
 
   ## Packet validation
 
@@ -408,6 +410,8 @@ defmodule ArtNet.Packet.Schema do
     * `:default` - default struct value. Without this option, the field is an
       enforced key.
     * `:length` - exact item count for list formats.
+    * `:description` - field description shown in the generated packet layout
+      docs.
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: format, opts: opts] do
@@ -427,6 +431,15 @@ defmodule ArtNet.Packet.Schema do
       raise ArgumentError, "the field #{inspect(name)} is already set"
     end
 
+    case Keyword.fetch(opts, :description) do
+      {:ok, description} when not is_binary(description) ->
+        raise ArgumentError,
+              "the description option for field #{inspect(name)} must be a string, got: #{inspect(description)}"
+
+      _ ->
+        :ok
+    end
+
     default = Keyword.get(opts, :default)
     has_default? = Keyword.has_key?(opts, :default)
     enforce? = not has_default?
@@ -442,8 +455,15 @@ defmodule ArtNet.Packet.Schema do
   defp packet_layout_table(module, schema, fields, enforce_keys, require_version_header?) do
     header_rows =
       [
-        ["Header", "`id`", "8 bytes", "`\"Art-Net\\\\0\"`", "fixed"],
-        ["Header", "`op_code`", "2 bytes", "little-endian OpCode", "`#{op_code_value(module)}`"]
+        ["Header", "`id`", "", "fixed", "8 bytes", "`\"Art-Net\\\\0\"`"],
+        [
+          "Header",
+          "`op_code`",
+          "",
+          "`#{op_code_value(module)}`",
+          "2 bytes",
+          "little-endian OpCode"
+        ]
       ] ++ version_header_rows(require_version_header?)
 
     payload_rows =
@@ -451,13 +471,17 @@ defmodule ArtNet.Packet.Schema do
         [
           "Payload",
           "`#{name}`",
+          description_text(opts),
+          default_description(name, fields, enforce_keys),
           size_description(format, opts),
-          format_description(format),
-          default_description(name, fields, enforce_keys)
+          format_description(format)
         ]
       end)
 
-    markdown_table(["Part", "Field", "Size", "Format", "Default"], header_rows ++ payload_rows)
+    markdown_table(
+      ["Part", "Field", "Description", "Default", "Size", "Format"],
+      header_rows ++ payload_rows
+    )
   end
 
   defp op_code_value(module) do
@@ -467,7 +491,7 @@ defmodule ArtNet.Packet.Schema do
   end
 
   defp version_header_rows(true),
-    do: [["Header", "`prot_ver`", "2 bytes", "protocol version", "`14`"]]
+    do: [["Header", "`prot_ver`", "", "`14`", "2 bytes", "protocol version"]]
 
   defp version_header_rows(false), do: []
 
@@ -539,6 +563,13 @@ defmodule ArtNet.Packet.Schema do
       |> inspect()
       |> then(&"`#{&1}`")
     end
+  end
+
+  defp description_text(opts) do
+    opts
+    |> Keyword.get(:description, "")
+    |> String.replace("\n", "<br>")
+    |> String.replace("|", "\\|")
   end
 
   defp moduledoc_text(nil), do: ""

@@ -72,19 +72,23 @@ defmodule ArtNet.Packet.ArtDmx do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:sequence, {:integer, 8}, default: 0)
+    field(:sequence, {:integer, 8},
+      default: 0,
+      description: "Packet sequence number, or 0 to disable sequence checking."
+    )
+
     field(:physical, {:integer, 8}, default: 0)
     field(:sub_universe, {:integer, 8}, default: 0)
     field(:net, {:integer, 8}, default: 0)
-    field(:length, {:integer, 16})
-    field(:data, [{:integer, 8}])
+    field(:length, {:integer, 16}, description: "Number of DMX512 slots in data.")
+    field(:data, [{:integer, 8}], description: "DMX512 level data, one byte per slot.")
   end
 end
 ```
 
 The `defpacket` macro defines a packet schema with the specified OpCode. The schema defines the fields of the packet. The fields are defined using the `field` macro.
 
-The `field` macro defines a field in the packet schema. The field macro takes the field name, the field type, and optional parameters such as the default value.
+The `field` macro defines a field in the packet schema. The field macro takes the field name, the field type, and optional parameters such as the default value, list length, and generated docs description.
 
 The field type is a tuple with the type and the size of the field. The supported field types are `:integer`, `:string`, and `:binary` and `EnumTable` and `BitField`.
 
