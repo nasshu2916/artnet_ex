@@ -5,10 +5,6 @@ defmodule ArtNet.Packet.BitField.PortType do
   The low bits store the protocol type through
   `ArtNet.Packet.EnumTable.PortType`; the high bits indicate whether the port
   supports input and/or output.
-
-    * `:port_type` - protocol used by the port.
-    * `:input` - port can receive data.
-    * `:output` - port can transmit data.
   """
 
   use ArtNet.Packet.BitField
@@ -16,8 +12,11 @@ defmodule ArtNet.Packet.BitField.PortType do
   alias ArtNet.Packet.EnumTable
 
   defbitfield bit_size: 8 do
-    field(:port_type, {:enum_table, EnumTable.PortType})
-    field(:input, :boolean)
-    field(:output, :boolean)
+    field(:port_type, {:enum_table, EnumTable.PortType},
+      description: "Protocol used by the port."
+    )
+
+    field(:input, :boolean, description: "Port can receive data.")
+    field(:output, :boolean, description: "Port can transmit data.")
   end
 end

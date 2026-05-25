@@ -4,27 +4,18 @@ defmodule ArtNet.Packet.BitField.GoodOutput do
 
   The packet contains one `GoodOutput` value for each of the four reported
   ports. Each boolean describes the output state of that port.
-
-    * `:convert_sacn` - output is converting Art-Net to sACN.
-    * `:merge_ltp_mode` - port is merging in LTP mode.
-    * `:output_short` - output short condition has been detected.
-    * `:merging` - port is currently merging data.
-    * `:dmx_test_packet` - DMX test packets are being output.
-    * `:dmx_sip` - DMX SIP packets are being output.
-    * `:dmx_text` - DMX text packets are being output.
-    * `:output_data` - output data is being transmitted.
   """
 
   use ArtNet.Packet.BitField
 
   defbitfield bit_size: 8 do
-    field(:convert_sacn, :boolean)
-    field(:merge_ltp_mode, :boolean)
-    field(:output_short, :boolean)
-    field(:merging, :boolean)
-    field(:dmx_test_packet, :boolean)
-    field(:dmx_sip, :boolean)
-    field(:dmx_text, :boolean)
-    field(:output_data, :boolean)
+    field(:convert_sacn, :boolean, description: "Output is converting Art-Net to sACN.")
+    field(:merge_ltp_mode, :boolean, description: "Port is merging in LTP mode.")
+    field(:output_short, :boolean, description: "Output short condition has been detected.")
+    field(:merging, :boolean, description: "Port is currently merging data.")
+    field(:dmx_test_packet, :boolean, description: "DMX test packets are being output.")
+    field(:dmx_sip, :boolean, description: "DMX SIP packets are being output.")
+    field(:dmx_text, :boolean, description: "DMX text packets are being output.")
+    field(:output_data, :boolean, description: "Output data is being transmitted.")
   end
 end

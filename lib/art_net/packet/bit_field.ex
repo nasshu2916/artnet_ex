@@ -46,7 +46,8 @@ defmodule ArtNet.Packet.BitField do
     :artnet_fields,
     :artnet_enforce_keys,
     :artnet_types,
-    :artnet_schema
+    :artnet_schema,
+    :artnet_field_descriptions
   ]
 
   @type schema_type :: Schema.bit_field_format()
@@ -104,7 +105,8 @@ defmodule ArtNet.Packet.BitField do
       @doc ArtNet.Packet.BitField.__bit_field_schema_doc__(
              @schema,
              Enum.reverse(@artnet_fields),
-             @artnet_enforce_keys
+             @artnet_enforce_keys,
+             Enum.reverse(@artnet_field_descriptions)
            )
       @spec bit_field_schema :: [
               {key :: atom,
@@ -161,17 +163,19 @@ defmodule ArtNet.Packet.BitField do
             {atom, {schema_type(), {start_bit :: non_neg_integer, length :: pos_integer}}}
           ],
           Keyword.t(),
-          [atom]
+          [atom],
+          Keyword.t()
         ) :: String.t()
-  def __bit_field_schema_doc__(schema, fields, enforce_keys) do
+  def __bit_field_schema_doc__(schema, fields, enforce_keys, descriptions) do
     rows =
       schema
       |> Enum.map(fn {name, {format, {offset, size}}} ->
         [
           "`#{name}`",
+          description_text(descriptions, name),
           "`#{bit_range(offset, size)}`",
-          format_description(format),
-          default_description(name, fields, enforce_keys)
+          default_description(name, fields, enforce_keys),
+          format_description(format)
         ]
       end)
 
@@ -180,7 +184,7 @@ defmodule ArtNet.Packet.BitField do
 
     ## Bit layout
 
-    #{markdown_table(["Field", "Bits", "Value", "Default"], rows)}
+    #{markdown_table(["Field", "Description", "Bits", "Default", "Value"], rows)}
     """
   end
 
@@ -202,6 +206,8 @@ defmodule ArtNet.Packet.BitField do
     * `:default` - default struct value. Without this option, the field is an
       enforced key.
     * `:offset` - number of bits to skip before placing this field.
+    * `:description` - field description shown in the generated bit layout
+      docs.
   """
   defmacro field(name, format, opts \\ []) do
     quote bind_quoted: [name: name, format: format, opts: opts] do
@@ -219,6 +225,15 @@ defmodule ArtNet.Packet.BitField do
 
     if module |> Module.get_attribute(:artnet_fields) |> Keyword.has_key?(name) do
       raise ArgumentError, "the field #{inspect(name)} is already set"
+    end
+
+    case Keyword.fetch(opts, :description) do
+      {:ok, description} when not is_binary(description) ->
+        raise ArgumentError,
+              "the description option for field #{inspect(name)} must be a string, got: #{inspect(description)}"
+
+      _ ->
+        :ok
     end
 
     default = Keyword.get(opts, :default)
@@ -247,6 +262,12 @@ defmodule ArtNet.Packet.BitField do
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     Module.put_attribute(module, :artnet_schema, {name, {format, {offset, size}}})
+
+    Module.put_attribute(
+      module,
+      :artnet_field_descriptions,
+      {name, Keyword.get(opts, :description, "")}
+    )
   end
 
   @doc """
@@ -315,6 +336,13 @@ defmodule ArtNet.Packet.BitField do
       |> inspect()
       |> then(&"`#{&1}`")
     end
+  end
+
+  defp description_text(descriptions, name) do
+    descriptions
+    |> Keyword.get(name, "")
+    |> String.replace("\n", "<br>")
+    |> String.replace("|", "\\|")
   end
 
   defp moduledoc_text(nil), do: ""
