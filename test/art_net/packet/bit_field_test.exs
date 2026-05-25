@@ -10,6 +10,18 @@ defmodule ArtNet.Packet.BitFieldTest do
 
       assert moduledoc =~ "## Bit size"
       assert moduledoc =~ "This bit field is encoded in `8` bits."
+      assert moduledoc =~ "## Bit layout"
+      assert moduledoc =~ "| Field | Description | Bits | Default | Value |"
+
+      assert moduledoc =~
+               "| `background_discovery_control` | Background discovery can be controlled. | `0` | `false` |"
+
+      assert moduledoc =~ "`boolean` flag"
+
+      assert moduledoc =~
+               "| `failsafe_state` | Active failsafe state reported by `ArtNet.Packet.EnumTable.FailsafeState`. | `6..7` | `:hold_last` |"
+
+      assert moduledoc =~ "`ArtNet.Packet.EnumTable.FailsafeState` enum (`2` bits)"
 
       docs_by_function =
         Map.new(docs, fn
@@ -24,17 +36,9 @@ defmodule ArtNet.Packet.BitFieldTest do
         end)
 
       assert {["bit_field_schema()"], schema_doc} = docs_by_function[{:bit_field_schema, 0}]
-      assert schema_doc =~ "| Field | Description | Bits | Default | Value |"
-
-      assert schema_doc =~
-               "| `background_discovery_control` | Background discovery can be controlled. | `0` | `false` |"
-
-      assert schema_doc =~ "`boolean` flag"
-
-      assert schema_doc =~
-               "| `failsafe_state` | Active failsafe state reported by `ArtNet.Packet.EnumTable.FailsafeState`. | `6..7` | `:hold_last` |"
-
-      assert schema_doc =~ "`ArtNet.Packet.EnumTable.FailsafeState` enum (`2` bits)"
+      assert schema_doc =~ "Returns the bit-field schema in declaration order."
+      refute schema_doc =~ "## Bit layout"
+      refute schema_doc =~ "| Field | Description | Bits | Default | Value |"
 
       assert {["bit_size()"], bit_size_doc} = docs_by_function[{:bit_size, 0}]
       assert bit_size_doc =~ "This bit field is encoded in `8` bits."

@@ -39,6 +39,7 @@ defmodule ArtNet.Packet.BitField do
   """
 
   alias ArtNet.Packet.Schema
+  alias ArtNet.Packet.Schema.Docs
 
   import Bitwise
 
@@ -92,22 +93,21 @@ defmodule ArtNet.Packet.BitField do
       ArtNet.Packet.BitField.__struct_type__(@artnet_types)
 
       @bit_size Keyword.fetch!(unquote(opts), :bit_size)
+      @schema Enum.reverse(@artnet_schema)
 
       moduledoc =
-        ArtNet.Packet.BitField.__moduledoc_with_bit_size__(
+        ArtNet.Packet.BitField.__moduledoc_with_layout__(
           Module.get_attribute(__MODULE__, :moduledoc),
-          @bit_size
+          @bit_size,
+          @schema,
+          Enum.reverse(@artnet_fields),
+          @artnet_enforce_keys,
+          Enum.reverse(@artnet_field_descriptions)
         )
 
       Module.put_attribute(__MODULE__, :moduledoc, {__ENV__.line, moduledoc})
 
-      @schema Enum.reverse(@artnet_schema)
-      @doc ArtNet.Packet.BitField.__bit_field_schema_doc__(
-             @schema,
-             Enum.reverse(@artnet_fields),
-             @artnet_enforce_keys,
-             Enum.reverse(@artnet_field_descriptions)
-           )
+      @doc ArtNet.Packet.BitField.__bit_field_schema_doc__()
       @spec bit_field_schema :: [
               {key :: atom,
                {ArtNet.Packet.BitField.schema_type(),
@@ -134,17 +134,31 @@ defmodule ArtNet.Packet.BitField do
   end
 
   @doc false
-  @spec __moduledoc_with_bit_size__(
+  @spec __moduledoc_with_layout__(
           false | nil | String.t() | {non_neg_integer, String.t()},
-          pos_integer
+          pos_integer,
+          [
+            {atom, {schema_type(), {start_bit :: non_neg_integer, length :: pos_integer}}}
+          ],
+          Keyword.t(),
+          [atom],
+          Keyword.t()
         ) ::
           false | String.t()
-  def __moduledoc_with_bit_size__(false, _bit_size), do: false
+  def __moduledoc_with_layout__(false, _bit_size, _schema, _fields, _enforce_keys, _descriptions),
+    do: false
 
-  def __moduledoc_with_bit_size__(moduledoc, bit_size) do
+  def __moduledoc_with_layout__(moduledoc, bit_size, schema, fields, enforce_keys, descriptions) do
+    layout = """
+    ## Bit layout
+
+    #{Docs.bit_field_layout_table(schema, fields, enforce_keys, descriptions)}
+    """
+
     moduledoc
-    |> moduledoc_text()
-    |> append_bit_size_section(bit_size)
+    |> Docs.moduledoc_text()
+    |> Docs.append_section(bit_size_section(bit_size))
+    |> Docs.append_section(layout)
   end
 
   @doc false
@@ -158,33 +172,10 @@ defmodule ArtNet.Packet.BitField do
   end
 
   @doc false
-  @spec __bit_field_schema_doc__(
-          [
-            {atom, {schema_type(), {start_bit :: non_neg_integer, length :: pos_integer}}}
-          ],
-          Keyword.t(),
-          [atom],
-          Keyword.t()
-        ) :: String.t()
-  def __bit_field_schema_doc__(schema, fields, enforce_keys, descriptions) do
-    rows =
-      schema
-      |> Enum.map(fn {name, {format, {offset, size}}} ->
-        [
-          "`#{name}`",
-          description_text(descriptions, name),
-          "`#{bit_range(offset, size)}`",
-          default_description(name, fields, enforce_keys),
-          format_description(format)
-        ]
-      end)
-
+  @spec __bit_field_schema_doc__() :: String.t()
+  def __bit_field_schema_doc__ do
     """
     Returns the bit-field schema in declaration order.
-
-    ## Bit layout
-
-    #{markdown_table(["Field", "Description", "Bits", "Default", "Value"], rows)}
     """
   end
 
@@ -318,43 +309,6 @@ defmodule ArtNet.Packet.BitField do
   defp dump_value(:boolean, true), do: {:ok, 1}
   defp dump_value({:enum_table, enum_module}, value), do: enum_module.to_code(value)
 
-  defp bit_range(offset, 1), do: offset
-  defp bit_range(offset, size), do: "#{offset}..#{offset + size - 1}"
-
-  defp format_description(:boolean), do: "`boolean` flag"
-
-  defp format_description({:enum_table, enum_module}) do
-    "`#{inspect(enum_module)}` enum (`#{enum_module.bit_size()}` bits)"
-  end
-
-  defp default_description(name, fields, enforce_keys) do
-    if name in enforce_keys do
-      "required"
-    else
-      fields
-      |> Keyword.fetch!(name)
-      |> inspect()
-      |> then(&"`#{&1}`")
-    end
-  end
-
-  defp description_text(descriptions, name) do
-    descriptions
-    |> Keyword.get(name, "")
-    |> String.replace("\n", "<br>")
-    |> String.replace("|", "\\|")
-  end
-
-  defp moduledoc_text(nil), do: ""
-  defp moduledoc_text({_line, text}) when is_binary(text), do: text
-  defp moduledoc_text(text) when is_binary(text), do: text
-
-  defp append_bit_size_section(text, bit_size) do
-    [String.trim_trailing(text), bit_size_section(bit_size)]
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.join("\n\n")
-  end
-
   defp bit_size_section(bit_size) do
     """
     ## Bit size
@@ -362,14 +316,6 @@ defmodule ArtNet.Packet.BitField do
     This bit field is encoded in `#{bit_size}` bits.
     """
     |> String.trim_trailing()
-  end
-
-  defp markdown_table(headers, rows) do
-    header = "| #{Enum.join(headers, " | ")} |"
-    divider = "| #{Enum.map_join(headers, " | ", fn _ -> "---" end)} |"
-    body = Enum.map_join(rows, "\n", fn row -> "| #{Enum.join(row, " | ")} |" end)
-
-    Enum.join([header, divider, body], "\n")
   end
 
   @doc """

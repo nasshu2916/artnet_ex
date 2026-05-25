@@ -75,7 +75,7 @@ defmodule ArtNet.Packet.Schema do
   normalized before field decoding. If omitted, the payload is decoded as-is.
   """
 
-  alias ArtNet.Packet.Schema.{CodeGenerator, Types}
+  alias ArtNet.Packet.Schema.{CodeGenerator, Docs, Types}
 
   @typedoc """
   Format used by `field/3` in packet schemas.
@@ -263,13 +263,7 @@ defmodule ArtNet.Packet.Schema do
 
       Module.put_attribute(__MODULE__, :moduledoc, {__ENV__.line, moduledoc})
 
-      @doc ArtNet.Packet.Schema.__schema_doc__(
-             __MODULE__,
-             @artnet_schema,
-             Enum.reverse(@artnet_fields),
-             @artnet_enforce_keys,
-             @require_version_header?
-           )
+      @doc ArtNet.Packet.Schema.__schema_doc__()
       def schema, do: @artnet_schema
 
       @doc ArtNet.Packet.Schema.__op_code_doc__(__MODULE__)
@@ -325,15 +319,10 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc false
-  @spec __schema_doc__(module, [{atom, {format(), Keyword.t()}}], Keyword.t(), [atom], boolean) ::
-          String.t()
-  def __schema_doc__(module, schema, fields, enforce_keys, require_version_header?) do
+  @spec __schema_doc__() :: String.t()
+  def __schema_doc__ do
     """
     Returns the packet payload schema in declaration order.
-
-    ## Packet layout
-
-    #{packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
     """
   end
 
@@ -367,12 +356,12 @@ defmodule ArtNet.Packet.Schema do
     layout = """
     ## Packet layout
 
-    #{packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
+    #{Docs.packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
     """
 
     moduledoc
-    |> moduledoc_text()
-    |> append_doc_section(layout)
+    |> Docs.moduledoc_text()
+    |> Docs.append_section(layout)
   end
 
   @doc false
@@ -381,7 +370,7 @@ defmodule ArtNet.Packet.Schema do
     """
     Returns the Art-Net OpCode value for this packet module.
 
-    The OpCode is `#{op_code_value(module)}`.
+    The OpCode is `#{Docs.op_code_value(module)}`.
     """
   end
 
@@ -450,143 +439,5 @@ defmodule ArtNet.Packet.Schema do
     if enforce?, do: Module.put_attribute(module, :artnet_enforce_keys, name)
 
     Module.put_attribute(module, :artnet_reversed_schema, {name, {format, opts}})
-  end
-
-  defp packet_layout_table(module, schema, fields, enforce_keys, require_version_header?) do
-    header_rows =
-      [
-        ["Header", "`id`", "", "fixed", "8 bytes", "`\"Art-Net\\\\0\"`"],
-        [
-          "Header",
-          "`op_code`",
-          "",
-          "`#{op_code_value(module)}`",
-          "2 bytes",
-          "little-endian OpCode"
-        ]
-      ] ++ version_header_rows(require_version_header?)
-
-    payload_rows =
-      Enum.map(schema, fn {name, {format, opts}} ->
-        [
-          "Payload",
-          "`#{name}`",
-          description_text(opts),
-          default_description(name, fields, enforce_keys),
-          size_description(format, opts),
-          format_description(format)
-        ]
-      end)
-
-    markdown_table(
-      ["Part", "Field", "Description", "Default", "Size", "Format"],
-      header_rows ++ payload_rows
-    )
-  end
-
-  defp op_code_value(module) do
-    module
-    |> ArtNet.OpCode.op_code()
-    |> inspect(base: :hex)
-  end
-
-  defp version_header_rows(true),
-    do: [["Header", "`prot_ver`", "", "`14`", "2 bytes", "protocol version"]]
-
-  defp version_header_rows(false), do: []
-
-  defp size_description([format], opts) do
-    length = Keyword.get(opts, :length)
-    element_size = size_description(format, [])
-
-    case {length, fixed_size(format)} do
-      {nil, _} -> "variable"
-      {length, {:bytes, bytes}} -> "#{length * bytes} bytes"
-      {length, {:bits, bits}} -> "#{length * bits} bits"
-      {length, :variable} -> "#{length} values"
-    end
-    |> then(fn size -> "#{size} (#{element_size} each)" end)
-  end
-
-  defp size_description(format, _opts) do
-    case fixed_size(format) do
-      {:bytes, 1} -> "1 byte"
-      {:bytes, bytes} -> "#{bytes} bytes"
-      {:bits, 1} -> "1 bit"
-      {:bits, bits} -> "#{bits} bits"
-      :variable -> "variable"
-    end
-  end
-
-  defp fixed_size({:integer, bits}) when rem(bits, 8) == 0, do: {:bytes, div(bits, 8)}
-  defp fixed_size({:integer, bits}), do: {:bits, bits}
-
-  defp fixed_size({:integer, bits, :little_endian}) when rem(bits, 8) == 0,
-    do: {:bytes, div(bits, 8)}
-
-  defp fixed_size({:integer, bits, :little_endian}), do: {:bits, bits}
-  defp fixed_size({:binary, nil}), do: :variable
-  defp fixed_size({:binary, bytes}), do: {:bytes, bytes}
-  defp fixed_size({:string, nil}), do: :variable
-  defp fixed_size({:string, bytes}), do: {:bytes, bytes}
-  defp fixed_size({:enum_table, enum_module}), do: bit_or_byte_size(enum_module.bit_size())
-
-  defp fixed_size({:bit_field, bit_field_module}),
-    do: bit_or_byte_size(bit_field_module.bit_size())
-
-  defp fixed_size([_format]), do: :variable
-
-  defp bit_or_byte_size(bits) when rem(bits, 8) == 0, do: {:bytes, div(bits, 8)}
-  defp bit_or_byte_size(bits), do: {:bits, bits}
-
-  defp format_description([format]), do: "list of #{format_description(format)}"
-  defp format_description({:integer, bits}), do: "unsigned integer (#{bits} bits)"
-
-  defp format_description({:integer, bits, :little_endian}),
-    do: "little-endian unsigned integer (#{bits} bits)"
-
-  defp format_description({:binary, nil}), do: "binary"
-  defp format_description({:binary, bytes}), do: "binary (#{bytes} bytes)"
-  defp format_description({:string, nil}), do: "string"
-  defp format_description({:string, bytes}), do: "null-padded string (#{bytes} bytes)"
-  defp format_description({:enum_table, enum_module}), do: "`#{inspect(enum_module)}` enum"
-
-  defp format_description({:bit_field, bit_field_module}),
-    do: "`#{inspect(bit_field_module)}` bit field"
-
-  defp default_description(name, fields, enforce_keys) do
-    if name in enforce_keys do
-      "required"
-    else
-      fields
-      |> Keyword.fetch!(name)
-      |> inspect()
-      |> then(&"`#{&1}`")
-    end
-  end
-
-  defp description_text(opts) do
-    opts
-    |> Keyword.get(:description, "")
-    |> String.replace("\n", "<br>")
-    |> String.replace("|", "\\|")
-  end
-
-  defp moduledoc_text(nil), do: ""
-  defp moduledoc_text({_line, text}) when is_binary(text), do: text
-  defp moduledoc_text(text) when is_binary(text), do: text
-
-  defp append_doc_section(text, section) do
-    [String.trim_trailing(text), String.trim_trailing(section)]
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.join("\n\n")
-  end
-
-  defp markdown_table(headers, rows) do
-    header = "| #{Enum.join(headers, " | ")} |"
-    divider = "| #{Enum.map_join(headers, " | ", fn _ -> "---" end)} |"
-    body = Enum.map_join(rows, "\n", fn row -> "| #{Enum.join(row, " | ")} |" end)
-
-    Enum.join([header, divider, body], "\n")
   end
 end

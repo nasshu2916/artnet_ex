@@ -4,7 +4,7 @@ defmodule ArtNet.Packet.SchemaTest do
   doctest ArtNet.Packet.Schema
 
   describe "generated docs" do
-    test "documents packet layout in the module and schema function" do
+    test "documents packet layout in the module" do
       assert {:docs_v1, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, docs} =
                Code.fetch_docs(ArtNet.Packet.ArtDmx)
 
@@ -25,9 +25,8 @@ defmodule ArtNet.Packet.SchemaTest do
 
       assert {["schema()"], schema_doc} = docs_by_function[{:schema, 0}]
       assert schema_doc =~ "Returns the packet payload schema in declaration order."
-
-      assert schema_doc =~
-               "| Payload | `sequence` | Packet sequence number, or 0 to disable sequence checking. | `0` | 1 byte | unsigned integer (8 bits) |"
+      refute schema_doc =~ "## Packet layout"
+      refute schema_doc =~ "| Part | Field | Description | Default | Size | Format |"
 
       assert {["op_code()"], op_code_doc} = docs_by_function[{:op_code, 0}]
       assert op_code_doc =~ "The OpCode is `0x5000`."
