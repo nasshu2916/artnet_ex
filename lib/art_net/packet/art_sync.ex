@@ -9,7 +9,14 @@ defmodule ArtNet.Packet.ArtSync do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:aux1, {:integer, 8}, default: 0)
-    field(:aux2, {:integer, 8}, default: 0)
+    field(:aux1, {:integer, 8},
+      default: 0,
+      description: "Reserved auxiliary byte, transmitted as zero."
+    )
+
+    field(:aux2, {:integer, 8},
+      default: 0,
+      description: "Reserved auxiliary byte, transmitted as zero."
+    )
   end
 end

@@ -11,12 +11,32 @@ defmodule ArtNet.Packet.ArtPoll do
   alias ArtNet.Packet.{BitField, EnumTable}
 
   defpacket do
-    field(:talk_to_me, {:bit_field, BitField.TalkToMe})
-    field(:priority, {:enum_table, EnumTable.Priority}, default: :dp_all)
-    field(:target_port_address_top, {:integer, 16}, default: 0)
-    field(:target_port_address_bottom, {:integer, 16}, default: 0)
-    field(:esta_manufacturer, {:integer, 16}, default: 0)
-    field(:oem, {:integer, 16}, default: 0)
+    field(:talk_to_me, {:bit_field, BitField.TalkToMe}, description: "Poll reply behavior flags.")
+
+    field(:priority, {:enum_table, EnumTable.Priority},
+      default: :dp_all,
+      description: "Minimum diagnostic priority requested from nodes."
+    )
+
+    field(:target_port_address_top, {:integer, 16},
+      default: 0,
+      description: "Upper bound of the targeted Port-Address range."
+    )
+
+    field(:target_port_address_bottom, {:integer, 16},
+      default: 0,
+      description: "Lower bound of the targeted Port-Address range."
+    )
+
+    field(:esta_manufacturer, {:integer, 16},
+      default: 0,
+      description: "ESTA manufacturer code filter for targeted polling."
+    )
+
+    field(:oem, {:integer, 16},
+      default: 0,
+      description: "OEM code filter for targeted polling."
+    )
   end
 
   @impl ArtNet.Packet.Schema

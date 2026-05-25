@@ -9,12 +9,16 @@ defmodule ArtNet.Packet.ArtDirectoryReply do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:filler, {:binary, 2}, default: <<0::size(16)>>)
-    field(:flags, {:integer, 8})
-    field(:file, {:integer, 16})
-    field(:name, {:string, 16})
-    field(:description, {:string, 64})
-    field(:length, {:integer, 64})
-    field(:data, {:binary, 64})
+    field(:filler, {:binary, 2},
+      default: <<0::size(16)>>,
+      description: "Reserved bytes, transmitted as zero."
+    )
+
+    field(:flags, {:integer, 8}, description: "Directory entry status flags.")
+    field(:file, {:integer, 16}, description: "Directory file index for this entry.")
+    field(:name, {:string, 16}, description: "Directory entry file name.")
+    field(:description, {:string, 64}, description: "Human-readable directory entry description.")
+    field(:length, {:integer, 64}, description: "Length of the directory entry data in bytes.")
+    field(:data, {:binary, 64}, description: "Directory entry data block.")
   end
 end

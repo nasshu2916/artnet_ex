@@ -8,13 +8,25 @@ defmodule ArtNet.Packet.ArtVideoSetup do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:filler, {:binary, 4}, default: <<0::size(32)>>)
-    field(:control, {:integer, 8})
-    field(:font_height, {:integer, 8})
-    field(:first_font, {:integer, 8})
-    field(:last_font, {:integer, 8})
-    field(:windows_font_name, {:string, 64})
-    field(:font_data, [{:integer, 8}])
+    field(:filler, {:binary, 4},
+      default: <<0::size(32)>>,
+      description: "Reserved bytes, transmitted as zero."
+    )
+
+    field(:control, {:integer, 8}, description: "Video setup control flags.")
+    field(:font_height, {:integer, 8}, description: "Font glyph height in pixels.")
+
+    field(:first_font, {:integer, 8},
+      description: "First font glyph index included in the packet."
+    )
+
+    field(:last_font, {:integer, 8}, description: "Last font glyph index included in the packet.")
+
+    field(:windows_font_name, {:string, 64},
+      description: "Windows font name for the video setup."
+    )
+
+    field(:font_data, [{:integer, 8}], description: "Packed font glyph data bytes.")
   end
 
   def validate(%{font_height: font_height, last_font: last_font, font_data: font_data})

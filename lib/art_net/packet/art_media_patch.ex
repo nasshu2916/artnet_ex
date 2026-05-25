@@ -9,18 +9,22 @@ defmodule ArtNet.Packet.ArtMediaPatch do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:filler1, {:integer, 8}, default: 0)
-    field(:filler2, {:integer, 8}, default: 0)
-    field(:filler3, {:integer, 8}, default: 0)
-    field(:filler4, {:integer, 8}, default: 0)
-    field(:stream, {:integer, 8})
-    field(:patch_command, {:integer, 8})
-    field(:virtual_delta_x, {:integer, 16})
-    field(:virtual_delta_y, {:integer, 16})
-    field(:coordinate_count, {:integer, 16})
-    field(:aperture, {:integer, 8})
-    field(:diameter, {:integer, 8})
-    field(:coordinates, [{:integer, 8}])
+    field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:filler3, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:filler4, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:stream, {:integer, 8}, description: "Media stream identifier.")
+    field(:patch_command, {:integer, 8}, description: "Media patch command code.")
+    field(:virtual_delta_x, {:integer, 16}, description: "Virtual X coordinate delta.")
+    field(:virtual_delta_y, {:integer, 16}, description: "Virtual Y coordinate delta.")
+
+    field(:coordinate_count, {:integer, 16},
+      description: "Number of coordinate entries in the payload."
+    )
+
+    field(:aperture, {:integer, 8}, description: "Patch aperture value.")
+    field(:diameter, {:integer, 8}, description: "Patch diameter value.")
+    field(:coordinates, [{:integer, 8}], description: "Packed media patch coordinate data.")
   end
 
   def validate(%{coordinates: coordinates})

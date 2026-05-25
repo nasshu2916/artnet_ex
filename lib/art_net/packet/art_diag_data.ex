@@ -11,12 +11,17 @@ defmodule ArtNet.Packet.ArtDiagData do
   alias ArtNet.Packet.EnumTable
 
   defpacket do
-    field(:filler1, {:integer, 8}, default: 0)
-    field(:priority, {:enum_table, EnumTable.Priority})
-    field(:logical_port, {:integer, 8}, default: 0)
-    field(:filler3, {:integer, 8}, default: 0)
-    field(:length, {:integer, 16})
-    field(:data, [{:integer, 8}])
+    field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:priority, {:enum_table, EnumTable.Priority}, description: "Diagnostic priority level.")
+
+    field(:logical_port, {:integer, 8},
+      default: 0,
+      description: "Logical port associated with the diagnostic data."
+    )
+
+    field(:filler3, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:length, {:integer, 16}, description: "Number of diagnostic data bytes.")
+    field(:data, [{:integer, 8}], description: "Diagnostic text or binary data bytes.")
   end
 
   @impl ArtNet.Packet.Schema

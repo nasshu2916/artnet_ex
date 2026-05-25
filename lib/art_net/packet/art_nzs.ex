@@ -10,12 +10,25 @@ defmodule ArtNet.Packet.ArtNzs do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:sequence, {:integer, 8}, default: 0)
-    field(:start_code, {:integer, 8})
-    field(:sub_universe, {:integer, 8}, default: 0)
-    field(:net, {:integer, 8}, default: 0)
-    field(:length, {:integer, 16})
-    field(:data, [{:integer, 8}])
+    field(:sequence, {:integer, 8},
+      default: 0,
+      description: "Packet sequence number, or 0 to disable sequence checking."
+    )
+
+    field(:start_code, {:integer, 8}, description: "Non-zero DMX start code for the payload.")
+
+    field(:sub_universe, {:integer, 8},
+      default: 0,
+      description: "Low byte of the 15-bit Port-Address."
+    )
+
+    field(:net, {:integer, 8},
+      default: 0,
+      description: "Bits 8-14 of the 15-bit Port-Address."
+    )
+
+    field(:length, {:integer, 16}, description: "Number of payload data bytes.")
+    field(:data, [{:integer, 8}], description: "Non-zero-start-code payload data.")
   end
 
   @impl ArtNet.Packet.Schema

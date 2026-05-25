@@ -9,9 +9,16 @@ defmodule ArtNet.Packet.ArtDataRequest do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:esta_manufacturer, {:integer, 16})
-    field(:oem, {:integer, 16})
-    field(:request, {:integer, 16})
-    field(:spare, {:binary, 22}, default: <<0::size(176)>>)
+    field(:esta_manufacturer, {:integer, 16},
+      description: "ESTA manufacturer code for the requested data."
+    )
+
+    field(:oem, {:integer, 16}, description: "OEM code for the requested data.")
+    field(:request, {:integer, 16}, description: "Data request identifier.")
+
+    field(:spare, {:binary, 22},
+      default: <<0::size(176)>>,
+      description: "Reserved bytes, transmitted as zero."
+    )
   end
 end

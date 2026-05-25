@@ -10,13 +10,13 @@ defmodule ArtNet.Packet.ArtTimeCode do
   alias ArtNet.Packet.EnumTable
 
   defpacket do
-    field(:filler1, {:integer, 8}, default: 0)
-    field(:stream_id, {:integer, 8}, default: 0)
-    field(:frames, {:integer, 8})
-    field(:seconds, {:integer, 8})
-    field(:minutes, {:integer, 8})
-    field(:hours, {:integer, 8})
-    field(:type, {:enum_table, EnumTable.TimeCodeType})
+    field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:stream_id, {:integer, 8}, default: 0, description: "Time-code stream identifier.")
+    field(:frames, {:integer, 8}, description: "Time-code frame value.")
+    field(:seconds, {:integer, 8}, description: "Time-code seconds value.")
+    field(:minutes, {:integer, 8}, description: "Time-code minutes value.")
+    field(:hours, {:integer, 8}, description: "Time-code hours value.")
+    field(:type, {:enum_table, EnumTable.TimeCodeType}, description: "Time-code frame-rate type.")
   end
 
   @impl ArtNet.Packet.Schema

@@ -9,9 +9,12 @@ defmodule ArtNet.Packet.ArtCommand do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:esta_manufacturer, {:integer, 16})
-    field(:length, {:integer, 16})
-    field(:data, [{:integer, 8}])
+    field(:esta_manufacturer, {:integer, 16},
+      description: "ESTA manufacturer code for the command data."
+    )
+
+    field(:length, {:integer, 16}, description: "Number of command data bytes.")
+    field(:data, [{:integer, 8}], description: "Manufacturer-specific command payload.")
   end
 
   @impl ArtNet.Packet.Schema

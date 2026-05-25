@@ -9,8 +9,12 @@ defmodule ArtNet.Packet.ArtDirectory do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:filler, {:binary, 2}, default: <<0::size(16)>>)
-    field(:command, {:integer, 8})
-    field(:file, {:integer, 16})
+    field(:filler, {:binary, 2},
+      default: <<0::size(16)>>,
+      description: "Reserved bytes, transmitted as zero."
+    )
+
+    field(:command, {:integer, 8}, description: "Directory command to execute.")
+    field(:file, {:integer, 16}, description: "Directory file index referenced by the command.")
   end
 end

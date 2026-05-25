@@ -9,11 +9,15 @@ defmodule ArtNet.Packet.ArtTrigger do
   use ArtNet.Packet.Schema
 
   defpacket do
-    field(:filler1, {:integer, 8}, default: 0)
-    field(:filler2, {:integer, 8}, default: 0)
-    field(:oem, {:integer, 16})
-    field(:key, {:integer, 8})
-    field(:sub_key, {:integer, 8})
-    field(:data, [{:integer, 8}], length: 512)
+    field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
+    field(:oem, {:integer, 16}, description: "OEM code defining the trigger data format.")
+    field(:key, {:integer, 8}, description: "Trigger key value.")
+    field(:sub_key, {:integer, 8}, description: "Trigger sub-key value.")
+
+    field(:data, [{:integer, 8}],
+      length: 512,
+      description: "OEM-specific trigger data bytes."
+    )
   end
 end
