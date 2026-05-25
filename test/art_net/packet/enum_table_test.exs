@@ -9,9 +9,9 @@ defmodule ArtNet.Packet.EnumTableTest do
                Code.fetch_docs(ArtNet.Packet.EnumTable.Priority)
 
       assert moduledoc =~ "## Values"
-      assert moduledoc =~ "| Atom | Value |"
-      assert moduledoc =~ "| `dp_all` | `0x0 / 0b00000000` |"
-      assert moduledoc =~ "| `dp_volatile` | `0xF0 / 0b11110000` |"
+      assert moduledoc =~ "| Atom | Description | Value |"
+      assert moduledoc =~ "| `dp_all` | All diagnostic messages. | `0x0 / 0b00000000` |"
+      assert moduledoc =~ "| `dp_volatile` | Volatile messages. | `0xF0 / 0b11110000` |"
 
       docs_by_function =
         Map.new(docs, fn
@@ -37,6 +37,11 @@ defmodule ArtNet.Packet.EnumTableTest do
       assert {["to_atom(code)"], to_atom_doc} = docs_by_function[{:to_atom, 1}]
       assert to_atom_doc =~ "Converts an integer code"
     end
+
+    test "supports enum entries without descriptions" do
+      assert {[legacy: 0], [legacy: ""]} =
+               ArtNet.Packet.EnumTable.__normalize_table__(legacy: 0x00)
+    end
   end
 
   describe "@before_compile" do
@@ -53,6 +58,26 @@ defmodule ArtNet.Packet.EnumTableTest do
                        defenumtable([bit_size: 2],
                          valid: 0b11,
                          invalid: 0b100
+                       )
+                     end
+                     """)
+                   end
+    end
+  end
+
+  describe "defenumtable/2" do
+    test "raises when enum description is not a string" do
+      module = unique_module_name()
+
+      assert_raise ArgumentError,
+                   "the description option for enum :invalid must be a string, got: :bad",
+                   fn ->
+                     Code.compile_string("""
+                     defmodule #{module} do
+                       use ArtNet.Packet.EnumTable
+
+                       defenumtable([bit_size: 2],
+                         invalid: {0b00, description: :bad}
                        )
                      end
                      """)

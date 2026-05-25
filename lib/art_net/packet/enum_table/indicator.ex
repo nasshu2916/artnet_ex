@@ -1,19 +1,14 @@
 defmodule ArtNet.Packet.EnumTable.Indicator do
   @moduledoc """
   Indicator state values used by `ArtNet.Packet.BitField.Status1`.
-
-    * `:unknown` - indicator state is unknown.
-    * `:locate` - locate indication is active.
-    * `:mute` - indicators are muted.
-    * `:normal` - indicators are in normal mode.
   """
 
   use ArtNet.Packet.EnumTable
 
   defenumtable([bit_size: 2],
-    unknown: 0b00,
-    locate: 0b01,
-    mute: 0b10,
-    normal: 0b11
+    unknown: {0b00, description: "Indicator state is unknown."},
+    locate: {0b01, description: "Locate indication is active."},
+    mute: {0b10, description: "Indicators are muted."},
+    normal: {0b11, description: "Indicators are in normal mode."}
   )
 end

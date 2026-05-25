@@ -45,21 +45,23 @@ defmodule ArtNet.Packet.EnumTable do
   Defines an enum table.
 
   The first argument is an option list and must include `:bit_size`. The second
-  argument is a keyword list mapping atom keys to integer codes.
+  argument is a keyword list mapping atom keys to integer codes. Entries may
+  also use `{code, opts}` with a `:description` option for generated docs.
 
   The generated module documents `bit_size/0`, each zero-arity enum key
   function, `to_code/1`, and `to_atom/1`.
 
   ```elixir
   defenumtable([bit_size: 2],
-    disabled: 0,
-    input: 1,
-    output: 2
+    disabled: {0, description: "Disabled state."},
+    input: {1, description: "Input state."},
+    output: {2, description: "Output state."}
   )
   ```
   """
   defmacro defenumtable(opts, table) do
     quote bind_quoted: [opts: opts, table: table] do
+      {table, descriptions} = ArtNet.Packet.EnumTable.__normalize_table__(table)
       keys = Enum.map(table, fn {key, _value} -> key end)
       bit_size = Keyword.fetch!(opts, :bit_size)
 
@@ -67,11 +69,13 @@ defmodule ArtNet.Packet.EnumTable do
 
       Module.put_attribute(__MODULE__, :bit_size, bit_size)
       Module.put_attribute(__MODULE__, :enum_table, table)
+      Module.put_attribute(__MODULE__, :enum_descriptions, descriptions)
 
       moduledoc =
         ArtNet.Packet.EnumTable.__moduledoc_with_table__(
           Module.get_attribute(__MODULE__, :moduledoc),
           table,
+          descriptions,
           bit_size
         )
 
@@ -125,18 +129,36 @@ defmodule ArtNet.Packet.EnumTable do
   end
 
   @doc false
+  @spec __normalize_table__(Keyword.t()) :: {Keyword.t(), Keyword.t()}
+  def __normalize_table__(table) do
+    Enum.map_reduce(table, [], fn {key, value}, descriptions ->
+      {code, opts} = enum_entry(value)
+      description = Keyword.get(opts, :description, "")
+
+      if not is_binary(description) do
+        raise ArgumentError,
+              "the description option for enum #{inspect(key)} must be a string, got: #{inspect(description)}"
+      end
+
+      {{key, code}, [{key, description} | descriptions]}
+    end)
+    |> then(fn {table, descriptions} -> {table, Enum.reverse(descriptions)} end)
+  end
+
+  @doc false
   @spec __moduledoc_with_table__(
           false | nil | String.t() | {non_neg_integer, String.t()},
+          Keyword.t(),
           Keyword.t(),
           pos_integer
         ) ::
           false | String.t()
-  def __moduledoc_with_table__(false, _table, _bit_size), do: false
+  def __moduledoc_with_table__(false, _table, _descriptions, _bit_size), do: false
 
-  def __moduledoc_with_table__(moduledoc, table, bit_size) do
+  def __moduledoc_with_table__(moduledoc, table, descriptions, bit_size) do
     moduledoc
     |> moduledoc_text()
-    |> append_values_table(table, bit_size)
+    |> append_values_table(table, descriptions, bit_size)
   end
 
   defmacro __before_compile__(env) do
@@ -178,26 +200,36 @@ defmodule ArtNet.Packet.EnumTable do
   defp moduledoc_text({_line, text}) when is_binary(text), do: text
   defp moduledoc_text(text) when is_binary(text), do: text
 
-  defp append_values_table(text, table, bit_size) do
-    [String.trim_trailing(text), values_table(table, bit_size)]
+  defp enum_entry({code, opts}) when is_list(opts), do: {code, opts}
+  defp enum_entry(code), do: {code, []}
+
+  defp append_values_table(text, table, descriptions, bit_size) do
+    [String.trim_trailing(text), values_table(table, descriptions, bit_size)]
     |> Enum.reject(&(&1 == ""))
     |> Enum.join("\n\n")
   end
 
-  defp values_table(table, bit_size) do
+  defp values_table(table, descriptions, bit_size) do
     rows =
       Enum.map_join(table, "\n", fn {atom, value} ->
-        "| `#{atom}` | `#{format_table_value(value, bit_size)}` |"
+        "| `#{atom}` | #{description_text(descriptions, atom)} | `#{format_table_value(value, bit_size)}` |"
       end)
 
     """
     ## Values
 
-    | Atom | Value |
-    | --- | --- |
+    | Atom | Description | Value |
+    | --- | --- | --- |
     #{rows}
     """
     |> String.trim_trailing()
+  end
+
+  defp description_text(descriptions, atom) do
+    descriptions
+    |> Keyword.get(atom, "")
+    |> String.replace("\n", "<br>")
+    |> String.replace("|", "\\|")
   end
 
   defp format_table_value(value, bit_size) when is_integer(value) do
