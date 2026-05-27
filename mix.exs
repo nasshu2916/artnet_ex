@@ -2,17 +2,20 @@ defmodule ArtNet.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/nasshu2916/artnet_ex"
+  @description "An Elixir library for decoding and encoding Art-Net packets."
 
   def project do
     [
       app: :art_net,
       version: "0.1.0",
       elixir: "~> 1.16",
+      description: @description,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "ArtNet",
       source_url: @source_url,
       homepage_url: @source_url,
+      package: package(),
       docs: docs()
     ]
   end
@@ -31,6 +34,25 @@ defmodule ArtNet.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:benchee, "~> 1.3", only: :dev, runtime: false},
       {:ex_doc, "~> 0.40.3", only: :dev, runtime: false, warn_if_outdated: true}
+    ]
+  end
+
+  defp package do
+    [
+      files: [
+        "lib",
+        "livebook/artnet_sample.livemd",
+        "livebook/files",
+        "mix.exs",
+        "README.md",
+        "LICENSE"
+      ],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @source_url,
+        "Art-Net Specification" =>
+          "https://artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf"
+      }
     ]
   end
 
