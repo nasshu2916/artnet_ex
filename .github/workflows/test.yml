@@ -1,14 +1,22 @@
-name: Test CI
+name: CI
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
 
+permissions:
+  contents: read
+
+env:
+  MIX_ENV: test
 
 jobs:
-  build:
-
-    name: Build and test (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
+  test:
+    name: Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -23,34 +31,43 @@ jobs:
             otp: '28'
 
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: ${{ matrix.elixir }}
-        otp-version: ${{ matrix.otp }}
-    - name: Restore dependencies cache
-      uses: actions/cache@v5
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-elixir-${{ matrix.elixir }}-otp-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-elixir-${{ matrix.elixir }}-otp-${{ matrix.otp }}-
-    - name: Install dependencies
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-        mix deps.compile
-        mix dialyzer --plt
-    - name: Run format
-      run: mix format --check-formatted
-    - name: Run Credo
-      run: mix credo
-    - name: Run dialyzer
-      run: mix dialyzer
-    - name: Run tests
-      run: mix test
-    - name: mix clean
-      run: mix clean
+      - uses: actions/checkout@v6
+
+      - name: Set up Erlang/OTP and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Restore Mix cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            deps
+            _build
+            priv/plts
+          key: ${{ runner.os }}-mix-elixir-${{ matrix.elixir }}-otp-${{ matrix.otp }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-elixir-${{ matrix.elixir }}-otp-${{ matrix.otp }}-
+
+      - name: Install dependencies
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix deps.compile
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+      - name: Run tests
+        run: mix test
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Build Dialyzer PLT
+        run: mix dialyzer --plt
+
+      - name: Run Dialyzer
+        run: mix dialyzer
