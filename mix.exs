@@ -8,7 +8,7 @@ defmodule ArtNet.MixProject do
     [
       app: :art_net,
       version: "0.1.0",
-      elixir: "~> 1.16",
+      elixir: "~> 1.15",
       description: @description,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
