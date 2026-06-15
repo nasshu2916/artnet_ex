@@ -1,6 +1,6 @@
 [tools]
-elixir = "1.19.5-otp-28"
-erlang = "28.5"
+elixir = "1.20.1-otp-29"
+erlang = "29.0"
 
 [tasks.ci]
 description = "Format, lint, type-check, and run tests"
