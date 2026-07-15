@@ -46,7 +46,6 @@ defmodule ArtNet.Packet.ArtRdmSub do
         :get_response -> sub_count
         :get_command -> 0
         :set_response -> 0
-        _ -> length(data)
       end
 
     if length(data) == expected_length do
