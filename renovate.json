@@ -29,6 +29,26 @@
         "patch"
       ],
       "groupName": "test packages"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "elixir"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>otp-\\d+)$"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "elixir",
+        "erlang"
+      ],
+      "groupName": "Elixir and Erlang/OTP",
+      "minimumGroupSize": 2
     }
   ]
 }
