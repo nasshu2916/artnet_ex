@@ -18,6 +18,11 @@ defmodule ArtNet.OpCodeTest do
     end
   end
 
+  test "returns nil for unsupported values" do
+    assert OpCode.packet_module_from_value(0xFFFF) == nil
+    assert OpCode.op_code_type(0xFFFF) == nil
+  end
+
   defp packet_modules do
     :art_net
     |> Application.spec(:modules)
