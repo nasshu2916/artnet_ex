@@ -7,7 +7,7 @@ defmodule ArtNet.Packet.ArtVideoSetup do
 
   use ArtNet.Packet.Schema
 
-  defpacket do
+  defpacket op_code: 0xA010 do
     field(:filler, {:binary, 4},
       default: <<0::size(32)>>,
       description: "Reserved bytes, transmitted as zero."

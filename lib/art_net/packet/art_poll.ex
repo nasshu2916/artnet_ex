@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtPoll do
 
   alias ArtNet.Packet.{BitField, EnumTable}
 
-  defpacket do
+  defpacket op_code: 0x2000 do
     field(:talk_to_me, {:bit_field, BitField.TalkToMe}, description: "Poll reply behavior flags.")
 
     field(:priority, {:enum_table, EnumTable.Priority},

@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtAddress do
 
   alias ArtNet.Packet.EnumTable
 
-  defpacket do
+  defpacket op_code: 0x6000 do
     field(:net_switch, {:integer, 8},
       default: 0,
       description: "Top 7 bits of the node Net address."

@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtCommand do
 
   use ArtNet.Packet.Schema
 
-  defpacket do
+  defpacket op_code: 0x2400 do
     field(:esta_manufacturer, {:integer, 16},
       description: "ESTA manufacturer code for the command data."
     )

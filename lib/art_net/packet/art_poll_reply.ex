@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtPollReply do
 
   alias ArtNet.Packet.BitField
 
-  defpacket require_version_header?: false do
+  defpacket op_code: 0x2100, require_version_header?: false do
     field(:ip_address, {:binary, 4}, description: "IPv4 address of the responding node.")
 
     field(:port, {:integer, 16, :little_endian},

@@ -44,6 +44,15 @@ defmodule ArtNet.Packet.SchemaTest do
     end
   end
 
+  test "generates OpCode metadata used by the registry" do
+    assert ArtNet.Packet.ArtDmx.__op_code__() == {:op_dmx, 0x5000}
+    assert ArtNet.Packet.ArtDmx.op_code() == 0x5000
+    assert ArtNet.OpCode.op_code(ArtNet.Packet.ArtDmx) == 0x5000
+    assert ArtNet.OpCode.op_code(:op_dmx) == 0x5000
+    assert ArtNet.OpCode.op_code_type(0x5000) == :op_dmx
+    assert ArtNet.OpCode.packet_module_from_value(0x5000) == ArtNet.Packet.ArtDmx
+  end
+
   defp docs_by_function(docs) do
     Map.new(docs, fn
       {{:function, name, arity}, _, signatures, %{"en" => doc}, _} ->

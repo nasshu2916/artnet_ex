@@ -7,6 +7,6 @@ defmodule ArtNet.Packet.ArtFileFnReply do
 
   use ArtNet.Packet.Schema
 
-  defpacket do
+  defpacket op_code: 0xF600 do
   end
 end
