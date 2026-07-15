@@ -3,6 +3,50 @@ defmodule ArtNet.Packet.SchemaTest do
 
   doctest ArtNet.Packet.Schema
 
+  alias ArtNet.Packet.Schema
+
+  defmodule ValidationTarget do
+    defstruct [:value]
+
+    def validate_encode(%__MODULE__{value: :ok}), do: :ok
+    def validate_encode(%__MODULE__{value: :text_error}), do: {:error, "invalid value"}
+    def validate_encode(%__MODULE__{}), do: {:error, :invalid_value}
+  end
+
+  describe "__new__/2 and __new__!/2" do
+    test "build validated structs from maps and keyword lists" do
+      assert Schema.__new__(ValidationTarget, %{value: :ok}) ==
+               {:ok, %ValidationTarget{value: :ok}}
+
+      assert Schema.__new__!(ValidationTarget, value: :ok) == %ValidationTarget{value: :ok}
+    end
+
+    test "return an encode error for invalid attributes" do
+      assert Schema.__new__(ValidationTarget, :invalid) ==
+               {:error,
+                %ArtNet.EncodeError{
+                  reason: {:invalid_data, "attributes must be a map or keyword list"}
+                }}
+
+      assert {:error, %ArtNet.EncodeError{reason: {:invalid_data, unknown_key_error}}} =
+               Schema.__new__(ValidationTarget, unknown: true)
+
+      assert unknown_key_error =~ "key :unknown not found"
+    end
+
+    test "return an encode error for validation failures" do
+      assert Schema.__new__(ValidationTarget, value: :text_error) ==
+               {:error, %ArtNet.EncodeError{reason: {:invalid_data, "invalid value"}}}
+
+      assert Schema.__new__(ValidationTarget, value: :other) ==
+               {:error, %ArtNet.EncodeError{reason: {:invalid_data, ":invalid_value"}}}
+
+      assert_raise ArtNet.EncodeError, "invalid data: invalid value", fn ->
+        Schema.__new__!(ValidationTarget, value: :text_error)
+      end
+    end
+  end
+
   describe "generated docs" do
     test "documents packet layout in the module" do
       assert {:docs_v1, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, docs} =
@@ -53,6 +97,28 @@ defmodule ArtNet.Packet.SchemaTest do
     assert ArtNet.OpCode.packet_module_from_value(0x5000) == ArtNet.Packet.ArtDmx
   end
 
+  describe "field/3" do
+    test "raises for an invalid field name" do
+      assert_raise ArgumentError, "a field name must be an atom, got: \"invalid\"", fn ->
+        compile_packet("field(\"invalid\", {:integer, 8})")
+      end
+    end
+
+    test "raises for a duplicate field" do
+      assert_raise ArgumentError, "the field :value is already set", fn ->
+        compile_packet("field(:value, {:integer, 8})\nfield(:value, {:integer, 8})")
+      end
+    end
+
+    test "raises when a field description is not a string" do
+      assert_raise ArgumentError,
+                   "the description option for field :value must be a string, got: :bad",
+                   fn ->
+                     compile_packet("field(:value, {:integer, 8}, description: :bad)")
+                   end
+    end
+  end
+
   defp docs_by_function(docs) do
     Map.new(docs, fn
       {{:function, name, arity}, _, signatures, %{"en" => doc}, _} ->
@@ -64,5 +130,22 @@ defmodule ArtNet.Packet.SchemaTest do
       {kind, _, signatures, doc, _} ->
         {kind, {signatures, doc}}
     end)
+  end
+
+  defp compile_packet(fields) do
+    Code.compile_string("""
+    defmodule #{unique_module_name()} do
+      @moduledoc false
+      use ArtNet.Packet.Schema
+
+      defpacket op_code: 0xFFFF do
+        #{fields}
+      end
+    end
+    """)
+  end
+
+  defp unique_module_name do
+    "ArtNet.Packet.ArtSchemaTestDynamic#{System.unique_integer([:positive])}"
   end
 end
