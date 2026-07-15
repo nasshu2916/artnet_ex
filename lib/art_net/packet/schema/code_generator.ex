@@ -90,6 +90,16 @@ defmodule ArtNet.Packet.Schema.CodeGenerator do
     end
   end
 
+  defp decode_steps([{key, {format, opts}} | fields], decoded_fields, rest)
+       when format in [{:binary, nil}, {:string, nil}] do
+    value = field_var(key)
+
+    quote do
+      {:ok, {unquote(value), unquote(rest)}} = unquote(decode_call(rest, format, opts))
+      unquote(decode_steps(fields, [{key, value} | decoded_fields], rest))
+    end
+  end
+
   defp decode_steps([{key, {format, opts}} | fields], decoded_fields, rest) do
     value = field_var(key)
 
@@ -124,6 +134,17 @@ defmodule ArtNet.Packet.Schema.CodeGenerator do
 
     quote do
       {:ok, IO.iodata_to_binary(unquote(encoded_fields))}
+    end
+  end
+
+  defp encode_steps([{key, {format, opts}} | fields], encoded_fields)
+       when format in [{:binary, nil}, {:string, nil}] do
+    value = field_var(key)
+    encoded = var(:"#{key}_encoded")
+
+    quote do
+      {:ok, unquote(encoded)} = unquote(encode_call(value, format, opts))
+      unquote(encode_steps(fields, [encoded | encoded_fields]))
     end
   end
 

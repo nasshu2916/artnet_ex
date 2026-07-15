@@ -156,7 +156,7 @@ defmodule ArtNet.Decoder do
   @spec integer(binary, pos_integer) :: {:ok, {non_neg_integer, binary}} | :error
   def integer(data, size) do
     case data do
-      <<value::size(size), rest::binary>> -> {:ok, {value, rest}}
+      <<value::size(^size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
     end
   end
@@ -183,7 +183,7 @@ defmodule ArtNet.Decoder do
   @spec little_integer(binary, pos_integer) :: {:ok, {non_neg_integer, binary}} | :error
   def little_integer(data, size) do
     case data do
-      <<value::little-size(size), rest::binary>> -> {:ok, {value, rest}}
+      <<value::little-size(^size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
     end
   end
@@ -215,7 +215,7 @@ defmodule ArtNet.Decoder do
 
   def binary(data, size) do
     case data do
-      <<value::binary-size(size), rest::binary>> -> {:ok, {value, rest}}
+      <<value::binary-size(^size), rest::binary>> -> {:ok, {value, rest}}
       _ -> :error
     end
   end
@@ -289,7 +289,7 @@ defmodule ArtNet.Decoder do
     bit_size = module.bit_size()
 
     case data do
-      <<value::size(bit_size), rest::binary>> ->
+      <<value::size(^bit_size), rest::binary>> ->
         case module.to_atom(value) do
           {:ok, atom} -> {:ok, {atom, rest}}
           :error -> :error
@@ -327,7 +327,7 @@ defmodule ArtNet.Decoder do
   def bit_field(data, module) do
     bit_size = module.bit_size()
 
-    with <<value::size(bit_size), rest::binary>> <- data,
+    with <<value::size(^bit_size), rest::binary>> <- data,
          {:ok, result} <- module.decode(value) do
       {:ok, {result, rest}}
     else
