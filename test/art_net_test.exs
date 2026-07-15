@@ -60,4 +60,12 @@ defmodule ArtNetTest do
                    ArtNet.encode!(%{art_dmx | data: [0xFFFF]})
                  end
   end
+
+  test "formats decode and encode error variants" do
+    assert Exception.message(%ArtNet.DecodeError{reason: {:decode_error, :payload}}) ==
+             "decoding error: :payload"
+
+    assert Exception.message(%ArtNet.EncodeError{reason: {:validate_error, "invalid"}}) ==
+             "invalid data: invalid"
+  end
 end

@@ -42,6 +42,10 @@ defmodule ArtNet.Packet.EnumTableTest do
       assert {[legacy: 0], [legacy: ""]} =
                ArtNet.Packet.EnumTable.__normalize_table__(legacy: 0x00)
     end
+
+    test "supports disabled module documentation" do
+      assert ArtNet.Packet.EnumTable.__moduledoc_with_table__(false, [], [], 1) == false
+    end
   end
 
   describe "@before_compile" do
@@ -63,9 +67,43 @@ defmodule ArtNet.Packet.EnumTableTest do
                      """)
                    end
     end
+
+    test "raises when an enum value is not an integer" do
+      module = unique_module_name()
+
+      assert_raise ArgumentError,
+                   ~r/value :invalid does not fit in bit_size 2/,
+                   fn ->
+                     Code.compile_string("""
+                     defmodule #{module} do
+                       use ArtNet.Packet.EnumTable
+
+                       defenumtable([bit_size: 2], invalid: :invalid)
+                     end
+                     """)
+                   end
+    end
   end
 
   describe "defenumtable/2" do
+    test "generates a usable enum table" do
+      module = unique_module_name()
+
+      [{compiled_module, _binary}] =
+        Code.compile_string("""
+        defmodule #{module} do
+          @moduledoc "Dynamic enum"
+          use ArtNet.Packet.EnumTable
+
+          defenumtable([bit_size: 2], ready: 0b01)
+        end
+        """)
+
+      assert apply(compiled_module, :bit_size, []) == 2
+      assert apply(compiled_module, :to_code, [:ready]) == {:ok, 1}
+      assert apply(compiled_module, :to_atom, [1]) == {:ok, :ready}
+    end
+
     test "raises when enum description is not a string" do
       module = unique_module_name()
 

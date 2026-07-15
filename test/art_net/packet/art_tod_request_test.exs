@@ -19,5 +19,18 @@ defmodule ArtNet.Packet.ArtTodRequestTest do
       assert <<0x41, 0x72, 0x74, 0x2D, 0x4E, 0x65, 0x74, 0x00, 0x00, 0x80, _::binary>> = binary
       assert {:ok, ^packet} = ArtNet.decode(binary)
     end
+
+    test "rejects address counts greater than 32" do
+      packet = %ArtTodRequest{
+        address_count: 33,
+        address: List.duplicate(0, 32)
+      }
+
+      assert ArtNet.encode(packet) ==
+               {:error,
+                %ArtNet.EncodeError{
+                  reason: {:invalid_data, "Address count must be 32 or less"}
+                }}
+    end
   end
 end
