@@ -57,6 +57,46 @@ defmodule ArtNet.Packet.ArtVlcTest do
                 %ArtNet.DecodeError{reason: {:invalid_data, "ArtVlc start code must be 0x91"}}}
     end
 
+    test "rejects VLC data shorter than its fixed header" do
+      invalid_packet = %ArtNzs{
+        sequence: 1,
+        start_code: 0x91,
+        sub_universe: 0,
+        net: 0,
+        length: 3,
+        data: [0x41, 0x4C, 0x45]
+      }
+
+      assert ArtVlc.decode(invalid_packet) ==
+               {:error,
+                %ArtNet.DecodeError{
+                  reason: {:invalid_data, "ArtVlc data is shorter than the fixed VLC header"}
+                }}
+    end
+
+    test "rejects values that are neither an ArtNzs packet nor a binary" do
+      assert ArtVlc.decode(:invalid) ==
+               {:error,
+                %ArtNet.DecodeError{
+                  reason: {:invalid_data, "ArtVlc decode expects an ArtNzs packet or binary"}
+                }}
+    end
+
+    test "rejects binaries containing another packet type" do
+      assert {:ok, binary} = ArtNet.encode(%ArtNet.Packet.ArtSync{aux1: 0, aux2: 0})
+
+      assert ArtVlc.decode(binary) ==
+               {:error,
+                %ArtNet.DecodeError{
+                  reason: {:invalid_data, "ArtVlc must be encoded as ArtNzs"}
+                }}
+    end
+
+    test "propagates errors from binary packet decoding" do
+      assert ArtVlc.decode(<<>>) ==
+               {:error, %ArtNet.DecodeError{reason: {:invalid_data, "Invalid identifier"}}}
+    end
+
     test "rejects invalid VLC magic fields" do
       invalid_packet = packet(payload: [], data_prefix: [0x41, 0x4C, 0x44])
 
@@ -86,6 +126,17 @@ defmodule ArtNet.Packet.ArtVlcTest do
                 %ArtNet.DecodeError{
                   reason:
                     {:invalid_data, "ArtVlc payload count does not match the payload length"}
+                }}
+    end
+
+    test "rejects payload counts greater than 480" do
+      payload = List.duplicate(0, 481)
+      invalid_packet = packet(payload: payload)
+
+      assert ArtVlc.decode(invalid_packet) ==
+               {:error,
+                %ArtNet.DecodeError{
+                  reason: {:invalid_data, "ArtVlc payload count must be 480 or less"}
                 }}
     end
 
