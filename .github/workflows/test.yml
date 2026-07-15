@@ -35,7 +35,7 @@ jobs:
             otp: '29'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Erlang/OTP and Elixir
         uses: erlef/setup-beam@v1
