@@ -13,7 +13,7 @@ defmodule ArtNet.Packet.Schema do
 
     alias ArtNet.Packet.{BitField, EnumTable}
 
-    defpacket do
+    defpacket op_code: {:op_poll, 0x2000} do
       field(:talk_to_me, {:bit_field, BitField.TalkToMe})
       field(:priority, {:enum_table, EnumTable.Priority}, default: :dp_all)
       field(:target_port_address_top, {:integer, 16}, default: 0)
@@ -31,8 +31,7 @@ defmodule ArtNet.Packet.Schema do
   A packet module that uses `defpacket/2` receives:
 
     * `schema/0` - returns the internal field schema in declaration order.
-    * `op_code/0` - returns the Art-Net OpCode registered for the packet
-      module.
+    * `op_code/0` - returns the Art-Net OpCode declared by the packet module.
     * `new/1` and `new!/1` - build validated packet structs from a map or
       keyword list.
     * `require_version_header?/0` - reports whether the protocol version
@@ -179,6 +178,18 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc false
+  @spec __validate_op_code__(term) :: {atom, pos_integer}
+  def __validate_op_code__({name, value})
+      when is_atom(name) and is_integer(value) and value > 0 and value <= 0xFFFF do
+    {name, value}
+  end
+
+  def __validate_op_code__(op_code) do
+    raise ArgumentError,
+          ":op_code must be an {atom, 16-bit positive integer} tuple, got: #{inspect(op_code)}"
+  end
+
+  @doc false
   defmacro __using__(_) do
     quote do
       @behaviour ArtNet.Packet.Schema
@@ -225,6 +236,8 @@ defmodule ArtNet.Packet.Schema do
 
   ## Options
 
+    * `:op_code` - required `{name, value}` tuple for the packet's public
+      OpCode atom and positive integer wire value.
     * `:require_version_header?` - controls whether `ArtNet.Packet` expects the
       protocol version header before this packet's payload. Defaults to `true`.
   """
@@ -254,7 +267,7 @@ defmodule ArtNet.Packet.Schema do
       moduledoc =
         ArtNet.Packet.Schema.__moduledoc_with_layout__(
           Module.get_attribute(__MODULE__, :moduledoc),
-          __MODULE__,
+          @op_code,
           @artnet_schema,
           Enum.reverse(@artnet_fields),
           @artnet_enforce_keys,
@@ -266,11 +279,13 @@ defmodule ArtNet.Packet.Schema do
       @doc ArtNet.Packet.Schema.__schema_doc__()
       def schema, do: @artnet_schema
 
-      @doc ArtNet.Packet.Schema.__op_code_doc__(__MODULE__)
+      @doc ArtNet.Packet.Schema.__op_code_doc__(@op_code)
       @spec op_code :: pos_integer
-      def op_code do
-        ArtNet.OpCode.op_code(__MODULE__)
-      end
+      def op_code, do: @op_code
+
+      @doc false
+      @spec __op_code__() :: {atom, pos_integer}
+      def __op_code__, do: {@op_code_name, @op_code}
 
       @doc """
       Builds a validated packet struct from a map or keyword list.
@@ -329,7 +344,7 @@ defmodule ArtNet.Packet.Schema do
   @doc false
   @spec __moduledoc_with_layout__(
           false | nil | String.t() | {non_neg_integer, String.t()},
-          module,
+          pos_integer,
           [{atom, {format(), Keyword.t()}}],
           Keyword.t(),
           [atom],
@@ -337,7 +352,7 @@ defmodule ArtNet.Packet.Schema do
         ) :: false | String.t()
   def __moduledoc_with_layout__(
         false,
-        _module,
+        _op_code,
         _schema,
         _fields,
         _enforce_keys,
@@ -347,7 +362,7 @@ defmodule ArtNet.Packet.Schema do
 
   def __moduledoc_with_layout__(
         moduledoc,
-        module,
+        op_code,
         schema,
         fields,
         enforce_keys,
@@ -356,7 +371,7 @@ defmodule ArtNet.Packet.Schema do
     layout = """
     ## Packet layout
 
-    #{Docs.packet_layout_table(module, schema, fields, enforce_keys, require_version_header?)}
+    #{Docs.packet_layout_table(op_code, schema, fields, enforce_keys, require_version_header?)}
     """
 
     moduledoc
@@ -365,17 +380,25 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc false
-  @spec __op_code_doc__(module) :: String.t()
-  def __op_code_doc__(module) do
+  @spec __op_code_doc__(pos_integer) :: String.t()
+  def __op_code_doc__(op_code) do
     """
     Returns the Art-Net OpCode value for this packet module.
 
-    The OpCode is `#{Docs.op_code_value(module)}`.
+    The OpCode is `#{Docs.op_code_value(op_code)}`.
     """
   end
 
   defmacro __def_header__(opts) do
     quote bind_quoted: [opts: opts] do
+      {op_code_name, op_code} =
+        opts
+        |> Keyword.fetch!(:op_code)
+        |> ArtNet.Packet.Schema.__validate_op_code__()
+
+      Module.put_attribute(__MODULE__, :op_code_name, op_code_name)
+      Module.put_attribute(__MODULE__, :op_code, op_code)
+
       require_version_header? = Keyword.get(opts, :require_version_header?, true)
       Module.put_attribute(__MODULE__, :require_version_header?, require_version_header?)
     end

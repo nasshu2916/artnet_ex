@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtTimeSync do
 
   # The current Art-Net 4 specification does not define OpTimeSync payload fields,
   # so keep any trailing bytes as an opaque payload.
-  defpacket do
+  defpacket op_code: {:op_time_sync, 0x9800} do
     field(:payload, {:binary, nil},
       default: <<>>,
       description: "Optional time synchronization payload bytes."

@@ -7,6 +7,6 @@ defmodule ArtNet.Packet.ArtMacSlave do
 
   use ArtNet.Packet.Schema
 
-  defpacket do
+  defpacket op_code: {:op_mac_slave, 0xF100} do
   end
 end

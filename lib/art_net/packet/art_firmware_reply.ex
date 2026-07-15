@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtFirmwareReply do
 
   alias ArtNet.Packet.EnumTable
 
-  defpacket do
+  defpacket op_code: {:op_firmware_reply, 0xF300} do
     field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
     field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
 

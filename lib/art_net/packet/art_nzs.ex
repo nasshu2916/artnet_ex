@@ -9,7 +9,7 @@ defmodule ArtNet.Packet.ArtNzs do
 
   use ArtNet.Packet.Schema
 
-  defpacket do
+  defpacket op_code: {:op_nzs, 0x5100} do
     field(:sequence, {:integer, 8},
       default: 0,
       description: "Packet sequence number, or 0 to disable sequence checking."

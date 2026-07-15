@@ -9,46 +9,51 @@ defmodule ArtNet.OpCode do
 
   alias ArtNet.Packet
 
-  # Define the op codes for the Art-Net protocol
-  @op_code_config %{
-    op_poll: {0x2000, Packet.ArtPoll},
-    op_poll_reply: {0x2100, Packet.ArtPollReply},
-    op_diag_data: {0x2300, Packet.ArtDiagData},
-    op_command: {0x2400, Packet.ArtCommand},
-    op_data_request: {0x2700, Packet.ArtDataRequest},
-    op_data_reply: {0x2800, Packet.ArtDataReply},
-    op_dmx: {0x5000, Packet.ArtDmx},
-    op_nzs: {0x5100, Packet.ArtNzs},
-    op_sync: {0x5200, Packet.ArtSync},
-    op_address: {0x6000, Packet.ArtAddress},
-    op_input: {0x7000, Packet.ArtInput},
-    op_tod_request: {0x8000, Packet.ArtTodRequest},
-    op_tod_data: {0x8100, Packet.ArtTodData},
-    op_tod_control: {0x8200, Packet.ArtTodControl},
-    op_rdm: {0x8300, Packet.ArtRdm},
-    op_rdm_sub: {0x8400, Packet.ArtRdmSub},
-    op_media: {0x9000, Packet.ArtMedia},
-    op_media_patch: {0x9100, Packet.ArtMediaPatch},
-    op_media_control: {0x9200, Packet.ArtMediaControl},
-    op_media_control_reply: {0x9300, Packet.ArtMediaControlReply},
-    op_time_code: {0x9700, Packet.ArtTimeCode},
-    op_time_sync: {0x9800, Packet.ArtTimeSync},
-    op_trigger: {0x9900, Packet.ArtTrigger},
-    op_directory: {0x9A00, Packet.ArtDirectory},
-    op_directory_reply: {0x9B00, Packet.ArtDirectoryReply},
-    op_video_setup: {0xA010, Packet.ArtVideoSetup},
-    op_video_palette: {0xA020, Packet.ArtVideoPalette},
-    op_video_data: {0xA040, Packet.ArtVideoData},
-    op_mac_master: {0xF000, Packet.ArtMacMaster},
-    op_mac_slave: {0xF100, Packet.ArtMacSlave},
-    op_firmware_master: {0xF200, Packet.ArtFirmwareMaster},
-    op_firmware_reply: {0xF300, Packet.ArtFirmwareReply},
-    op_file_tn_master: {0xF400, Packet.ArtFileTnMaster},
-    op_file_fn_master: {0xF500, Packet.ArtFileFnMaster},
-    op_file_fn_reply: {0xF600, Packet.ArtFileFnReply},
-    op_ip_prog: {0xF800, Packet.ArtIpProg},
-    op_ip_prog_reply: {0xF900, Packet.ArtIpProgReply}
-  }
+  @packet_modules [
+    Packet.ArtPoll,
+    Packet.ArtPollReply,
+    Packet.ArtDiagData,
+    Packet.ArtCommand,
+    Packet.ArtDataRequest,
+    Packet.ArtDataReply,
+    Packet.ArtDmx,
+    Packet.ArtNzs,
+    Packet.ArtSync,
+    Packet.ArtAddress,
+    Packet.ArtInput,
+    Packet.ArtTodRequest,
+    Packet.ArtTodData,
+    Packet.ArtTodControl,
+    Packet.ArtRdm,
+    Packet.ArtRdmSub,
+    Packet.ArtMedia,
+    Packet.ArtMediaPatch,
+    Packet.ArtMediaControl,
+    Packet.ArtMediaControlReply,
+    Packet.ArtTimeCode,
+    Packet.ArtTimeSync,
+    Packet.ArtTrigger,
+    Packet.ArtDirectory,
+    Packet.ArtDirectoryReply,
+    Packet.ArtVideoSetup,
+    Packet.ArtVideoPalette,
+    Packet.ArtVideoData,
+    Packet.ArtMacMaster,
+    Packet.ArtMacSlave,
+    Packet.ArtFirmwareMaster,
+    Packet.ArtFirmwareReply,
+    Packet.ArtFileTnMaster,
+    Packet.ArtFileFnMaster,
+    Packet.ArtFileFnReply,
+    Packet.ArtIpProg,
+    Packet.ArtIpProgReply
+  ]
+
+  @op_code_config Map.new(@packet_modules, fn packet_module ->
+                    Code.ensure_compiled!(packet_module)
+                    {name, code} = packet_module.__op_code__()
+                    {name, {code, packet_module}}
+                  end)
 
   # Define the op codes as atoms
   @op_codes Map.keys(@op_code_config)

@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtTodControl do
 
   alias ArtNet.Packet.EnumTable
 
-  defpacket do
+  defpacket op_code: {:op_tod_control, 0x8200} do
     field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
     field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
 

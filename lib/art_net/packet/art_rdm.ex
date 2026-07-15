@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtRdm do
 
   alias ArtNet.Packet.EnumTable
 
-  defpacket do
+  defpacket op_code: {:op_rdm, 0x8300} do
     field(:rdm_version, {:integer, 8}, default: 1, description: "RDM protocol version.")
     field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
 

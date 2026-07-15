@@ -23,8 +23,9 @@ defmodule ArtNet.Packet.Schema.Docs do
     |> Enum.join("\n\n")
   end
 
-  @spec packet_layout_table(module, packet_schema(), Keyword.t(), [atom], boolean) :: String.t()
-  def packet_layout_table(module, schema, fields, enforce_keys, require_version_header?) do
+  @spec packet_layout_table(pos_integer, packet_schema(), Keyword.t(), [atom], boolean) ::
+          String.t()
+  def packet_layout_table(op_code, schema, fields, enforce_keys, require_version_header?) do
     header_rows =
       [
         ["Header", "`id`", "", "fixed", "8 bytes", "`\"Art-Net\\\\0\"`"],
@@ -32,7 +33,7 @@ defmodule ArtNet.Packet.Schema.Docs do
           "Header",
           "`op_code`",
           "",
-          "`#{op_code_value(module)}`",
+          "`#{op_code_value(op_code)}`",
           "2 bytes",
           "little-endian OpCode"
         ]
@@ -91,12 +92,8 @@ defmodule ArtNet.Packet.Schema.Docs do
     markdown_table(["Field", "Description", "Bits", "Default", "Value"], rows)
   end
 
-  @spec op_code_value(module) :: String.t()
-  def op_code_value(module) do
-    module
-    |> ArtNet.OpCode.op_code()
-    |> inspect(base: :hex)
-  end
+  @spec op_code_value(pos_integer) :: String.t()
+  def op_code_value(op_code), do: inspect(op_code, base: :hex)
 
   defp version_header_rows(true),
     do: [["Header", "`prot_ver`", "", "`14`", "2 bytes", "protocol version"]]
