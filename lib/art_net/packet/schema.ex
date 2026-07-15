@@ -13,7 +13,7 @@ defmodule ArtNet.Packet.Schema do
 
     alias ArtNet.Packet.{BitField, EnumTable}
 
-    defpacket op_code: {:op_poll, 0x2000} do
+    defpacket op_code: 0x2000 do
       field(:talk_to_me, {:bit_field, BitField.TalkToMe})
       field(:priority, {:enum_table, EnumTable.Priority}, default: :dp_all)
       field(:target_port_address_top, {:integer, 16}, default: 0)
@@ -178,15 +178,28 @@ defmodule ArtNet.Packet.Schema do
   end
 
   @doc false
-  @spec __validate_op_code__(term) :: {atom, pos_integer}
-  def __validate_op_code__({name, value})
-      when is_atom(name) and is_integer(value) and value > 0 and value <= 0xFFFF do
-    {name, value}
+  @spec __validate_op_code__(module, term) :: {atom, pos_integer}
+  def __validate_op_code__(module, value)
+      when is_atom(module) and is_integer(value) and value > 0 and value <= 0xFFFF do
+    {__op_code_name__(module), value}
   end
 
-  def __validate_op_code__(op_code) do
+  def __validate_op_code__(_module, op_code) do
     raise ArgumentError,
-          ":op_code must be an {atom, 16-bit positive integer} tuple, got: #{inspect(op_code)}"
+          ":op_code must be a 16-bit positive integer, got: #{inspect(op_code)}"
+  end
+
+  @doc false
+  @spec __op_code_name__(module) :: atom
+  def __op_code_name__(module) do
+    case Module.split(module) do
+      ["ArtNet", "Packet", "Art" <> packet_name] when packet_name != "" ->
+        String.to_atom("op_" <> Macro.underscore(packet_name))
+
+      _ ->
+        raise ArgumentError,
+              "packet module must be named ArtNet.Packet.Art*, got: #{inspect(module)}"
+    end
   end
 
   @doc false
@@ -236,8 +249,8 @@ defmodule ArtNet.Packet.Schema do
 
   ## Options
 
-    * `:op_code` - required `{name, value}` tuple for the packet's public
-      OpCode atom and positive integer wire value.
+    * `:op_code` - required positive integer wire value. The public OpCode atom
+      is derived from the packet module name, such as `ArtDmx` to `:op_dmx`.
     * `:require_version_header?` - controls whether `ArtNet.Packet` expects the
       protocol version header before this packet's payload. Defaults to `true`.
   """
@@ -394,7 +407,7 @@ defmodule ArtNet.Packet.Schema do
       {op_code_name, op_code} =
         opts
         |> Keyword.fetch!(:op_code)
-        |> ArtNet.Packet.Schema.__validate_op_code__()
+        |> then(&ArtNet.Packet.Schema.__validate_op_code__(__MODULE__, &1))
 
       Module.put_attribute(__MODULE__, :op_code_name, op_code_name)
       Module.put_attribute(__MODULE__, :op_code, op_code)

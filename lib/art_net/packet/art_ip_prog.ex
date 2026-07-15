@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtIpProg do
 
   alias ArtNet.Packet.BitField
 
-  defpacket op_code: {:op_ip_prog, 0xF800} do
+  defpacket op_code: 0xF800 do
     field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
     field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
 

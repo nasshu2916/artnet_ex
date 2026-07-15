@@ -7,7 +7,7 @@ defmodule ArtNet.Packet.ArtDataReply do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_data_reply, 0x2800} do
+  defpacket op_code: 0x2800 do
     field(:esta_manufacturer, {:integer, 16},
       description: "ESTA manufacturer code associated with the data reply."
     )

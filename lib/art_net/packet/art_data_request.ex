@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtDataRequest do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_data_request, 0x2700} do
+  defpacket op_code: 0x2700 do
     field(:esta_manufacturer, {:integer, 16},
       description: "ESTA manufacturer code for the requested data."
     )

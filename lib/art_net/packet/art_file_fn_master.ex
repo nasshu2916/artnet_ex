@@ -7,6 +7,6 @@ defmodule ArtNet.Packet.ArtFileFnMaster do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_file_fn_master, 0xF500} do
+  defpacket op_code: 0xF500 do
   end
 end

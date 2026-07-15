@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtSync do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_sync, 0x5200} do
+  defpacket op_code: 0x5200 do
     field(:aux1, {:integer, 8},
       default: 0,
       description: "Reserved auxiliary byte, transmitted as zero."

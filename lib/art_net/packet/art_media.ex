@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtMedia do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_media, 0x9000} do
+  defpacket op_code: 0x9000 do
     field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
     field(:filler2, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
     field(:filler3, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")

@@ -7,6 +7,6 @@ defmodule ArtNet.Packet.ArtMacMaster do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_mac_master, 0xF000} do
+  defpacket op_code: 0xF000 do
   end
 end

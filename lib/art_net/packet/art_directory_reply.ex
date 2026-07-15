@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtDirectoryReply do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_directory_reply, 0x9B00} do
+  defpacket op_code: 0x9B00 do
     field(:filler, {:binary, 2},
       default: <<0::size(16)>>,
       description: "Reserved bytes, transmitted as zero."

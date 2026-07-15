@@ -7,7 +7,7 @@ defmodule ArtNet.Packet.ArtInput do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_input, 0x7000} do
+  defpacket op_code: 0x7000 do
     field(:filler1, {:integer, 8}, default: 0, description: "Reserved byte, transmitted as zero.")
 
     field(:bind_index, {:integer, 8},

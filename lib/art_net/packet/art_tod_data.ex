@@ -10,7 +10,7 @@ defmodule ArtNet.Packet.ArtTodData do
 
   alias ArtNet.Packet.EnumTable
 
-  defpacket op_code: {:op_tod_data, 0x8100} do
+  defpacket op_code: 0x8100 do
     field(:rdm_version, {:integer, 8}, default: 1, description: "RDM protocol version.")
     field(:port, {:integer, 8}, description: "Physical port number for the table of devices.")
 

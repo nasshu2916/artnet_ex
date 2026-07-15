@@ -8,7 +8,7 @@ defmodule ArtNet.Packet.ArtDmx do
 
   use ArtNet.Packet.Schema
 
-  defpacket op_code: {:op_dmx, 0x5000} do
+  defpacket op_code: 0x5000 do
     field(:sequence, {:integer, 8},
       default: 0,
       description: "Packet sequence number, or 0 to disable sequence checking."
