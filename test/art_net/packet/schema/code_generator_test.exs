@@ -74,6 +74,48 @@ defmodule ArtNet.Packet.Schema.CodeGeneratorTest do
     Generator.generate([value: {{:integer, 16}, []}], pre_decode_defined?: true)
   end
 
+  defmodule VariableBinaryPacket do
+    @behaviour ArtNet.Packet.Schema
+
+    require Generator
+
+    defstruct [:payload]
+
+    @type t :: %__MODULE__{payload: binary}
+
+    @impl ArtNet.Packet.Schema
+    def validate(_), do: :ok
+
+    @impl ArtNet.Packet.Schema
+    def validate_decode(packet), do: validate(packet)
+
+    @impl ArtNet.Packet.Schema
+    def validate_encode(packet), do: validate(packet)
+
+    Generator.generate([payload: {{:binary, nil}, []}], pre_decode_defined?: false)
+  end
+
+  defmodule VariableStringPacket do
+    @behaviour ArtNet.Packet.Schema
+
+    require Generator
+
+    defstruct [:message]
+
+    @type t :: %__MODULE__{message: String.t()}
+
+    @impl ArtNet.Packet.Schema
+    def validate(_), do: :ok
+
+    @impl ArtNet.Packet.Schema
+    def validate_decode(packet), do: validate(packet)
+
+    @impl ArtNet.Packet.Schema
+    def validate_encode(packet), do: validate(packet)
+
+    Generator.generate([message: {{:string, nil}, []}], pre_decode_defined?: false)
+  end
+
   test "generates default pre_decode when the packet does not define one" do
     assert GeneratedPacket.pre_decode(<<1, 2>>) == <<1, 2>>
   end
@@ -138,5 +180,27 @@ defmodule ArtNet.Packet.Schema.CodeGeneratorTest do
   test "uses a packet-defined pre_decode when one exists" do
     assert PreDecodedPacket.pre_decode(<<5>>) == <<0, 5>>
     assert PreDecodedPacket.__decode_body__(<<5>>) == {:ok, %PreDecodedPacket{value: 5}}
+  end
+
+  test "generated decode body consumes all remaining bytes for a variable-length binary" do
+    assert VariableBinaryPacket.__decode_body__(<<0xAA, 0xBB, 0xCC>>) ==
+             {:ok, %VariableBinaryPacket{payload: <<0xAA, 0xBB, 0xCC>>}}
+  end
+
+  test "generated encode body preserves a variable-length binary" do
+    packet = %VariableBinaryPacket{payload: <<0xAA, 0xBB, 0xCC>>}
+
+    assert VariableBinaryPacket.__encode_body__(packet) == {:ok, <<0xAA, 0xBB, 0xCC>>}
+  end
+
+  test "generated decode body consumes all remaining bytes for a variable-length string" do
+    assert VariableStringPacket.__decode_body__(<<"Art-Net", 0, 0>>) ==
+             {:ok, %VariableStringPacket{message: "Art-Net"}}
+  end
+
+  test "generated encode body preserves a variable-length string" do
+    packet = %VariableStringPacket{message: "Art-Net"}
+
+    assert VariableStringPacket.__encode_body__(packet) == {:ok, "Art-Net"}
   end
 end
