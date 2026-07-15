@@ -45,6 +45,7 @@ defmodule ArtNet.MixProject do
         "livebook/files",
         "mix.exs",
         "README.md",
+        "CHANGELOG.md",
         "LICENSE"
       ],
       licenses: ["MIT"],
@@ -63,11 +64,12 @@ defmodule ArtNet.MixProject do
       source_ref: "main",
       extras: [
         "README.md",
+        "CHANGELOG.md",
         "livebook/artnet_sample.livemd",
         {:LICENSE, [title: "License (MIT)"]}
       ],
       groups_for_extras: [
-        Guides: ["README.md", "livebook/artnet_sample.livemd"],
+        Guides: ["README.md", "CHANGELOG.md", "livebook/artnet_sample.livemd"],
         Legal: ["LICENSE"]
       ],
       groups_for_modules: [
