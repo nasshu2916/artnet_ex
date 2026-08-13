@@ -7,30 +7,52 @@
     ":maintainLockFilesWeekly",
     ":timezone(Asia/Tokyo)"
   ],
+  "dependencyDashboardTitle": "Dependency Dashboard",
   "internalChecksFilter": "strict",
   "minimumReleaseAge": "7 days",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Extract Elixir's otp suffix as a synthetic Erlang/OTP dependency.",
+      "managerFilePatterns": [
+        "/^mise\\.toml$/"
+      ],
+      "matchStrings": [
+        "elixir\\s*=\\s*\"\\d+\\.\\d+\\.\\d+-otp-(?<currentValue>\\d+)\""
+      ],
+      "depNameTemplate": "erlang-otp",
+      "packageNameTemplate": "erlang/otp",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^OTP-(?<version>\\d+)\\.",
+      "versioningTemplate": "regex:^(?<major>\\d+)$"
+    }
+  ],
   "packageRules": [
     {
+      "description": "Group non-major linter updates together.",
       "extends": [
         "packages:linters"
       ],
+      "groupName": "linters",
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "groupName": "linters"
+      ]
     },
     {
+      "description": "Group non-major test dependency updates together.",
       "extends": [
         "packages:test"
       ],
+      "groupName": "test packages",
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "groupName": "test packages"
+      ]
     },
     {
+      "description": "Parse and group Elixir mise versions with their otp suffix.",
+      "groupName": "Elixir/Erlang/OTP runtime",
       "matchManagers": [
         "mise"
       ],
@@ -40,15 +62,34 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>otp-\\d+)$"
     },
     {
+      "description": "Group Erlang major updates with Elixir's otp suffix major update.",
+      "groupName": "Elixir/Erlang/OTP runtime",
       "matchManagers": [
-        "mise"
+        "mise",
+        "custom.regex"
       ],
       "matchPackageNames": [
-        "elixir",
-        "erlang"
+        "erlang",
+        "erlang/otp"
       ],
-      "groupName": "Elixir and Erlang/OTP",
+      "matchUpdateTypes": [
+        "major"
+      ],
       "minimumGroupSize": 2
+    },
+    {
+      "description": "Group non-major development-only Mix dependency updates.",
+      "groupName": "dev dependencies",
+      "matchDepTypes": [
+        "dev"
+      ],
+      "matchManagers": [
+        "mix"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
     }
   ]
 }
