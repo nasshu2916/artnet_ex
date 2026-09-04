@@ -32,7 +32,7 @@ jobs:
           - elixir: '1.19.5'
             otp: '28'
           # renovate: elixir-runtime
-          - elixir: '1.20.3'
+          - elixir: '1.20.4'
             # renovate: erlang-otp-runtime
             otp: '29'
 
