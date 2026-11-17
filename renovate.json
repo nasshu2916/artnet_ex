@@ -7,7 +7,9 @@
     ":maintainLockFilesWeekly",
     ":timezone(Asia/Tokyo)"
   ],
-  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboard": {
+    "title": "Dependency Dashboard"
+  },
   "internalChecksFilter": "strict",
   "minimumReleaseAge": "7 days",
   "customManagers": [
